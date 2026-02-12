@@ -11,21 +11,80 @@ public abstract class User {
     private Long id;
     @Column(unique = true)
     private String email;
-    @Column
-    private String password; // null si OAuth
+    private String password;
     @Column(name = "firebase_uid", unique = true)
     private String firebaseUid; // UID Firebase
     @Column(name = "full_name")
     private String fullName;
-    @Column(name = "photo_url")
-    private String photoUrl;
     @Enumerated(EnumType.STRING)
     private Role role; // CLIENT, CHAUFFEUR
 
-    @Column(name = "is_verified")
+    @Column(name = "is_verified",nullable = false)
     private Boolean isVerified = false;
-
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", nullable = false,updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+    @PrePersist
+    protected void onCreate (){
+        createdAt=LocalDateTime.now();
+    }
+    public Long getId() {
+        return id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getFirebaseUid() {
+        return firebaseUid;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public Boolean getIsVerified() {
+        return isVerified;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setFirebaseUid(String firebaseUid) {
+        this.firebaseUid = firebaseUid;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public void setIsVerified(Boolean verified) {
+        isVerified = verified;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }
 
