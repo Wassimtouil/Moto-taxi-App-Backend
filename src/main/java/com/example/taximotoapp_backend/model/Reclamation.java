@@ -14,6 +14,10 @@ public class Reclamation {
     private String objet;
     private String message;
     private LocalDate dateReclamation;
+    @PrePersist
+    void onCreate (){
+        dateReclamation=LocalDate.now();
+    }
     @ManyToOne
     @JoinColumn(name = "user_id",nullable = false)
     private User user;
@@ -38,4 +42,15 @@ public class Reclamation {
         return user;
     }
 
+    public void setObjet(String objet) {
+        this.objet = objet;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }
