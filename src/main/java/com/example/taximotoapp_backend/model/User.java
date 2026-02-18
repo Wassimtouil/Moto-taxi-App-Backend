@@ -1,8 +1,10 @@
 package com.example.taximotoapp_backend.model;
 
+import com.example.taximotoapp_backend.model.enumClass.Gender;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -20,8 +22,15 @@ public abstract class User {
     @Enumerated(EnumType.STRING)
     private Role role; // CLIENT, CHAUFFEUR
 
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
     @Column(name = "is_verified",nullable = false)
     private Boolean isVerified = false;
+
+    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
+    private List<Reclamation> reclamations;
+
     @Column(name = "created_at", nullable = false,updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
     @PrePersist
@@ -47,7 +56,6 @@ public abstract class User {
     public String getFullName() {
         return fullName;
     }
-
     public Role getRole() {
         return role;
     }
