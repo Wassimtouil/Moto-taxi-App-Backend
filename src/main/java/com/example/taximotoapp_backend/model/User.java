@@ -1,6 +1,7 @@
 package com.example.taximotoapp_backend.model;
 
 import com.example.taximotoapp_backend.model.enumClass.Gender;
+import com.example.taximotoapp_backend.model.enumClass.Role;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;

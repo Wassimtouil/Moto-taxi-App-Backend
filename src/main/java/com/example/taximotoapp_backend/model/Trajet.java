@@ -3,7 +3,6 @@ package com.example.taximotoapp_backend.model;
 import com.example.taximotoapp_backend.model.enumClass.TripStatus;
 import com.example.taximotoapp_backend.model.enumClass.TripType;
 import jakarta.persistence.*;
-import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 
@@ -48,6 +47,9 @@ public class Trajet {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TripStatus status;
+
+    @OneToOne(mappedBy = "trajet",cascade = CascadeType.ALL)
+    private Chat chat;
 
     @Column(name = "requested_at")
     private LocalDateTime requestedAt;
