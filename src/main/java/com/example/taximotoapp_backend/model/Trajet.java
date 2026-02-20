@@ -52,7 +52,7 @@ public class Trajet {
     @Column(name = "requested_at")
     private LocalDateTime requestedAt;
     @PrePersist
-    void onCreate(){
+    protected void onCreate(){
         requestedAt = LocalDateTime.now();
         status=TripStatus.Created;
     }

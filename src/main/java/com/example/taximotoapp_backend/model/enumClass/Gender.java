@@ -1,2 +1,6 @@
-package com.example.taximotoapp_backend.model.enumClass;public enum Gender {
+package com.example.taximotoapp_backend.model.enumClass;
+
+public enum Gender {
+    male,
+    female
 }
