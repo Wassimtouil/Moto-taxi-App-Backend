@@ -39,7 +39,7 @@ public class Trajet {
     private Double destinationLongitude;
 
     @Column(name = "distance_km")
-    private Double distanceKm;
+    private Double distancKm;
 
     @Column(name = "price")
     private Double price;
