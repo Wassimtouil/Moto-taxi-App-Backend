@@ -1,10 +1,9 @@
 package com.example.taximotoapp_backend.model;
 
+import com.example.taximotoapp_backend.User.model.User;
 import jakarta.persistence.*;
-import org.springframework.context.annotation.EnableMBeanExport;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 public class Reclamation {

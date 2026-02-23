@@ -1,5 +1,7 @@
 package com.example.taximotoapp_backend.model;
 
+import com.example.taximotoapp_backend.User.model.Chauffeur;
+import com.example.taximotoapp_backend.User.model.Client;
 import com.example.taximotoapp_backend.model.enumClass.TripStatus;
 import com.example.taximotoapp_backend.model.enumClass.TripType;
 import jakarta.persistence.*;
@@ -39,7 +41,7 @@ public class Trajet {
     private Double destinationLongitude;
 
     @Column(name = "distance_km")
-    private Double distancKm;
+    private Double distanceKm;
 
     @Column(name = "price")
     private Double price;

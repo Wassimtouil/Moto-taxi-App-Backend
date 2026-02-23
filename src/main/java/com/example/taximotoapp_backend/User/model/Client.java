@@ -1,5 +1,6 @@
-package com.example.taximotoapp_backend.model;
+package com.example.taximotoapp_backend.User.model;
 
+import com.example.taximotoapp_backend.model.Trajet;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;

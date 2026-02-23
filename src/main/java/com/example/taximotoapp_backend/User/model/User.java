@@ -1,5 +1,6 @@
-package com.example.taximotoapp_backend.model;
+package com.example.taximotoapp_backend.User.model;
 
+import com.example.taximotoapp_backend.model.Reclamation;
 import com.example.taximotoapp_backend.model.enumClass.Gender;
 import com.example.taximotoapp_backend.model.enumClass.Role;
 import jakarta.persistence.*;
