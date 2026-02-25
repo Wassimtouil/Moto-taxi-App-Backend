@@ -23,6 +23,14 @@ public class SecurityConfig {
                         // Role CLIENT
                         .requestMatchers("/api/trajets/**").hasRole("CLIENT")
 
+                        // Swagger endpoints
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/webjars/**"
+                        ).permitAll()
+
                         // Role CHAUFFEUR
                         .requestMatchers("/api/chauffeur/**").hasRole("CHAUFFEUR")
 

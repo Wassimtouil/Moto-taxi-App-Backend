@@ -11,6 +11,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @RequiredArgsConstructor
 @Service
 public class AuthService {
@@ -28,14 +30,18 @@ public class AuthService {
                     .orElseThrow(() -> new RuntimeException("OAuth user not found"));
         } else {
             // Login classique
+            Optional<User> optionalUser = userRepository.findByEmail(request.getEmail());
+            if (optionalUser.isEmpty()) {
+                throw new RuntimeException("User not found");
+            }
+            user = optionalUser.get();
+            // Vérification du mot de passe
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             request.getEmail(),
                             request.getPassword()
                     )
             );
-            user = userRepository.findByEmail(request.getEmail())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
         }
         String token = jwtService.generateToken(user);
         return new AuthResponse(token, user.getFullName(), user.getEmail(), user.getRole().name());
