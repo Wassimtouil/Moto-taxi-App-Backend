@@ -1,9 +1,13 @@
 package com.example.taximotoapp_backend.Authentification.service;
 
 import com.example.taximotoapp_backend.Authentification.dto.LoginRequest;
+import com.example.taximotoapp_backend.Authentification.dto.RegisterRequest;
 import com.example.taximotoapp_backend.Authentification.response.AuthResponse;
+import com.example.taximotoapp_backend.User.model.Chauffeur;
+import com.example.taximotoapp_backend.User.model.Client;
 import com.example.taximotoapp_backend.User.model.User;
 import com.example.taximotoapp_backend.User.repository.UserRepository;
+import com.example.taximotoapp_backend.model.enumClass.Role;
 import com.example.taximotoapp_backend.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -43,6 +47,33 @@ public class AuthService {
                     )
             );
         }
+        String token = jwtService.generateToken(user);
+        return new AuthResponse(token, user.getFullName(), user.getEmail(), user.getRole().name());
+    }
+
+    public AuthResponse register(RegisterRequest request){
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email already in use");
+        }
+        Role role;
+        try {
+            role = Role.valueOf(request.getRole().toUpperCase());
+        }catch (IllegalArgumentException e){
+            throw new RuntimeException("Invalid role. Must be CLIENT or CHAUFFEUR");
+        }
+        User user;
+        if (role == Role.CLIENT){
+            user = new Client();
+        }else {
+            user = new Chauffeur();
+        }
+        user.setFullName(request.getFullName());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(role);
+        user.setIsVerified(true);
+        user.setFirebaseUid(request.getFirebaseUid());
+        userRepository.save(user);
         String token = jwtService.generateToken(user);
         return new AuthResponse(token, user.getFullName(), user.getEmail(), user.getRole().name());
     }
