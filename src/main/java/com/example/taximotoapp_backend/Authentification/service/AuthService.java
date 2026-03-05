@@ -7,6 +7,7 @@ import com.example.taximotoapp_backend.User.model.Chauffeur;
 import com.example.taximotoapp_backend.User.model.Client;
 import com.example.taximotoapp_backend.User.model.User;
 import com.example.taximotoapp_backend.User.repository.UserRepository;
+import com.example.taximotoapp_backend.model.enumClass.Gender;
 import com.example.taximotoapp_backend.model.enumClass.Role;
 import com.example.taximotoapp_backend.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -61,6 +62,12 @@ public class AuthService {
         }catch (IllegalArgumentException e){
             throw new RuntimeException("Invalid role. Must be CLIENT or CHAUFFEUR");
         }
+        Gender gender;
+        try{
+            gender=Gender.valueOf(request.getGender().toUpperCase());
+        }catch (IllegalArgumentException e){
+            throw new RuntimeException("Invalid role. Must be female or male");
+        }
         User user;
         if (role == Role.CLIENT){
             user = new Client();
@@ -71,6 +78,7 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(role);
+        user.setGender(gender);
         user.setIsVerified(true);
         user.setFirebaseUid(request.getFirebaseUid());
         userRepository.save(user);

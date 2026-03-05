@@ -102,6 +102,13 @@ public abstract class User implements UserDetails {
         this.createdAt = createdAt;
     }
 
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+    public Gender getGender() {
+        return gender;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
