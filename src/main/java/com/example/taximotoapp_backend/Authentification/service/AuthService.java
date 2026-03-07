@@ -66,7 +66,7 @@ public class AuthService {
         try{
             gender=Gender.valueOf(request.getGender().toUpperCase());
         }catch (IllegalArgumentException e){
-            throw new RuntimeException("Invalid role. Must be female or male");
+            throw new RuntimeException("Invalid gender. Must be female or male");
         }
         User user;
         if (role == Role.CLIENT){

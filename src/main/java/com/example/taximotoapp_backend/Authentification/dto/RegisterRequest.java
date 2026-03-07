@@ -9,5 +9,5 @@ public class RegisterRequest {
     private String password;
     private String role; // CLIENT ou CHAUFFEUR
     private String firebaseUid; // facultatif
-    private String gender; // femme ou homme
+    private String gender;
 }

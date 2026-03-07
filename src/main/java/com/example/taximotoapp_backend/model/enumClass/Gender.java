@@ -1,6 +1,6 @@
 package com.example.taximotoapp_backend.model.enumClass;
 
 public enum Gender {
-    male,
-    female
+    MALE, //test majuscule
+    FEMALE
 }

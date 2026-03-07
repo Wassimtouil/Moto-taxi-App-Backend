@@ -65,6 +65,10 @@ public abstract class User implements UserDetails {
     public Role getRole() {
         return role;
     }
+    public Gender getGender() {
+        return gender;
+    }
+
 
     public Boolean getIsVerified() {
         return isVerified;
@@ -105,9 +109,7 @@ public abstract class User implements UserDetails {
     public void setGender(Gender gender) {
         this.gender = gender;
     }
-    public Gender getGender() {
-        return gender;
-    }
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
