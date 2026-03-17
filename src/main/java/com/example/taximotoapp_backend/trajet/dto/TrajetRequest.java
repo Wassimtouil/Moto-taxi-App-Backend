@@ -1,5 +1,6 @@
 package com.example.taximotoapp_backend.trajet.dto;
 
+import com.example.taximotoapp_backend.model.enumClass.TripStatus;
 import lombok.Data;
 
 @Data
@@ -9,4 +10,5 @@ public class TrajetRequest {
     private Double pickupLongitude;
     private Double destinationLatitude;
     private Double destinationLongitude;
+    private TripStatus status;
 }
