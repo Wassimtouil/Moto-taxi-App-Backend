@@ -1,5 +1,6 @@
 package com.example.taximotoapp_backend.trajet.service;
 
+import com.example.taximotoapp_backend.User.model.Chauffeur;
 import com.example.taximotoapp_backend.User.model.Client;
 import com.example.taximotoapp_backend.User.model.User;
 import com.example.taximotoapp_backend.User.repository.UserRepository;
@@ -26,10 +27,8 @@ public class TrajetService {
         // recuperer user a travers le jwt
         String email= SecurityContextHolder.getContext().getAuthentication().getName();
         User client = userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("client not found"));
-
         //mapping request -> entity
         Trajet trajet = trajetMapper.toEntity(trajetRequest);
-
         // calcul distance
         double distance = calculateDistance(
                 trajetRequest.getPickupLatitude(),
@@ -46,6 +45,74 @@ public class TrajetService {
 
         return trajetMapper.toDTO(trajetRepository.save(trajet));
     }
+
+    public TrajetResponse acceptTrajet(Long trajetId){
+        String email= SecurityContextHolder.getContext().getAuthentication().getName();
+        User Chauffeur= userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("Chauffeur not found"));
+        Trajet trajet = trajetRepository.findById(trajetId)
+                .orElseThrow(() -> new RuntimeException("trajet not found"));
+        if (trajet.getStatus() != TripStatus.Created){
+            new RuntimeException("trajet deja pris");
+        }
+        trajet.setChauffeur((Chauffeur) Chauffeur);
+        trajet.setStatus(TripStatus.Accepted);
+        return trajetMapper.toDTO(trajetRepository.save(trajet));
+    }
+
+    public TrajetResponse startTrajet(Long trajetId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User chauffeur = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("chauffeur not found"));
+
+        Trajet trajet = trajetRepository.findById(trajetId)
+                .orElseThrow(() -> new RuntimeException("trajet not found"));
+
+        if (trajet.getStatus() != TripStatus.Accepted) {
+            throw new RuntimeException("Trajet déjà pris ou non disponible");
+        }
+        trajet.setChauffeur((Chauffeur) chauffeur);
+        trajet.setStatus(TripStatus.Started);
+        return trajetMapper.toDTO(trajetRepository.save(trajet));
+    }
+
+    public TrajetResponse terminerTrajet(Long trajetId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User chauffeur = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("chauffeur not found"));
+
+        Trajet trajet = trajetRepository.findById(trajetId)
+                .orElseThrow(() -> new RuntimeException("trajet not found"));
+
+        if (trajet.getChauffeur() == null || !trajet.getChauffeur().getId().equals(chauffeur.getId())) {
+            throw new RuntimeException("Ce trajet ne t'appartient pas");
+        }
+
+        if (trajet.getStatus() != TripStatus.Started) {
+            throw new RuntimeException("Le trajet n'est pas en cours");
+        }
+        trajet.setStatus(TripStatus.Completed);
+        return trajetMapper.toDTO(trajetRepository.save(trajet));
+    }
+
+    public TrajetResponse annulerTrajet(Long trajetId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User client = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("client not found"));
+
+        Trajet trajet = trajetRepository.findById(trajetId)
+                .orElseThrow(() -> new RuntimeException("trajet not found"));
+
+        if (!trajet.getClient().getId().equals(client.getId())) {
+            throw new RuntimeException("Ce trajet ne t'appartient pas");
+        }
+
+        if (trajet.getStatus() == TripStatus.Completed) {
+            throw new RuntimeException("Impossible d'annuler un trajet terminé");
+        }
+        trajet.setStatus(TripStatus.Canceled);
+        return trajetMapper.toDTO(trajetRepository.save(trajet));
+    }
+
 
     public double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
         final int R = 6371;
