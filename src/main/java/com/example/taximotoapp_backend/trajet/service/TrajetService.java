@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -125,5 +126,17 @@ public class TrajetService {
                 * Math.sin(lonDistance / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
+    }
+
+    public TrajetResponse getTrajetById(Long id){
+        Trajet trajet = trajetRepository.findById(id).orElseThrow(() -> new RuntimeException("trajet not found"));
+        return trajetMapper.toDTO(trajet);
+    }
+
+    public List<TrajetResponse> getAvailableTrajets() {
+        return trajetRepository.findByStatus(TripStatus.Created)
+                .stream()
+                .map(trajetMapper::toDTO)
+                .toList();
     }
 }

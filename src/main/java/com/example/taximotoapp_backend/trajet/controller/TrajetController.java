@@ -8,10 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -32,4 +29,52 @@ public class TrajetController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         }
     }
+
+    @PostMapping("/cancel/{id}")
+    @PreAuthorize("hasRole('CLIENT')")
+    public ResponseEntity<?> cancelTrajet(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(trajetService.annulerTrajet(id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/accept/{id}")
+    @PreAuthorize("hasRole('CHAUFFEUR')")
+    public ResponseEntity<?> acceptTrajet(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(trajetService.acceptTrajet(id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/start/{id}")
+    @PreAuthorize("hasRole('CHAUFFEUR')")
+    public ResponseEntity<?> startTrajet(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(trajetService.startTrajet(id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/end/{id}")
+    @PreAuthorize("hasRole('CHAUFFEUR')")
+    public ResponseEntity<?> endTrajet(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(trajetService.terminerTrajet(id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("errror", e.getMessage()));
+        }
+    }
+
+
+
+
 }
