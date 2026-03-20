@@ -114,7 +114,6 @@ public class TrajetService {
         return trajetMapper.toDTO(trajetRepository.save(trajet));
     }
 
-
     public double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
         final int R = 6371;
         double latDistance = Math.toRadians(lat2 - lat1);
@@ -129,7 +128,15 @@ public class TrajetService {
     }
 
     public TrajetResponse getTrajetById(Long id){
+        String email=SecurityContextHolder.getContext().getAuthentication().getName();
+        User user=userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
         Trajet trajet = trajetRepository.findById(id).orElseThrow(() -> new RuntimeException("trajet not found"));
+        //verification coté securité
+        Boolean isClient=trajet.getClient().getId().equals(user.getId());
+        Boolean isChauffeur=trajet.getChauffeur()!=null && trajet.getChauffeur().getId().equals(user.getId());
+        if (!isChauffeur && !isClient){
+            throw new RuntimeException("Access denied");
+        }
         return trajetMapper.toDTO(trajet);
     }
 
