@@ -74,7 +74,15 @@ public class TrajetController {
         }
     }
 
-
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/getTrajetById/{id}")
+    public ResponseEntity<?> getTrajetById(@PathVariable Long id){
+        try{
+            return ResponseEntity.ok(trajetService.getTrajetById(id));
+        }catch (RuntimeException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error",e.getMessage()));
+        }
+    }
 
 
 }
