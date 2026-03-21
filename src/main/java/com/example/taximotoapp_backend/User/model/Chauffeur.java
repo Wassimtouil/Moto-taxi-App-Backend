@@ -1,6 +1,6 @@
 package com.example.taximotoapp_backend.User.model;
 
-import com.example.taximotoapp_backend.model.Trajet;
+import com.example.taximotoapp_backend.trajet.model.Trajet;
 import jakarta.persistence.*;
 
 import java.util.List;

@@ -1,9 +1,9 @@
-package com.example.taximotoapp_backend.model;
+package com.example.taximotoapp_backend.trajet.model;
 
 import com.example.taximotoapp_backend.User.model.Chauffeur;
 import com.example.taximotoapp_backend.User.model.Client;
+import com.example.taximotoapp_backend.model.Chat;
 import com.example.taximotoapp_backend.model.enumClass.TripStatus;
-import com.example.taximotoapp_backend.model.enumClass.TripType;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -23,10 +23,6 @@ public class Trajet {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chauffeur_id")
     private Chauffeur chauffeur;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "trip_type", nullable = false)
-    private TripType tripType;
 
     @Column(name = "pickup_latitude", nullable = false)
     private Double pickupLatitude;
@@ -77,10 +73,6 @@ public class Trajet {
         return chauffeur;
     }
 
-    public TripType getTripType() {
-        return tripType;
-    }
-
     public Double getPickupLatitude() {
         return pickupLatitude;
     }
@@ -127,10 +119,6 @@ public class Trajet {
 
     public void setChauffeur(Chauffeur chauffeur) {
         this.chauffeur = chauffeur;
-    }
-
-    public void setTripType(TripType tripType) {
-        this.tripType = tripType;
     }
 
     public void setPickupLatitude(Double pickupLatitude) {

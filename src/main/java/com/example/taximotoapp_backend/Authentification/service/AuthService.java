@@ -69,7 +69,7 @@ public class AuthService {
             throw new RuntimeException("Invalid gender. Must be female or male");
         }
         User user;
-        if (role == Role.CLIENT){
+        if (role == Role.ROLE_CLIENT){
             user = new Client();
         }else {
             user = new Chauffeur();
