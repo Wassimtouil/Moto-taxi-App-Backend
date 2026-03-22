@@ -10,4 +10,19 @@ import java.util.List;
 public class Chauffeur extends User {
     @OneToMany(mappedBy = "chauffeur", fetch = FetchType.LAZY)
     private List<Trajet> trajets;
+    private double current_latitude;
+    private double current_longitude;
+
+    public double getCurrent_latitude() {
+        return current_latitude;
+    }
+    public double getCurrent_longitude() {
+        return current_longitude;
+    }
+    public void setCurrent_latitude(double current_latitude) {
+        this.current_latitude = current_latitude;
+    }
+    public void setCurrent_longitude(double current_longitude) {
+        this.current_longitude = current_longitude;
+    }
 }
