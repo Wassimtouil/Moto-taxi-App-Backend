@@ -20,7 +20,8 @@ public class SecurityConfig {
                         // Public
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        // Role CLIENT
+                        .requestMatchers("api/location/**").hasRole("CHAUFFEUR")
+
                         .requestMatchers("/api/trajets/**").hasAnyRole("CLIENT","CHAUFFEUR")
 
                         // Swagger endpoints
