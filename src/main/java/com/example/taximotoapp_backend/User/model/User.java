@@ -1,6 +1,7 @@
 package com.example.taximotoapp_backend.User.model;
 
 import com.example.taximotoapp_backend.model.Reclamation;
+import com.example.taximotoapp_backend.model.enumClass.ActivityStatus;
 import com.example.taximotoapp_backend.model.enumClass.Gender;
 import com.example.taximotoapp_backend.model.enumClass.Role;
 import jakarta.persistence.*;
@@ -33,6 +34,8 @@ public abstract class User implements UserDetails {
 
     @Column(name = "is_verified",nullable = false)
     private Boolean isVerified = false;
+
+    private ActivityStatus activityStatus;
 
     @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
     private List<Reclamation> reclamations;
