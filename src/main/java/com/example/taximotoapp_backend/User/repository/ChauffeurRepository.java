@@ -13,8 +13,8 @@ public interface ChauffeurRepository extends JpaRepository<Chauffeur,Long> {
     Optional<Chauffeur> findByEmail(String email);
 
     @Query(value = """
-        SELECT * FROM chauffeur c
-        HAVING (
+    SELECT * FROM (
+        SELECT c.*, (
             6371 * acos(
                 cos(radians(:lat)) *
                 cos(radians(c.current_latitude)) *
@@ -22,9 +22,19 @@ public interface ChauffeurRepository extends JpaRepository<Chauffeur,Long> {
                 sin(radians(:lat)) *
                 sin(radians(c.current_latitude))
             )
-        ) <= :radius
-        ORDER BY distance
-        LIMIT 3
-    """, nativeQuery = true)
-    List<Chauffeur> findNearbyDrivers(@Param("lat") double lat, @Param("lon") double lon, @Param("radius") double radius);
+        ) AS distance
+        FROM chauffeur c
+        WHERE c.available = true
+        AND c.status = 'ONLINE'
+    ) AS sub
+    WHERE sub.distance <= :radius
+    ORDER BY sub.distance
+    LIMIT 3
+""", nativeQuery = true)
+    List<Chauffeur> findNearbyDrivers(
+            @Param("lat") double lat,
+            @Param("lon") double lon,
+            @Param("radius") double radius
+    );
+
 }
