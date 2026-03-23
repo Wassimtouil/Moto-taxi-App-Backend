@@ -1,5 +1,6 @@
 package com.example.taximotoapp_backend.User.model;
 
+import com.example.taximotoapp_backend.model.enumClass.Availability;
 import com.example.taximotoapp_backend.trajet.model.Trajet;
 import jakarta.persistence.*;
 
@@ -12,6 +13,15 @@ public class Chauffeur extends User {
     private List<Trajet> trajets;
     private double current_latitude;
     private double current_longitude;
+    private Availability availability;
+
+    public Availability getAvailability() {
+        return availability;
+    }
+
+    public void setAvailability(Availability availability) {
+        this.availability = availability;
+    }
 
     public double getCurrent_latitude() {
         return current_latitude;
