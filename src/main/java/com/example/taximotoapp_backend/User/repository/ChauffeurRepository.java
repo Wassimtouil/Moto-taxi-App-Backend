@@ -26,9 +26,5 @@ public interface ChauffeurRepository extends JpaRepository<Chauffeur,Long> {
         ORDER BY distance
         LIMIT 3
     """, nativeQuery = true)
-    List<Chauffeur> findNearbyDrivers(
-            @Param("lat") double lat,
-            @Param("lon") double lon,
-            @Param("radius") double radius
-    );
+    List<Chauffeur> findNearbyDrivers(@Param("lat") double lat, @Param("lon") double lon, @Param("radius") double radius);
 }
