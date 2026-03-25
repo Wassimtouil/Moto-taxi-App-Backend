@@ -61,9 +61,38 @@ public class TrajetService {
 
         //envoyer demande via WebSocket
         sendTrajetToDrivers(saved, drivers);
+
+        //lancer timer
+        scheduleTimeout(saved.getId());
+
         return trajetMapper.toDTO(saved);
     }
 
+    private void scheduleTimeout(Long trajetId) {
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(25000); // 25 secondes
+
+                Trajet trajet = trajetRepository.findById(trajetId).orElse(null);
+
+                if (trajet != null && trajet.getStatus() == TripStatus.Created) {
+
+                    trajet.setStatus(TripStatus.Canceled);
+                    trajetRepository.save(trajet);
+
+                    // 🔥 notifier client
+                    messagingTemplate.convertAndSend(
+                            "/topic/client/" + trajet.getClient().getId(),
+                            "Aucun chauffeur disponible"
+                    );
+                }
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
     public void sendTrajetToDrivers(Trajet trajet, List<Chauffeur> drivers) {
 
         for (Chauffeur driver : drivers) {
