@@ -11,6 +11,7 @@ import com.example.taximotoapp_backend.trajet.mapper.TrajetMapper;
 import com.example.taximotoapp_backend.trajet.model.Trajet;
 import com.example.taximotoapp_backend.trajet.repository.TrajetRepository;
 import com.example.taximotoapp_backend.trajet.response.TrajetResponse;
+import com.example.taximotoapp_backend.websocket.service.TimeoutService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class TrajetService {
     private final TrajetMapper trajetMapper;
     private final ChauffeurRepository chauffeurRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final TimeoutService timeoutService;
     public TrajetResponse createTrajet(TrajetRequest trajetRequest){
         // recuperer user a travers le jwt
         String email= SecurityContextHolder.getContext().getAuthentication().getName();
@@ -63,36 +65,12 @@ public class TrajetService {
         sendTrajetToDrivers(saved, drivers);
 
         //lancer timer
-        scheduleTimeout(saved.getId());
+        timeoutService.handleTimeout(saved.getId());
 
         return trajetMapper.toDTO(saved);
     }
 
-    private void scheduleTimeout(Long trajetId) {
 
-        new Thread(() -> {
-            try {
-                Thread.sleep(25000); // 25 secondes
-
-                Trajet trajet = trajetRepository.findById(trajetId).orElse(null);
-
-                if (trajet != null && trajet.getStatus() == TripStatus.Created) {
-
-                    trajet.setStatus(TripStatus.Canceled);
-                    trajetRepository.save(trajet);
-
-                    // 🔥 notifier client
-                    messagingTemplate.convertAndSend(
-                            "/topic/client/" + trajet.getClient().getId(),
-                            "Aucun chauffeur disponible"
-                    );
-                }
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }).start();
-    }
     public void sendTrajetToDrivers(Trajet trajet, List<Chauffeur> drivers) {
 
         for (Chauffeur driver : drivers) {
