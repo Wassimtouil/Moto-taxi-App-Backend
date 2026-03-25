@@ -14,6 +14,7 @@ import com.example.taximotoapp_backend.trajet.response.TrajetResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,6 +26,7 @@ public class TrajetService {
     private final UserRepository userRepository;
     private final TrajetMapper trajetMapper;
     private final ChauffeurRepository chauffeurRepository;
+    private final SimpMessagingTemplate messagingTemplate;
     public TrajetResponse createTrajet(TrajetRequest trajetRequest){
         // recuperer user a travers le jwt
         String email= SecurityContextHolder.getContext().getAuthentication().getName();
