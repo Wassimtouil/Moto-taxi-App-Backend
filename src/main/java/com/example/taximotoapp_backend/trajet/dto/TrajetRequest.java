@@ -10,5 +10,4 @@ public class TrajetRequest {
     private Double pickupLongitude;
     private Double destinationLatitude;
     private Double destinationLongitude;
-    private TripStatus status;
 }
