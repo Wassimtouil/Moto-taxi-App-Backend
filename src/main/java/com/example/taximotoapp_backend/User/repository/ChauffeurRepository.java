@@ -13,31 +13,32 @@ public interface ChauffeurRepository extends JpaRepository<Chauffeur,Long> {
     Optional<Chauffeur> findByEmail(String email);
 
     @Query(value = """
-        SELECT c.* FROM chauffeur c
-        WHERE c.available = true
-          AND c.status = 'ONLINE'
-          
-          -- 🔥 pré-filtrage (performance)
-          AND c.current_latitude BETWEEN :lat - 0.1 AND :lat + 0.1
-          AND c.current_longitude BETWEEN :lon - 0.1 AND :lon + 0.1
-          
-        ORDER BY (
-            6371 * acos(
-                LEAST(1, GREATEST(-1,
-                    cos(radians(:lat)) *
-                    cos(radians(c.current_latitude)) *
-                    cos(radians(c.current_longitude) - radians(:lon)) +
-                    sin(radians(:lat)) *
-                    sin(radians(c.current_latitude))
-                ))
-            )
+    SELECT c.* ,u.*
+    FROM chauffeur c
+    JOIN user u ON c.user_id = u.id
+    WHERE c.availability = true
+      AND c.current_latitude BETWEEN :lat - (:radius / 111) AND :lat + (:radius / 111)
+      AND c.current_longitude BETWEEN :lon - (:radius / (111 * cos(radians(:lat)))) 
+                                 AND :lon + (:radius / (111 * cos(radians(:lat))))
+    ORDER BY (
+        6371 * acos(
+            LEAST(1, GREATEST(-1,
+                cos(radians(:lat)) *
+                cos(radians(c.current_latitude)) *
+                cos(radians(c.current_longitude) - radians(:lon)) +
+                sin(radians(:lat)) *
+                sin(radians(c.current_latitude))
+            ))
         )
-        
-        LIMIT 3
-    """, nativeQuery = true)
+    )
+    LIMIT 3
+""", nativeQuery = true)
     List<Chauffeur> findNearbyDrivers(
             @Param("lat") double lat,
-            @Param("lon") double lon
+            @Param("lon") double lon,
+            @Param("radius") double radius
     );
+
+
 
 }

@@ -13,6 +13,8 @@ public class Chauffeur extends User {
     private List<Trajet> trajets;
     private double current_latitude;
     private double current_longitude;
+
+    @Enumerated(EnumType.STRING)
     private Availability availability;
 
     public Availability getAvailability() {

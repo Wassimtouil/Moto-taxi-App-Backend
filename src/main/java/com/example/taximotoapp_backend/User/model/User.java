@@ -35,6 +35,7 @@ public abstract class User implements UserDetails {
     @Column(name = "is_verified",nullable = false)
     private Boolean isVerified = false;
 
+    @Enumerated(EnumType.STRING)
     private ActivityStatus activityStatus;
 
     @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)

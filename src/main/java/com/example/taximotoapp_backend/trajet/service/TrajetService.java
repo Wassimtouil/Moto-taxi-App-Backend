@@ -31,9 +31,15 @@ public class TrajetService {
     private final TimeoutService timeoutService;
     public TrajetResponse createTrajet(TrajetRequest trajetRequest){
         // recuperer user a travers le jwt
-        String email= SecurityContextHolder.getContext().getAuthentication().getName();
+
+
+        /*String email= SecurityContextHolder.getContext().getAuthentication().getName();
         User client = userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("client not found"));
+        */
         //mapping request -> entity
+
+        User client = userRepository.findByEmail("wassim@gmail.com")
+                .orElseThrow(() -> new RuntimeException("client not found"));
         Trajet trajet = trajetMapper.toEntity(trajetRequest);
         // calcul distance
         double distance = calculateDistance(
@@ -82,52 +88,42 @@ public class TrajetService {
     }
     public List<Chauffeur> findDriversWithExpansion(double lat, double lon) {
         // 5 km
-        List<Chauffeur> drivers5 = chauffeurRepository.findNearbyDrivers(lat, lon);
+        List<Chauffeur> drivers5 = chauffeurRepository.findNearbyDrivers(lat, lon,5);
         if (!drivers5.isEmpty()) return drivers5;
 
         // 10 km (on élargit bounding box)
-        List<Chauffeur> drivers10 = chauffeurRepository.findNearbyDrivers(lat, lon);
+        List<Chauffeur> drivers10 = chauffeurRepository.findNearbyDrivers(lat, lon,10);
         return drivers10;
     }
 
-    public synchronized void handleDriverResponse(Long trajetId, String action) {
+    public synchronized void handleDriverResponse(Long trajetId, String action, Long driverId) {
 
         Trajet trajet = trajetRepository.findById(trajetId)
                 .orElseThrow(() -> new RuntimeException("Trajet not found"));
 
-        // 🚫 déjà pris
         if (trajet.getStatus() != TripStatus.Created) {
-            throw new RuntimeException("Trajet déjà accepté par un autre chauffeur");
+            throw new RuntimeException("Trajet déjà pris");
         }
 
-        String email = SecurityContextHolder.getContext()
-                .getAuthentication().getName();
-
-        Chauffeur chauffeur = chauffeurRepository.findByEmail(email)
+        Chauffeur chauffeur = chauffeurRepository.findById(driverId)
                 .orElseThrow(() -> new RuntimeException("Chauffeur not found"));
 
         if (action.equalsIgnoreCase("ACCEPT")) {
-            // 🎯 assignation
+
             trajet.setChauffeur(chauffeur);
             trajet.setStatus(TripStatus.Accepted);
 
             trajetRepository.save(trajet);
 
-            // 🔥 notifier client
             messagingTemplate.convertAndSend(
                     "/topic/client/" + trajet.getClient().getId(),
                     "Trajet accepté par chauffeur " + chauffeur.getId()
             );
 
-            // 🔥 notifier autres chauffeurs (optionnel)
             messagingTemplate.convertAndSend(
                     "/topic/trajet/" + trajetId,
                     "Trajet déjà pris"
             );
-
-        } else if (action.equalsIgnoreCase("REFUSE")) {
-
-            // ici tu peux log ou ignorer
         }
     }
 
@@ -137,7 +133,7 @@ public class TrajetService {
         Trajet trajet = trajetRepository.findById(trajetId)
                 .orElseThrow(() -> new RuntimeException("trajet not found"));
         if (trajet.getStatus() != TripStatus.Created){
-            new RuntimeException("trajet deja pris");
+            throw new RuntimeException("trajet deja pris");
         }
         trajet.setChauffeur((Chauffeur) Chauffeur);
         trajet.setStatus(TripStatus.Accepted);
