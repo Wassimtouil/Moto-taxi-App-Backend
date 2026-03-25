@@ -3,6 +3,7 @@ package com.example.taximotoapp_backend.trajet.service;
 import com.example.taximotoapp_backend.User.model.Chauffeur;
 import com.example.taximotoapp_backend.User.model.Client;
 import com.example.taximotoapp_backend.User.model.User;
+import com.example.taximotoapp_backend.User.repository.ChauffeurRepository;
 import com.example.taximotoapp_backend.User.repository.UserRepository;
 import com.example.taximotoapp_backend.model.enumClass.TripStatus;
 import com.example.taximotoapp_backend.trajet.dto.TrajetRequest;
@@ -23,7 +24,7 @@ public class TrajetService {
     private final TrajetRepository trajetRepository;
     private final UserRepository userRepository;
     private final TrajetMapper trajetMapper;
-
+    private final ChauffeurRepository chauffeurRepository;
     public TrajetResponse createTrajet(TrajetRequest trajetRequest){
         // recuperer user a travers le jwt
         String email= SecurityContextHolder.getContext().getAuthentication().getName();
@@ -44,7 +45,40 @@ public class TrajetService {
         trajet.setStatus(TripStatus.Created);
         trajet.setRequestedAt(LocalDateTime.now());
 
-        return trajetMapper.toDTO(trajetRepository.save(trajet));
+        Trajet saved=trajetRepository.save(trajet);
+
+        // trouver chauffeurs (5km → 10km)
+        List<Chauffeur> drivers = findDriversWithExpansion(
+                trajetRequest.getPickupLatitude(),
+                trajetRequest.getPickupLongitude()
+        );
+
+        if (drivers.isEmpty()) {
+            throw new RuntimeException("Aucun chauffeur disponible");
+        }
+
+        //envoyer demande via WebSocket
+        sendTrajetToDrivers(saved, drivers);
+        return trajetMapper.toDTO(saved);
+    }
+
+    public void sendTrajetToDrivers(Trajet trajet, List<Chauffeur> drivers) {
+
+        for (Chauffeur driver : drivers) {
+            messagingTemplate.convertAndSend(
+                    "/topic/driver/" + driver.getId(),
+                    trajetMapper.toDTO(trajet)
+            );
+        }
+    }
+    public List<Chauffeur> findDriversWithExpansion(double lat, double lon) {
+        // 5 km
+        List<Chauffeur> drivers5 = chauffeurRepository.findNearbyDrivers(lat, lon);
+        if (!drivers5.isEmpty()) return drivers5;
+
+        // 10 km (on élargit bounding box)
+        List<Chauffeur> drivers10 = chauffeurRepository.findNearbyDrivers(lat, lon);
+        return drivers10;
     }
 
     public TrajetResponse acceptTrajet(Long trajetId){
