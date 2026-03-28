@@ -20,7 +20,7 @@ public class TrajetController {
     private final TrajetService trajetService;
 
     @PostMapping("/createTrajet")
-    //@PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasRole('CLIENT')")
     public ResponseEntity<?> createTrajet(@RequestBody TrajetRequest trajetRequest) {
         try {
             TrajetResponse response = trajetService.createTrajet(trajetRequest);
@@ -31,7 +31,7 @@ public class TrajetController {
     }
 
     @PostMapping("/cancel/{id}")
-    //@PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasRole('CLIENT')")
     public ResponseEntity<?> cancelTrajet(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(trajetService.annulerTrajet(id));
@@ -41,15 +41,13 @@ public class TrajetController {
         }
     }
 
-    //@PreAuthorize("hasRole('CHAUFFEUR')")
+    @PreAuthorize("hasRole('CHAUFFEUR')")
     @PostMapping("/{id}/response")
     public ResponseEntity<?> handleResponse(
             @PathVariable Long id,
-            @RequestParam String action,
-            @RequestParam Long driverId) {
-
+            @RequestParam String action) {
         try {
-            trajetService.handleDriverResponse(id, action, driverId);
+            trajetService.handleDriverResponse(id, action);
             return ResponseEntity.ok(Map.of("message", "Action processed"));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest()
@@ -57,10 +55,8 @@ public class TrajetController {
         }
     }
 
-
-
     @PostMapping("/start/{id}")
-    //@PreAuthorize("hasRole('CHAUFFEUR')")
+    @PreAuthorize("hasRole('CHAUFFEUR')")
     public ResponseEntity<?> startTrajet(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(trajetService.startTrajet(id));
@@ -71,7 +67,7 @@ public class TrajetController {
     }
 
     @PostMapping("/end/{id}")
-    //@PreAuthorize("hasRole('CHAUFFEUR')")
+    @PreAuthorize("hasRole('CHAUFFEUR')")
     public ResponseEntity<?> endTrajet(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(trajetService.terminerTrajet(id));
@@ -81,7 +77,7 @@ public class TrajetController {
         }
     }
 
-    //@PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/getTrajetById/{id}")
     public ResponseEntity<?> getTrajetById(@PathVariable Long id){
         try{
@@ -90,6 +86,4 @@ public class TrajetController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error",e.getMessage()));
         }
     }
-
-
 }

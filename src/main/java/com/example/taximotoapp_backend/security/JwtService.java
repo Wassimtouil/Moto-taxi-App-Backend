@@ -1,6 +1,7 @@
 package com.example.taximotoapp_backend.security;
 
 import com.example.taximotoapp_backend.User.model.User;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -32,5 +33,22 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    public boolean isTokenValid(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(getSignKey())
+                    .build()
+                    .parseClaimsJws(token); // si pas exception → valide
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    // alias pour WebSocket / Spring Security
+    public String extractUsername(String token) {
+        return extractEmail(token); // email = username
     }
 }

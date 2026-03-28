@@ -12,6 +12,7 @@ import com.example.taximotoapp_backend.trajet.model.Trajet;
 import com.example.taximotoapp_backend.trajet.repository.TrajetRepository;
 import com.example.taximotoapp_backend.trajet.response.TrajetResponse;
 import com.example.taximotoapp_backend.websocket.service.TimeoutService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -31,15 +32,9 @@ public class TrajetService {
     private final TimeoutService timeoutService;
     public TrajetResponse createTrajet(TrajetRequest trajetRequest){
         // recuperer user a travers le jwt
-
-
-        /*String email= SecurityContextHolder.getContext().getAuthentication().getName();
+        String email= SecurityContextHolder.getContext().getAuthentication().getName();
         User client = userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("client not found"));
-        */
         //mapping request -> entity
-
-        User client = userRepository.findByEmail("wassim@gmail.com")
-                .orElseThrow(() -> new RuntimeException("client not found"));
         Trajet trajet = trajetMapper.toEntity(trajetRequest);
         // calcul distance
         double distance = calculateDistance(
@@ -72,7 +67,6 @@ public class TrajetService {
 
         //lancer timer
         timeoutService.handleTimeout(saved.getId());
-
         return trajetMapper.toDTO(saved);
     }
 
@@ -98,7 +92,13 @@ public class TrajetService {
         return new ArrayList<>(driversSet);
     }
 
-    public synchronized void handleDriverResponse(Long trajetId, String action, Long driverId) {
+    @Transactional
+    public synchronized void handleDriverResponse(Long trajetId, String action) {
+        // récupérer chauffeur connecté depuis JWT
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Chauffeur chauffeur = (Chauffeur) userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Chauffeur not found"));
+
         Trajet trajet = trajetRepository.findById(trajetId)
                 .orElseThrow(() -> new RuntimeException("Trajet not found"));
 
@@ -106,38 +106,24 @@ public class TrajetService {
             throw new RuntimeException("Trajet déjà pris");
         }
 
-        Chauffeur chauffeur = chauffeurRepository.findById(driverId)
-                .orElseThrow(() -> new RuntimeException("Chauffeur not found"));
-
         if (action.equalsIgnoreCase("ACCEPT")) {
             trajet.setChauffeur(chauffeur);
             trajet.setStatus(TripStatus.Accepted);
             trajetRepository.save(trajet);
+
+            // notifier client
             messagingTemplate.convertAndSend(
                     "/topic/client/" + trajet.getClient().getId(),
                     "Trajet accepté par chauffeur " + chauffeur.getId()
             );
 
+            // notifier autres chauffeurs
             messagingTemplate.convertAndSend(
                     "/topic/trajet/" + trajetId,
                     "Trajet déjà pris"
             );
         }
     }
-
-    public TrajetResponse acceptTrajet(Long trajetId){
-        String email= SecurityContextHolder.getContext().getAuthentication().getName();
-        User Chauffeur= userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("Chauffeur not found"));
-        Trajet trajet = trajetRepository.findById(trajetId)
-                .orElseThrow(() -> new RuntimeException("trajet not found"));
-        if (trajet.getStatus() != TripStatus.Created){
-            throw new RuntimeException("trajet deja pris");
-        }
-        trajet.setChauffeur((Chauffeur) Chauffeur);
-        trajet.setStatus(TripStatus.Accepted);
-        return trajetMapper.toDTO(trajetRepository.save(trajet));
-    }
-
     public TrajetResponse startTrajet(Long trajetId) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User chauffeur = userRepository.findByEmail(email)

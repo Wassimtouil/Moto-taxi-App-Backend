@@ -2,6 +2,7 @@ package com.example.taximotoapp_backend.User.repository;
 
 
 import com.example.taximotoapp_backend.User.model.Chauffeur;
+import com.example.taximotoapp_backend.trajet.model.Trajet;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -39,7 +40,6 @@ public interface ChauffeurRepository extends JpaRepository<Chauffeur,Long> {
             @Param("lon") double lon,
             @Param("radius") double radius
     );
-
 
 
 }
