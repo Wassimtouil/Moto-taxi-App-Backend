@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -88,11 +89,13 @@ public class TrajetService {
         }
     }
     public List<Chauffeur> findDriversWithExpansion(double lat, double lon) {
+        List<Chauffeur> driversF = new ArrayList<>();
         List<Chauffeur> drivers;
         for (var i=1;i<10;i+=2){
             drivers = chauffeurRepository.findNearbyDrivers(lat, lon,i);
-            if (!drivers.isEmpty()){
-                return drivers;
+            driversF.addAll(drivers);
+            if (driversF.size() >= 3){
+                return driversF.stream().limit(3).toList();
             }
         }
         return Collections.emptyList();
