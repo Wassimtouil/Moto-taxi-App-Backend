@@ -40,14 +40,12 @@ public class LocationService {
             payload.put("driverLatitude", locationRequest.getLatitude());
             payload.put("driverLongitude", locationRequest.getLongitude());
             messagingTemplate.convertAndSend(
-                    "/topic/driverLocation/" + trajet.get().getClient().getId(),
+                    "/topic/driverLocation/" + trajet.getClient().getId(),
                     payload
             );
         });
-
         return new LocationResponse(locationRequest.getLatitude(),
                 locationRequest.getLongitude(),
                 "Location updated successfully");
     }
-
 }
