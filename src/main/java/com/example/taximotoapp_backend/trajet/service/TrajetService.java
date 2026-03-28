@@ -31,15 +31,9 @@ public class TrajetService {
     private final TimeoutService timeoutService;
     public TrajetResponse createTrajet(TrajetRequest trajetRequest){
         // recuperer user a travers le jwt
-
-
-        /*String email= SecurityContextHolder.getContext().getAuthentication().getName();
+        String email= SecurityContextHolder.getContext().getAuthentication().getName();
         User client = userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("client not found"));
-        */
         //mapping request -> entity
-
-        User client = userRepository.findByEmail("wassim@gmail.com")
-                .orElseThrow(() -> new RuntimeException("client not found"));
         Trajet trajet = trajetMapper.toEntity(trajetRequest);
         // calcul distance
         double distance = calculateDistance(
@@ -72,7 +66,6 @@ public class TrajetService {
 
         //lancer timer
         timeoutService.handleTimeout(saved.getId());
-
         return trajetMapper.toDTO(saved);
     }
 
