@@ -18,9 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -89,20 +87,18 @@ public class TrajetService {
         }
     }
     public List<Chauffeur> findDriversWithExpansion(double lat, double lon) {
-        List<Chauffeur> driversF = new ArrayList<>();
-        List<Chauffeur> drivers;
-        for (var i=1;i<10;i+=2){
-            drivers = chauffeurRepository.findNearbyDrivers(lat, lon,i);
-            driversF.addAll(drivers);
-            if (driversF.size() >= 3){
-                return driversF.stream().limit(3).toList();
+        Set<Chauffeur> driversSet = new LinkedHashSet<>();
+        for (int i = 1; i < 10; i += 2) {
+            List<Chauffeur> drivers = chauffeurRepository.findNearbyDrivers(lat, lon, i);
+            driversSet.addAll(drivers);
+            if (driversSet.size() >= 3) {
+                return driversSet.stream().limit(3).toList();
             }
         }
-        return Collections.emptyList();
+        return new ArrayList<>(driversSet);
     }
 
     public synchronized void handleDriverResponse(Long trajetId, String action, Long driverId) {
-
         Trajet trajet = trajetRepository.findById(trajetId)
                 .orElseThrow(() -> new RuntimeException("Trajet not found"));
 
@@ -114,12 +110,9 @@ public class TrajetService {
                 .orElseThrow(() -> new RuntimeException("Chauffeur not found"));
 
         if (action.equalsIgnoreCase("ACCEPT")) {
-
             trajet.setChauffeur(chauffeur);
             trajet.setStatus(TripStatus.Accepted);
-
             trajetRepository.save(trajet);
-
             messagingTemplate.convertAndSend(
                     "/topic/client/" + trajet.getClient().getId(),
                     "Trajet accepté par chauffeur " + chauffeur.getId()
