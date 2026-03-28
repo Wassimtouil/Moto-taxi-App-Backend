@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -87,13 +88,14 @@ public class TrajetService {
         }
     }
     public List<Chauffeur> findDriversWithExpansion(double lat, double lon) {
-        // 5 km
-        List<Chauffeur> drivers5 = chauffeurRepository.findNearbyDrivers(lat, lon,5);
-        if (!drivers5.isEmpty()) return drivers5;
-
-        // 10 km (on élargit bounding box)
-        List<Chauffeur> drivers10 = chauffeurRepository.findNearbyDrivers(lat, lon,10);
-        return drivers10;
+        List<Chauffeur> drivers;
+        for (var i=1;i<10;i+=2){
+            drivers = chauffeurRepository.findNearbyDrivers(lat, lon,i);
+            if (!drivers.isEmpty()){
+                return drivers;
+            }
+        }
+        return Collections.emptyList();
     }
 
     public synchronized void handleDriverResponse(Long trajetId, String action, Long driverId) {
