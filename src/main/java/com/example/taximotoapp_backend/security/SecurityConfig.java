@@ -19,7 +19,7 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         // Public
-                        /*.requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
 
                         .requestMatchers("api/location/**").hasRole("CHAUFFEUR")
 
@@ -41,15 +41,13 @@ public class SecurityConfig {
                         // ADMIN
                         //.requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                        .anyRequest().authenticated()*/
-                        .anyRequest().permitAll() // 🔥 TOUT autorisé
-
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                );
-                //.addFilterBefore(jwtFilter,
-                        //org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
+                )
+                .addFilterBefore(jwtFilter,
+                        org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
