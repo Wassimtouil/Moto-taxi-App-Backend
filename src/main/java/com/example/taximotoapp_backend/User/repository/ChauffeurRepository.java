@@ -17,6 +17,7 @@ public interface ChauffeurRepository extends JpaRepository<Chauffeur,Long> {
     FROM chauffeur c
     JOIN user u ON c.user_id = u.id
     WHERE c.availability = true
+      AND u.activity_status = 'ONLINE'
       AND c.current_latitude BETWEEN :lat - (:radius / 111) AND :lat + (:radius / 111)
       AND c.current_longitude BETWEEN :lon - (:radius / (111 * cos(radians(:lat)))) 
                                  AND :lon + (:radius / (111 * cos(radians(:lat))))
