@@ -7,6 +7,8 @@ import com.example.taximotoapp_backend.User.model.Chauffeur;
 import com.example.taximotoapp_backend.User.model.Client;
 import com.example.taximotoapp_backend.User.model.User;
 import com.example.taximotoapp_backend.User.repository.UserRepository;
+import com.example.taximotoapp_backend.model.enumClass.ActivityStatus;
+import com.example.taximotoapp_backend.model.enumClass.Availability;
 import com.example.taximotoapp_backend.model.enumClass.Gender;
 import com.example.taximotoapp_backend.model.enumClass.Role;
 import com.example.taximotoapp_backend.security.JwtService;
@@ -40,7 +42,19 @@ public class AuthService {
                 throw new RuntimeException("User not found");
             }
             user = optionalUser.get();
-            user.
+
+            ActivityStatus activityStatus;
+            activityStatus=ActivityStatus.valueOf("ONLINE");
+            user.setActivityStatus(activityStatus);
+
+            if (user instanceof Chauffeur){
+                Chauffeur chauffeur=(Chauffeur) user;
+                Availability availability;
+                availability=Availability.valueOf("TRUE");
+                chauffeur.setAvailability(availability);
+            }
+
+            userRepository.save(user);
             // Vérification du mot de passe
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
