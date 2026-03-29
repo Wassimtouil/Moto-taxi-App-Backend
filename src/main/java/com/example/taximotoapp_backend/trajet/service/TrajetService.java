@@ -204,10 +204,36 @@ public class TrajetService {
         return trajetMapper.toDTO(trajet);
     }
 
-    public List<TrajetResponse> getAvailableTrajets() {
-        return trajetRepository.findByStatus(TripStatus.Created)
-                .stream()
+    public List<TrajetResponse> getAvailableTrajetsForDriver() {
+
+        // 🔐 récupérer chauffeur connecté
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Chauffeur chauffeur = chauffeurRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Chauffeur not found"));
+
+        // 🚫 vérifier disponibilité du chauffeur
+        if (chauffeur.getAvailability().name().equals("FALSE")) {
+            return Collections.emptyList();
+        }
+
+        double lat = chauffeur.getCurrent_latitude();
+        double lon = chauffeur.getCurrent_longitude();
+
+        Set<Trajet> trajetsSet = new LinkedHashSet<>();
+
+        // 🔁 expansion intelligente (1km → 9km)
+        for (int i = 1; i < 10; i += 2) {
+            List<Trajet> found = trajetRepository.findNearbyAvailableTrajets(lat, lon, i);
+            trajetsSet.addAll(found);
+            if (trajetsSet.size() >= 5) {
+                break;
+            }
+        }
+        return trajetsSet.stream()
+                .limit(5)
                 .map(trajetMapper::toDTO)
                 .toList();
     }
+
 }
