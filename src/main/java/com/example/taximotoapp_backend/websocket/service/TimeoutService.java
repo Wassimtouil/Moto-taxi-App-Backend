@@ -6,9 +6,11 @@ import com.example.taximotoapp_backend.trajet.repository.TrajetRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
+@EnableAsync
 public class TimeoutService {
 
     private final TrajetRepository trajetRepository;
