@@ -73,6 +73,13 @@ public abstract class User implements UserDetails {
         return gender;
     }
 
+    public ActivityStatus getActivityStatus() {
+        return activityStatus;
+    }
+
+    public void setActivityStatus(ActivityStatus activityStatus) {
+        this.activityStatus = activityStatus;
+    }
 
     public Boolean getIsVerified() {
         return isVerified;

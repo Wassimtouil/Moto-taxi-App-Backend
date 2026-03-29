@@ -40,6 +40,7 @@ public class AuthService {
                 throw new RuntimeException("User not found");
             }
             user = optionalUser.get();
+            user.
             // Vérification du mot de passe
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
