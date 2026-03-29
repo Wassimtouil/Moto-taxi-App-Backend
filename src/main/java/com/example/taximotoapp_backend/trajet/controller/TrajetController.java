@@ -86,4 +86,11 @@ public class TrajetController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error",e.getMessage()));
         }
     }
+
+    @PreAuthorize("hasRole('CHAUFFEUR')")
+    @GetMapping("/available")
+    public ResponseEntity<?> getAvailableTrajets() {
+        return ResponseEntity.ok(trajetService.getAvailableTrajetsForDriver());
+    }
+
 }
