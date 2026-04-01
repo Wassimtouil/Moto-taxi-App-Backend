@@ -43,6 +43,10 @@ public abstract class User implements UserDetails {
 
     @Column(name = "created_at", nullable = false,updatable = false)
     private LocalDateTime createdAt ;
+
+    private double current_latitude;
+    private double current_longitude;
+
     @PrePersist
     protected void onCreate (){
         createdAt=LocalDateTime.now();
@@ -151,5 +155,19 @@ public abstract class User implements UserDetails {
     public boolean isEnabled() {
         return isVerified;
     }
+
+    public double getCurrent_latitude() {
+        return current_latitude;
+    }
+    public double getCurrent_longitude() {
+        return current_longitude;
+    }
+    public void setCurrent_latitude(double current_latitude) {
+        this.current_latitude = current_latitude;
+    }
+    public void setCurrent_longitude(double current_longitude) {
+        this.current_longitude = current_longitude;
+    }
+
 }
 
