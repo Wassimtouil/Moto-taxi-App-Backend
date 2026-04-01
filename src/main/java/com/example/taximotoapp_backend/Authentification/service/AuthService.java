@@ -98,6 +98,6 @@ public class AuthService {
         user.setFirebaseUid(request.getFirebaseUid());
         userRepository.save(user);
         String token = jwtService.generateToken(user);
-        return new AuthResponse(token, user.getFullName(), user.getEmail(), user.getRole().name());
+        return new AuthResponse(token, user.getId(), user.getFullName(), user.getEmail(), user.getRole().name());
     }
 }
