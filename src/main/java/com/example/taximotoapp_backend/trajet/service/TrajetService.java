@@ -72,7 +72,6 @@ public class TrajetService {
 
 
     public void sendTrajetToDrivers(Trajet trajet, List<Chauffeur> drivers) {
-
         for (Chauffeur driver : drivers) {
             messagingTemplate.convertAndSend(
                     "/topic/driver/" + driver.getId(),
