@@ -174,7 +174,13 @@ public class TrajetService {
             throw new RuntimeException("Impossible d'annuler un trajet terminé");
         }
         trajet.setStatus(TripStatus.Canceled);
-        return trajetMapper.toDTO(trajetRepository.save(trajet));
+
+        Trajet saved=trajetRepository.save(trajet);
+        messagingTemplate.convertAndSend(
+                "/topic/driver/" + saved.getChauffeur().getId(),
+                "Trajet annulé par le client"
+        );
+        return trajetMapper.toDTO(saved);
     }
 
     public double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
