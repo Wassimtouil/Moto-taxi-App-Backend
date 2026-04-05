@@ -19,12 +19,6 @@ import java.util.Map;
 @SecurityRequirement(name = "bearerAuth")
 public class LocationController {
     private final LocationService locationService;
-
-    /**
-     * @deprecated This REST endpoint is deprecated. Use WebSocket endpoint /app/location.update instead.
-     * Location tracking is now 100% WebSocket-driven for real-time, low-latency updates.
-     */
-    @Deprecated
     @PreAuthorize("hasRole('CHAUFFEUR') or hasRole('CLIENT')")
     @PatchMapping("/updateLocation")
     public ResponseEntity<?> updateLocation(@RequestBody LocationRequest locationRequest){
