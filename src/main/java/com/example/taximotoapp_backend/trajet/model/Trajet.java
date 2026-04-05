@@ -24,17 +24,8 @@ public class Trajet {
     @JoinColumn(name = "chauffeur_id")
     private Chauffeur chauffeur;
 
-    @Column(name = "pickup_latitude", nullable = false)
-    private Double pickupLatitude;
-
-    @Column(name = "pickup_longitude", nullable = false)
-    private Double pickupLongitude;
-
-    @Column(name = "destination_latitude", nullable = false)
-    private Double destinationLatitude;
-
-    @Column(name = "destination_longitude", nullable = false)
-    private Double destinationLongitude;
+    @OneToOne(mappedBy = "trajet", cascade = CascadeType.ALL)
+    private TrajetLocation trajetLocation; // nouvelle classe pour positions
 
     @Column(name = "distance_km")
     private Double distanceKm;
@@ -73,22 +64,6 @@ public class Trajet {
         return chauffeur;
     }
 
-    public Double getPickupLatitude() {
-        return pickupLatitude;
-    }
-
-    public Double getPickupLongitude() {
-        return pickupLongitude;
-    }
-
-    public Double getDestinationLatitude() {
-        return destinationLatitude;
-    }
-
-    public Double getDestinationLongitude() {
-        return destinationLongitude;
-    }
-
     public Double getDistanceKm() {
         return distanceKm;
     }
@@ -121,21 +96,6 @@ public class Trajet {
         this.chauffeur = chauffeur;
     }
 
-    public void setPickupLatitude(Double pickupLatitude) {
-        this.pickupLatitude = pickupLatitude;
-    }
-
-    public void setPickupLongitude(Double pickupLongitude) {
-        this.pickupLongitude = pickupLongitude;
-    }
-
-    public void setDestinationLatitude(Double destinationLatitude) {
-        this.destinationLatitude = destinationLatitude;
-    }
-
-    public void setDestinationLongitude(Double destinationLongitude) {
-        this.destinationLongitude = destinationLongitude;
-    }
 
     public void setDistanceKm(Double distanceKm) {
         this.distanceKm = distanceKm;
@@ -159,5 +119,13 @@ public class Trajet {
 
     public void setCompletedAt(LocalDateTime completedAt) {
         this.completedAt = completedAt;
+    }
+
+    public TrajetLocation getTrajetLocation() {
+        return trajetLocation;
+    }
+
+    public void setTrajetLocation(TrajetLocation trajetLocation) {
+        this.trajetLocation = trajetLocation;
     }
 }

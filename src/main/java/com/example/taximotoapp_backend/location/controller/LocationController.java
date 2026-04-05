@@ -27,10 +27,9 @@ public class LocationController {
     @Deprecated
     @PreAuthorize("hasRole('CHAUFFEUR') or hasRole('CLIENT')")
     @PatchMapping("/updateLocation")
-    public ResponseEntity<?> updateLocation(@RequestBody LocationRequest locationRequest, Principal principal){
+    public ResponseEntity<?> updateLocation(@RequestBody LocationRequest locationRequest){
         try {
-            String email = principal.getName();
-            LocationResponse response = locationService.updateLocation(locationRequest, email);
+            LocationResponse response = locationService.updateLocation(locationRequest);
             return ResponseEntity.ok(response);
         }catch (RuntimeException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error",e.getMessage()));

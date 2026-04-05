@@ -228,8 +228,8 @@ public class TrajetService {
             return Collections.emptyList();
         }
 
-        double lat = chauffeur.getCurrent_latitude();
-        double lon = chauffeur.getCurrent_longitude();
+        double lat = chauffeur.getLocation().getLatitude();
+        double lon = chauffeur.getLocation().getLongitude();
 
         Set<Trajet> trajetsSet = new LinkedHashSet<>();
 

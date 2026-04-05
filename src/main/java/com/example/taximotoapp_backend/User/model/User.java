@@ -1,5 +1,6 @@
 package com.example.taximotoapp_backend.User.model;
 
+import com.example.taximotoapp_backend.location.model.Location;
 import com.example.taximotoapp_backend.model.Reclamation;
 import com.example.taximotoapp_backend.model.enumClass.ActivityStatus;
 import com.example.taximotoapp_backend.model.enumClass.Gender;
@@ -44,8 +45,8 @@ public abstract class User implements UserDetails {
     @Column(name = "created_at", nullable = false,updatable = false)
     private LocalDateTime createdAt ;
 
-    private double current_latitude;
-    private double current_longitude;
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    private Location location;
 
     @PrePersist
     protected void onCreate (){
@@ -156,17 +157,12 @@ public abstract class User implements UserDetails {
         return isVerified;
     }
 
-    public double getCurrent_latitude() {
-        return current_latitude;
+    public Location getLocation() {
+        return location;
     }
-    public double getCurrent_longitude() {
-        return current_longitude;
-    }
-    public void setCurrent_latitude(double current_latitude) {
-        this.current_latitude = current_latitude;
-    }
-    public void setCurrent_longitude(double current_longitude) {
-        this.current_longitude = current_longitude;
+
+    public void setLocation(Location location) {
+        this.location = location;
     }
 
 }
