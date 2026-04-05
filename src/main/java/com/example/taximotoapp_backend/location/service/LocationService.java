@@ -4,13 +4,13 @@ import com.example.taximotoapp_backend.User.model.User;
 import com.example.taximotoapp_backend.User.repository.UserRepository;
 import com.example.taximotoapp_backend.location.dto.LocationRequest;
 import com.example.taximotoapp_backend.location.model.Location;
+import com.example.taximotoapp_backend.location.repository.LocationRepository;
 import com.example.taximotoapp_backend.location.response.LocationResponse;
 import com.example.taximotoapp_backend.model.enumClass.Role;
 import com.example.taximotoapp_backend.trajet.model.Trajet;
 import com.example.taximotoapp_backend.trajet.repository.TrajetRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -22,29 +22,24 @@ import java.util.Map;
 public class LocationService {
     private final UserRepository userRepository;
     private final TrajetRepository trajetRepository;
+    private final LocationRepository locationRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
-    public LocationResponse updateLocation(LocationRequest locationRequest){
+    public LocationResponse updateLocation(LocationRequest locationRequest, String email){
         // récupérer utilisateur par email (CLIENT ou CHAUFFEUR)
-        // recuperer user a travers le jwt
-        String email= SecurityContextHolder.getContext().getAuthentication().getName();
-
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // récupérer ou créer la Location liée à l'utilisateur
+        // mettre à jour la position dans la table Location (séparée du User)
         Location location = user.getLocation();
         if (location == null) {
             location = new Location();
             location.setUser(user);
+            user.setLocation(location);
         }
-
-        // mettre à jour latitude et longitude
         location.setLatitude(locationRequest.getLatitude());
         location.setLongitude(locationRequest.getLongitude());
-        user.setLocation(location);  // lie User -> Location
-
-        userRepository.save(user);
+        locationRepository.save(location);
 
         // déterminer le rôle et récupérer les trajets actifs
         if (user.getRole() == Role.ROLE_CHAUFFEUR) {

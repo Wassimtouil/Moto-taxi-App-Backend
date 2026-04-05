@@ -128,4 +128,12 @@ public class Trajet {
     public void setTrajetLocation(TrajetLocation trajetLocation) {
         this.trajetLocation = trajetLocation;
     }
+
+    public Chat getChat() {
+        return chat;
+    }
+
+    public void setChat(Chat chat) {
+        this.chat = chat;
+    }
 }

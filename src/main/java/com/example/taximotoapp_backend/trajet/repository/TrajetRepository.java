@@ -22,19 +22,20 @@ public interface TrajetRepository extends JpaRepository<Trajet,Long> {
     @Query(value = """
     SELECT t.*
     FROM trajet t
+    JOIN trajet_location tl ON tl.trajet_id = t.id
     WHERE t.status = 'Created'
       AND t.chauffeur_id IS NULL
-      AND t.pickup_latitude BETWEEN :lat - (:radius / 111) AND :lat + (:radius / 111)
-      AND t.pickup_longitude BETWEEN :lon - (:radius / (111 * cos(radians(:lat))))
+      AND tl.pickup_latitude BETWEEN :lat - (:radius / 111) AND :lat + (:radius / 111)
+      AND tl.pickup_longitude BETWEEN :lon - (:radius / (111 * cos(radians(:lat))))
                                  AND :lon + (:radius / (111 * cos(radians(:lat))))
     ORDER BY (
         6371 * acos(
             LEAST(1, GREATEST(-1,
                 cos(radians(:lat)) *
-                cos(radians(t.pickup_latitude)) *
-                cos(radians(t.pickup_longitude) - radians(:lon)) +
+                cos(radians(tl.pickup_latitude)) *
+                cos(radians(tl.pickup_longitude) - radians(:lon)) +
                 sin(radians(:lat)) *
-                sin(radians(t.pickup_latitude))
+                sin(radians(tl.pickup_latitude))
             ))
         )
     )

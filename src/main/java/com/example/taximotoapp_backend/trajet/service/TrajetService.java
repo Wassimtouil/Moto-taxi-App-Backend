@@ -5,10 +5,12 @@ import com.example.taximotoapp_backend.User.model.Client;
 import com.example.taximotoapp_backend.User.model.User;
 import com.example.taximotoapp_backend.User.repository.ChauffeurRepository;
 import com.example.taximotoapp_backend.User.repository.UserRepository;
+import com.example.taximotoapp_backend.model.enumClass.Availability;
 import com.example.taximotoapp_backend.model.enumClass.TripStatus;
 import com.example.taximotoapp_backend.trajet.dto.TrajetRequest;
 import com.example.taximotoapp_backend.trajet.mapper.TrajetMapper;
 import com.example.taximotoapp_backend.trajet.model.Trajet;
+import com.example.taximotoapp_backend.trajet.model.TrajetLocation;
 import com.example.taximotoapp_backend.trajet.repository.TrajetRepository;
 import com.example.taximotoapp_backend.trajet.response.TrajetResponse;
 import com.example.taximotoapp_backend.websocket.service.TimeoutService;
@@ -36,6 +38,16 @@ public class TrajetService {
         User client = userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("client not found"));
         //mapping request -> entity
         Trajet trajet = trajetMapper.toEntity(trajetRequest);
+
+        // créer et attacher TrajetLocation (les coordonnées ne sont plus dans Trajet)
+        TrajetLocation trajetLocation = new TrajetLocation();
+        trajetLocation.setPickupLatitude(trajetRequest.getPickupLatitude());
+        trajetLocation.setPickupLongitude(trajetRequest.getPickupLongitude());
+        trajetLocation.setDestinationLatitude(trajetRequest.getDestinationLatitude());
+        trajetLocation.setDestinationLongitude(trajetRequest.getDestinationLongitude());
+        trajetLocation.setTrajet(trajet);
+        trajet.setTrajetLocation(trajetLocation);
+
         // calcul distance
         double distance = calculateDistance(
                 trajetRequest.getPickupLatitude(),
@@ -224,7 +236,12 @@ public class TrajetService {
                 .orElseThrow(() -> new RuntimeException("Chauffeur not found"));
 
         // 🚫 vérifier disponibilité du chauffeur
-        if (chauffeur.getAvailability().name().equals("FALSE")) {
+        if (chauffeur.getAvailability() == Availability.FALSE) {
+            return Collections.emptyList();
+        }
+
+        // 📍 vérifier si la position du chauffeur est connue
+        if (chauffeur.getLocation() == null) {
             return Collections.emptyList();
         }
 

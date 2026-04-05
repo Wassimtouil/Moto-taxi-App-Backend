@@ -6,7 +6,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 @EnableAsync
 @SpringBootApplication
-public class TaxiMotoAppBackendApplication {
+public class   TaxiMotoAppBackendApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(TaxiMotoAppBackendApplication.class, args);

@@ -14,22 +14,23 @@ public interface ChauffeurRepository extends JpaRepository<Chauffeur,Long> {
     Optional<Chauffeur> findByEmail(String email);
 
     @Query(value = """
-    SELECT c.* ,u.*
+    SELECT c.*, u.*
     FROM chauffeur c
     JOIN user u ON c.user_id = u.id
+    JOIN location l ON l.user_id = u.id
     WHERE c.availability = true
       AND u.activity_status = 'ONLINE'
-      AND u.current_latitude BETWEEN :lat - (:radius / 111) AND :lat + (:radius / 111)
-      AND u.current_longitude BETWEEN :lon - (:radius / (111 * cos(radians(:lat)))) 
-                                 AND :lon + (:radius / (111 * cos(radians(:lat))))
+      AND l.latitude BETWEEN :lat - (:radius / 111) AND :lat + (:radius / 111)
+      AND l.longitude BETWEEN :lon - (:radius / (111 * cos(radians(:lat))))
+                           AND :lon + (:radius / (111 * cos(radians(:lat))))
     ORDER BY (
         6371 * acos(
             LEAST(1, GREATEST(-1,
                 cos(radians(:lat)) *
-                cos(radians(u.current_latitude)) *
-                cos(radians(u.current_longitude) - radians(:lon)) +
+                cos(radians(l.latitude)) *
+                cos(radians(l.longitude) - radians(:lon)) +
                 sin(radians(:lat)) *
-                sin(radians(u.current_latitude))
+                sin(radians(l.latitude))
             ))
         )
     )
