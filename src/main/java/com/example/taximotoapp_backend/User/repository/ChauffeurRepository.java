@@ -19,17 +19,17 @@ public interface ChauffeurRepository extends JpaRepository<Chauffeur,Long> {
     JOIN user u ON c.user_id = u.id
     WHERE c.availability = true
       AND u.activity_status = 'ONLINE'
-      AND c.current_latitude BETWEEN :lat - (:radius / 111) AND :lat + (:radius / 111)
-      AND c.current_longitude BETWEEN :lon - (:radius / (111 * cos(radians(:lat)))) 
+      AND u.current_latitude BETWEEN :lat - (:radius / 111) AND :lat + (:radius / 111)
+      AND u.current_longitude BETWEEN :lon - (:radius / (111 * cos(radians(:lat)))) 
                                  AND :lon + (:radius / (111 * cos(radians(:lat))))
     ORDER BY (
         6371 * acos(
             LEAST(1, GREATEST(-1,
                 cos(radians(:lat)) *
-                cos(radians(c.current_latitude)) *
-                cos(radians(c.current_longitude) - radians(:lon)) +
+                cos(radians(u.current_latitude)) *
+                cos(radians(u.current_longitude) - radians(:lon)) +
                 sin(radians(:lat)) *
-                sin(radians(c.current_latitude))
+                sin(radians(u.current_latitude))
             ))
         )
     )

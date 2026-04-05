@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Map;
 
 @RestController
@@ -19,11 +20,17 @@ import java.util.Map;
 public class LocationController {
     private final LocationService locationService;
 
-    @PreAuthorize("hasRole('CHAUFFEUR')")
+    /**
+     * @deprecated This REST endpoint is deprecated. Use WebSocket endpoint /app/location.update instead.
+     * Location tracking is now 100% WebSocket-driven for real-time, low-latency updates.
+     */
+    @Deprecated
+    @PreAuthorize("hasRole('CHAUFFEUR') or hasRole('CLIENT')")
     @PatchMapping("/updateLocation")
-    public ResponseEntity<?> updateLocation(@RequestBody LocationRequest locationRequest){
+    public ResponseEntity<?> updateLocation(@RequestBody LocationRequest locationRequest, Principal principal){
         try {
-            LocationResponse response = locationService.updateLocation(locationRequest);
+            String email = principal.getName();
+            LocationResponse response = locationService.updateLocation(locationRequest, email);
             return ResponseEntity.ok(response);
         }catch (RuntimeException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error",e.getMessage()));

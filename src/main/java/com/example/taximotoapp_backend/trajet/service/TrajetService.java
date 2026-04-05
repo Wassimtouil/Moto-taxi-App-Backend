@@ -110,10 +110,19 @@ public class TrajetService {
             trajet.setStatus(TripStatus.Accepted);
             trajetRepository.save(trajet);
 
-            // notifier client
+            // créer un payload JSON avec les détails du chauffeur
+            Map<String, Object> driverDetails = new HashMap<>();
+            driverDetails.put("driverId", chauffeur.getId());
+            driverDetails.put("driverName", chauffeur.getFullName());
+            driverDetails.put("driverPhoto", chauffeur.getFirebaseUid()); // ou URL de la photo si disponible
+            driverDetails.put("driverRating", 0.0); // à implémenter avec un vrai système de notation
+            driverDetails.put("vehicleModel", ""); // à implémenter avec les détails du véhicule
+            driverDetails.put("vehiclePlate", ""); // à implémenter avec les détails du véhicule
+
+            // notifier client avec les détails du chauffeur
             messagingTemplate.convertAndSend(
                     "/topic/client/" + trajet.getClient().getId(),
-                    "Trajet accepté par chauffeur " + chauffeur.getId()
+                    driverDetails
             );
 
             // notifier autres chauffeurs
@@ -176,10 +185,7 @@ public class TrajetService {
         trajet.setStatus(TripStatus.Canceled);
 
         Trajet saved=trajetRepository.save(trajet);
-        messagingTemplate.convertAndSend(
-                "/topic/driver/" + saved.getChauffeur().getId(),
-                "Trajet annulé par le client"
-        );
+        messagingTemplate.convertAndSend("/topic/trajet/" + trajetId, "Trajet annulé");
         return trajetMapper.toDTO(saved);
     }
 

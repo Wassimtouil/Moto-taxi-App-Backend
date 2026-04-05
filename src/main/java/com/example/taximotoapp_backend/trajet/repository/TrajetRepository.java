@@ -12,8 +12,11 @@ import java.util.Optional;
 public interface TrajetRepository extends JpaRepository<Trajet,Long> {
     Optional<Trajet> findById(Long id);
     List<Trajet> findByStatus(TripStatus status);
-    @Query("SELECT t FROM Trajet t WHERE t.chauffeur.id = :chauffeurId AND t.status = 'Accepted'")
-    Optional<Trajet> findActiveTrajetByChauffeurId(@Param("chauffeurId") Long chauffeurId);
+    @Query("SELECT t FROM Trajet t WHERE t.chauffeur.id = :chauffeurId AND (t.status = 'Accepted' OR t.status = 'Started') ORDER BY t.id DESC")
+    List<Trajet> findActiveTrajetByChauffeurId(@Param("chauffeurId") Long chauffeurId);
+
+    @Query("SELECT t FROM Trajet t WHERE t.client.id = :clientId AND (t.status = 'Accepted' OR t.status = 'Started') ORDER BY t.id DESC")
+    List<Trajet> findActiveTrajetByClientId(@Param("clientId") Long clientId);
 
 
     @Query(value = """

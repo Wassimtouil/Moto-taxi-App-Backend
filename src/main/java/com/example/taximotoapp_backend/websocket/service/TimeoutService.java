@@ -34,6 +34,9 @@ public class TimeoutService {
                         "/topic/client/" + trajet.getClient().getId(),
                         "Aucun chauffeur disponible"
                 );
+
+                // 🔥 ADD THIS: Notify drivers to remove the request from their screen
+                messagingTemplate.convertAndSend("/topic/trajet/" + trajetId, "Trajet annulé (Timeout)");
             }
 
         } catch (InterruptedException e) {
