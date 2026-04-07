@@ -16,6 +16,9 @@ public interface TrajetMapper {
     @Mapping(source = "trajetLocation.pickupLongitude", target = "pickupLongitude")
     @Mapping(source = "trajetLocation.destinationLatitude", target = "destinationLatitude")
     @Mapping(source = "trajetLocation.destinationLongitude", target = "destinationLongitude")
+    @Mapping(source = "client.fullName", target = "clientName")
+    @Mapping(source = "client.location.latitude", target = "clientLatitude")
+    @Mapping(source = "client.location.longitude", target = "clientLongitude")
     TrajetResponse toDTO(Trajet trajet);
 
     // request -> Entity (ignorer les champs gérés manuellement dans le service)

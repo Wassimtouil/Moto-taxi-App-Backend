@@ -32,12 +32,27 @@ public class TrajetService {
     private final ChauffeurRepository chauffeurRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final TimeoutService timeoutService;
+    private final com.example.taximotoapp_backend.location.repository.LocationRepository locationRepository;
+
     public TrajetResponse createTrajet(TrajetRequest trajetRequest){
         // recuperer user a travers le jwt
         String email= SecurityContextHolder.getContext().getAuthentication().getName();
         User client = userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("client not found"));
-        //mapping request -> entity
+
+        // mapping request -> entity
         Trajet trajet = trajetMapper.toEntity(trajetRequest);
+
+        // --- NOUVEAU : Initialiser/Mettre à jour la position du client dans la base ---
+        com.example.taximotoapp_backend.location.model.Location clientLocation = client.getLocation();
+        if (clientLocation == null) {
+            clientLocation = new com.example.taximotoapp_backend.location.model.Location();
+            clientLocation.setUser(client);
+            client.setLocation(clientLocation);
+        }
+        clientLocation.setLatitude(trajetRequest.getPickupLatitude());
+        clientLocation.setLongitude(trajetRequest.getPickupLongitude());
+        locationRepository.save(clientLocation);
+        // --------------------------------------------------------------------------
 
         // créer et attacher TrajetLocation (les coordonnées ne sont plus dans Trajet)
         TrajetLocation trajetLocation = new TrajetLocation();
@@ -157,7 +172,16 @@ public class TrajetService {
         }
         trajet.setChauffeur((Chauffeur) chauffeur);
         trajet.setStatus(TripStatus.Started);
-        return trajetMapper.toDTO(trajetRepository.save(trajet));
+        Trajet saved = trajetRepository.save(trajet);
+
+        // Notify Rider
+        Map<String, Object> startNotification = new HashMap<>();
+        startNotification.put("status", "STARTED");
+        startNotification.put("message", "Le trajet a commencé !");
+        startNotification.put("trajetId", trajetId);
+        messagingTemplate.convertAndSend("/topic/client/" + trajet.getClient().getId(), startNotification);
+
+        return trajetMapper.toDTO(saved);
     }
 
     public TrajetResponse terminerTrajet(Long trajetId) {
@@ -176,7 +200,16 @@ public class TrajetService {
             throw new RuntimeException("Le trajet n'est pas en cours");
         }
         trajet.setStatus(TripStatus.Completed);
-        return trajetMapper.toDTO(trajetRepository.save(trajet));
+        Trajet saved = trajetRepository.save(trajet);
+
+        // Notify Rider
+        Map<String, Object> completeNotification = new HashMap<>();
+        completeNotification.put("status", "COMPLETED");
+        completeNotification.put("message", "Votre course est terminée !");
+        completeNotification.put("trajetId", trajetId);
+        messagingTemplate.convertAndSend("/topic/client/" + trajet.getClient().getId(), completeNotification);
+
+        return trajetMapper.toDTO(saved);
     }
 
     public TrajetResponse annulerTrajet(Long trajetId) {
@@ -264,4 +297,32 @@ public class TrajetService {
                 .toList();
     }
 
+    public TrajetResponse driverArrivedAtPickup(Long trajetId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Chauffeur chauffeur = chauffeurRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Chauffeur not found"));
+
+        Trajet trajet = trajetRepository.findById(trajetId)
+                .orElseThrow(() -> new RuntimeException("Trajet not found"));
+
+        if (!trajet.getChauffeur().getId().equals(chauffeur.getId())) {
+            throw new RuntimeException("Ce trajet ne t'appartient pas");
+        }
+
+        // 1. Update status locally if needed (optional, keeping it Started/Accepted or adding Arrived)
+        // For now, we keep the status but notify the client.
+
+        // 2. Notify client with a specific "ARRIVED" status and message
+        Map<String, Object> arrivalNotification = new HashMap<>();
+        arrivalNotification.put("status", "ARRIVED");
+        arrivalNotification.put("message", "your driver here");
+        arrivalNotification.put("trajetId", trajetId);
+
+        messagingTemplate.convertAndSend(
+                "/topic/client/" + trajet.getClient().getId(),
+                arrivalNotification
+        );
+
+        return trajetMapper.toDTO(trajet);
+    }
 }

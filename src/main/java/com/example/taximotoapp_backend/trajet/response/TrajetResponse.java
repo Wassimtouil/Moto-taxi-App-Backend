@@ -17,4 +17,7 @@ public class TrajetResponse {
     private LocalDateTime requestedAt;
     private Long clientId;
     private Long chauffeurId;
+    private String clientName;
+    private Double clientLatitude;
+    private Double clientLongitude;
 }
