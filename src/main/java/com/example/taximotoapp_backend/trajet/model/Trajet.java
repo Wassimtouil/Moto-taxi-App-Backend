@@ -2,7 +2,6 @@ package com.example.taximotoapp_backend.trajet.model;
 
 import com.example.taximotoapp_backend.User.model.Chauffeur;
 import com.example.taximotoapp_backend.User.model.Client;
-import com.example.taximotoapp_backend.model.Chat;
 import com.example.taximotoapp_backend.model.enumClass.TripStatus;
 import jakarta.persistence.*;
 
