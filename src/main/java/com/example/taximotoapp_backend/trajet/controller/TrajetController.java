@@ -7,9 +7,14 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 
+import java.util.Collections;
 import java.util.Map;
 
 @RestController
@@ -104,61 +109,51 @@ public class TrajetController {
         return ResponseEntity.ok(trajetService.getAvailableTrajetsForDriver());
     }
 
-    // --- WebSocket Endpoint (STOMP) ---
-    // Fast path to bypass HTTP latency for arrival notification
-    @org.springframework.messaging.handler.annotation.MessageMapping("/trajet.arrived")
-    public void driverArrivedFastPing(@org.springframework.messaging.handler.annotation.Payload Map<String, Object> payload, org.springframework.messaging.simp.SimpMessageHeaderAccessor headerAccessor) {
-        System.out.println("⚡ FAST PING TRIGGERED: ARRIVED! Payload: " + payload);
+    @MessageMapping("/trajet.arrived")
+    public void driverArrivedFastPing(Map<String, Object> payload, SimpMessageHeaderAccessor headerAccessor) {
         if (payload == null || !payload.containsKey("trajetId")) return;
         Long trajetId = Long.valueOf(payload.get("trajetId").toString());
-
         String email = (String) headerAccessor.getSessionAttributes().get("username");
         if (email != null) {
-            org.springframework.security.authentication.UsernamePasswordAuthenticationToken auth =
-                    new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(email, null, java.util.Collections.emptyList());
-            org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(auth);
+            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(email, null, Collections.emptyList());
+            SecurityContextHolder.getContext().setAuthentication(auth);
             try {
                 trajetService.driverArrivedAtPickup(trajetId);
             } finally {
-                org.springframework.security.core.context.SecurityContextHolder.clearContext();
+                SecurityContextHolder.clearContext();
             }
         }
     }
 
-    @org.springframework.messaging.handler.annotation.MessageMapping("/trajet.started")
-    public void driverStartedFastPing(@org.springframework.messaging.handler.annotation.Payload Map<String, Object> payload, org.springframework.messaging.simp.SimpMessageHeaderAccessor headerAccessor) {
-        System.out.println("⚡ FAST PING TRIGGERED: STARTED! Payload: " + payload);
+    @MessageMapping("/trajet.started")
+    public void driverStartedFastPing(Map<String, Object> payload, SimpMessageHeaderAccessor headerAccessor) {
         if (payload == null || !payload.containsKey("trajetId")) return;
         Long trajetId = Long.valueOf(payload.get("trajetId").toString());
-
         String email = (String) headerAccessor.getSessionAttributes().get("username");
         if (email != null) {
-            org.springframework.security.authentication.UsernamePasswordAuthenticationToken auth =
-                    new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(email, null, java.util.Collections.emptyList());
-            org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(auth);
+            UsernamePasswordAuthenticationToken auth =
+                    new UsernamePasswordAuthenticationToken(email, null, Collections.emptyList());
+                    SecurityContextHolder.getContext().setAuthentication(auth);
             try {
                 trajetService.startTrajet(trajetId);
             } finally {
-                org.springframework.security.core.context.SecurityContextHolder.clearContext();
+                SecurityContextHolder.clearContext();
             }
         }
     }
 
-    @org.springframework.messaging.handler.annotation.MessageMapping("/trajet.completed")
-    public void driverCompletedFastPing(@org.springframework.messaging.handler.annotation.Payload Map<String, Object> payload, org.springframework.messaging.simp.SimpMessageHeaderAccessor headerAccessor) {
-        System.out.println("⚡ FAST PING TRIGGERED: COMPLETED! Payload: " + payload);
+    @MessageMapping("/trajet.completed")
+    public void driverCompletedFastPing(Map<String, Object> payload, SimpMessageHeaderAccessor headerAccessor) {
         if (payload == null || !payload.containsKey("trajetId")) return;
         Long trajetId = Long.valueOf(payload.get("trajetId").toString());
-
         String email = (String) headerAccessor.getSessionAttributes().get("username");
         if (email != null) {
-            org.springframework.security.authentication.UsernamePasswordAuthenticationToken auth =
-                    new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(email, null, java.util.Collections.emptyList());
-            org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(auth);
+            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(email, null, Collections.emptyList());
+            SecurityContextHolder.getContext().setAuthentication(auth);
             try {
                 trajetService.terminerTrajet(trajetId);
             } finally {
-                org.springframework.security.core.context.SecurityContextHolder.clearContext();
+                SecurityContextHolder.clearContext();
             }
         }
     }
