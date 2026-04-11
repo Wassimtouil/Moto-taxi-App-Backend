@@ -1,10 +1,10 @@
-package com.example.taximotoapp_backend.model;
+package com.example.taximotoapp_backend.chat.model;
+
 
 import com.example.taximotoapp_backend.model.enumClass.SenderType;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-
 
 @Entity
 public class Message {

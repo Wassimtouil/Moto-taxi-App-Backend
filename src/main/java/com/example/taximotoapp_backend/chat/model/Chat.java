@@ -1,7 +1,6 @@
 package com.example.taximotoapp_backend.chat.model;
 
 
-import com.example.taximotoapp_backend.model.Message;
 import com.example.taximotoapp_backend.trajet.model.Trajet;
 import jakarta.persistence.*;
 
