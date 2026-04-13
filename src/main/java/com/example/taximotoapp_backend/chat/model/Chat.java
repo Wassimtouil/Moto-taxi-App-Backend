@@ -21,4 +21,28 @@ public class Chat {
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    public void setTrajet(Trajet trajet) {
+        this.trajet = trajet;
+    }
+
+    public void setMessages(List<Message> messages) {
+        this.messages = messages;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Trajet getTrajet() {
+        return trajet;
+    }
+
+    public List<Message> getMessages() {
+        return messages;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 }
