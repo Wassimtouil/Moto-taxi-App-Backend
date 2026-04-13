@@ -1,4 +1,4 @@
-package com.example.taximotoapp_backend.model;
+package com.example.taximotoapp_backend.reclamation.model;
 
 import com.example.taximotoapp_backend.User.model.User;
 import jakarta.persistence.*;
