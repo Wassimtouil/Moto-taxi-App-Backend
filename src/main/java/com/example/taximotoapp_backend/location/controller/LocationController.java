@@ -1,7 +1,7 @@
 package com.example.taximotoapp_backend.location.controller;
 
-import com.example.taximotoapp_backend.location.dto.LocationRequest;
-import com.example.taximotoapp_backend.location.response.LocationResponse;
+import com.example.taximotoapp_backend.location.dto.request.LocationRequest;
+import com.example.taximotoapp_backend.location.dto.response.LocationResponse;
 import com.example.taximotoapp_backend.location.service.LocationService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;

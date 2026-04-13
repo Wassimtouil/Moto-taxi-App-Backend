@@ -1,7 +1,7 @@
 package com.example.taximotoapp_backend.trajet.controller;
 
-import com.example.taximotoapp_backend.trajet.dto.TrajetRequest;
-import com.example.taximotoapp_backend.trajet.response.TrajetResponse;
+import com.example.taximotoapp_backend.trajet.dto.request.TrajetRequest;
+import com.example.taximotoapp_backend.trajet.dto.response.TrajetResponse;
 import com.example.taximotoapp_backend.trajet.service.TrajetService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;

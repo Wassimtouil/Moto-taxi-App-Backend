@@ -2,10 +2,10 @@ package com.example.taximotoapp_backend.location.service;
 
 import com.example.taximotoapp_backend.User.model.User;
 import com.example.taximotoapp_backend.User.repository.UserRepository;
-import com.example.taximotoapp_backend.location.dto.LocationRequest;
+import com.example.taximotoapp_backend.location.dto.request.LocationRequest;
 import com.example.taximotoapp_backend.location.model.Location;
 import com.example.taximotoapp_backend.location.repository.LocationRepository;
-import com.example.taximotoapp_backend.location.response.LocationResponse;
+import com.example.taximotoapp_backend.location.dto.response.LocationResponse;
 import com.example.taximotoapp_backend.model.enumClass.Role;
 import com.example.taximotoapp_backend.trajet.model.Trajet;
 import com.example.taximotoapp_backend.trajet.repository.TrajetRepository;

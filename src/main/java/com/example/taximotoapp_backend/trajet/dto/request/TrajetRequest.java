@@ -1,6 +1,5 @@
-package com.example.taximotoapp_backend.trajet.dto;
+package com.example.taximotoapp_backend.trajet.dto.request;
 
-import com.example.taximotoapp_backend.model.enumClass.TripStatus;
 import lombok.Data;
 
 @Data
