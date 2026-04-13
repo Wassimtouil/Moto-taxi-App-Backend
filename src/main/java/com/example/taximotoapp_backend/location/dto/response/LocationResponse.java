@@ -1,4 +1,4 @@
-package com.example.taximotoapp_backend.location.response;
+package com.example.taximotoapp_backend.location.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.example.taximotoapp_backend.location.dto;
+package com.example.taximotoapp_backend.location.dto.request;
 
 import lombok.Data;
 

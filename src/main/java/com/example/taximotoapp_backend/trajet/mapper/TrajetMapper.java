@@ -1,8 +1,8 @@
 package com.example.taximotoapp_backend.trajet.mapper;
 
-import com.example.taximotoapp_backend.trajet.dto.TrajetRequest;
+import com.example.taximotoapp_backend.trajet.dto.request.TrajetRequest;
 import com.example.taximotoapp_backend.trajet.model.Trajet;
-import com.example.taximotoapp_backend.trajet.response.TrajetResponse;
+import com.example.taximotoapp_backend.trajet.dto.response.TrajetResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
