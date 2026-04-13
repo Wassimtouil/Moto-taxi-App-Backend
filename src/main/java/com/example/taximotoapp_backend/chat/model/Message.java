@@ -25,4 +25,36 @@ public class Message {
 
     @Column(nullable = false)
     private LocalDateTime sentAt = LocalDateTime.now();
+
+    public Chat getChat() {
+        return chat;
+    }
+
+    public SenderType getSenderType() {
+        return senderType;
+    }
+
+    public String getContenu() {
+        return contenu;
+    }
+
+    public LocalDateTime getSentAt() {
+        return sentAt;
+    }
+
+    public void setChat(Chat chat) {
+        this.chat = chat;
+    }
+
+    public void setSenderType(SenderType senderType) {
+        this.senderType = senderType;
+    }
+
+    public void setContenu(String contenu) {
+        this.contenu = contenu;
+    }
+
+    public void setSentAt(LocalDateTime sentAt) {
+        this.sentAt = sentAt;
+    }
 }
