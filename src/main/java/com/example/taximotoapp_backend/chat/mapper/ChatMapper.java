@@ -7,6 +7,8 @@ import com.example.taximotoapp_backend.chat.model.Message;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface ChatMapper {
     @Mapping(source = "id", target = "chatId")
@@ -15,4 +17,7 @@ public interface ChatMapper {
 
     @Mapping(source = "chat.id", target = "chatId")
     MessageResponse toMessageResponse(Message message);
+
+    List<MessageResponse> toMessageResponseList(List<Message> messages);
+
 }
