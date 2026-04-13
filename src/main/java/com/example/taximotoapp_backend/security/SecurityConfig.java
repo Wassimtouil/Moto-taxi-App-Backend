@@ -26,6 +26,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/location/**").hasAnyRole("CHAUFFEUR", "CLIENT")
 
                         .requestMatchers("/api/trajets/**").hasAnyRole("CLIENT","CHAUFFEUR")
+                        .requestMatchers("/api/chat/**").hasAnyRole("CLIENT","CHAUFFEUR")
 
                         .requestMatchers("/ws/**").permitAll() // 🔥 IMPORTANT
 
