@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/reclamation")
 public class ReclamationController {
     private final ReclamationService service;
-
-
     @PreAuthorize("hasAnyRole('CLIENT','CHAUFFEUR')")
     @PostMapping("/createReclamation")
     public ResponseEntity<ReclamationResponse> create(@RequestBody ReclamationRequest request) {

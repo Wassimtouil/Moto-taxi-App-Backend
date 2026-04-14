@@ -22,6 +22,10 @@ public class Chat {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    public Long getId() {
+        return id;
+    }
+
     public void setTrajet(Trajet trajet) {
         this.trajet = trajet;
     }

@@ -34,6 +34,10 @@ public class Message {
         return senderType;
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public String getContenu() {
         return contenu;
     }
