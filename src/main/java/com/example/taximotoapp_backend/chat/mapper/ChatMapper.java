@@ -11,6 +11,7 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface ChatMapper {
+
     @Mapping(source = "id", target = "chatId")
     @Mapping(source = "trajet.id", target = "trajetId")
     ChatResponse toChatResponse(Chat chat);
@@ -19,5 +20,4 @@ public interface ChatMapper {
     MessageResponse toMessageResponse(Message message);
 
     List<MessageResponse> toMessageResponseList(List<Message> messages);
-
 }
