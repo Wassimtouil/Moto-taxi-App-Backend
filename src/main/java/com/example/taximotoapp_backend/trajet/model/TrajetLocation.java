@@ -11,6 +11,12 @@ public class TrajetLocation {
     private Double pickupLongitude;
     private Double destinationLatitude;
     private Double destinationLongitude;
+
+    private String pickupAddress;
+    private String destinationAddress;
+    @Column(columnDefinition = "TEXT")
+    private String encodedPolyline;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trajet_id", nullable = false)
     private Trajet trajet;
@@ -21,6 +27,30 @@ public class TrajetLocation {
 
     public Double getPickupLongitude() {
         return pickupLongitude;
+    }
+
+    public String getPickupAddress() {
+        return pickupAddress;
+    }
+
+    public String getDestinationAddress() {
+        return destinationAddress;
+    }
+
+    public String getEncodedPolyline() {
+        return encodedPolyline;
+    }
+
+    public void setPickupAddress(String pickupAddress) {
+        this.pickupAddress = pickupAddress;
+    }
+
+    public void setDestinationAddress(String destinationAddress) {
+        this.destinationAddress = destinationAddress;
+    }
+
+    public void setEncodedPolyline(String encodedPolyline) {
+        this.encodedPolyline = encodedPolyline;
     }
 
     public Double getDestinationLatitude() {

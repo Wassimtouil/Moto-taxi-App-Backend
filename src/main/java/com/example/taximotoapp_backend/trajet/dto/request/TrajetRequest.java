@@ -9,4 +9,7 @@ public class TrajetRequest {
     private Double pickupLongitude;
     private Double destinationLatitude;
     private Double destinationLongitude;
+
+    private String pickupAddress;
+    private String destinationAddress;
 }

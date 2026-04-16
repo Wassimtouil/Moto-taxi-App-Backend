@@ -33,6 +33,7 @@ public class TrajetService {
     private final SimpMessagingTemplate messagingTemplate;
     private final TimeoutService timeoutService;
     private final com.example.taximotoapp_backend.location.repository.LocationRepository locationRepository;
+    private final MapboxService mapboxService;
 
     public TrajetResponse createTrajet(TrajetRequest trajetRequest){
         // recuperer user a travers le jwt
@@ -42,7 +43,7 @@ public class TrajetService {
         // mapping request -> entity
         Trajet trajet = trajetMapper.toEntity(trajetRequest);
 
-        // --- NOUVEAU : Initialiser/Mettre à jour la position du client dans la base ---
+        // --- Initialiser/Mettre à jour la position du client dans la base ---
         com.example.taximotoapp_backend.location.model.Location clientLocation = client.getLocation();
         if (clientLocation == null) {
             clientLocation = new com.example.taximotoapp_backend.location.model.Location();
@@ -52,34 +53,49 @@ public class TrajetService {
         clientLocation.setLatitude(trajetRequest.getPickupLatitude());
         clientLocation.setLongitude(trajetRequest.getPickupLongitude());
         locationRepository.save(clientLocation);
-        // --------------------------------------------------------------------------
 
-        // créer et attacher TrajetLocation (les coordonnées ne sont plus dans Trajet)
+        // créer et attacher TrajetLocation
         TrajetLocation trajetLocation = new TrajetLocation();
         trajetLocation.setPickupLatitude(trajetRequest.getPickupLatitude());
         trajetLocation.setPickupLongitude(trajetRequest.getPickupLongitude());
         trajetLocation.setDestinationLatitude(trajetRequest.getDestinationLatitude());
         trajetLocation.setDestinationLongitude(trajetRequest.getDestinationLongitude());
+
+        // --- Road Data from Mapbox ---
+        MapboxService.RouteDetails roadmap = mapboxService.getRouteDetails(
+                trajetRequest.getPickupLatitude(), trajetRequest.getPickupLongitude(),
+                trajetRequest.getDestinationLatitude(), trajetRequest.getDestinationLongitude()
+        );
+
+        // --- Address Resolution ---
+        String pAddress = trajetRequest.getPickupAddress();
+        if (pAddress == null || pAddress.isEmpty()) {
+            pAddress = mapboxService.reverseGeocode(
+                    trajetRequest.getPickupLatitude(), trajetRequest.getPickupLongitude());
+        }
+        trajetLocation.setPickupAddress(pAddress);
+
+        String dAddress = trajetRequest.getDestinationAddress();
+        if (dAddress == null || dAddress.isEmpty()) {
+            dAddress = mapboxService.reverseGeocode(
+                    trajetRequest.getDestinationLatitude(), trajetRequest.getDestinationLongitude());
+        }
+        trajetLocation.setDestinationAddress(dAddress);
+        trajetLocation.setEncodedPolyline(roadmap.getEncodedPolyline());
+
         trajetLocation.setTrajet(trajet);
         trajet.setTrajetLocation(trajetLocation);
 
-        // calcul distance
-        double distance = calculateDistance(
-                trajetRequest.getPickupLatitude(),
-                trajetRequest.getPickupLongitude(),
-                trajetRequest.getDestinationLatitude(),
-                trajetRequest.getDestinationLongitude()
-        );
         trajet.setClient((Client) client);
         trajet.setChauffeur(null);
-        trajet.setDistanceKm(distance);
-        trajet.setPrice(1000.0);
+        trajet.setDistanceKm(roadmap.getDistanceKm());
+        trajet.setPrice(calculatePrice(roadmap.getDistanceKm()));
         trajet.setStatus(TripStatus.Created);
         trajet.setRequestedAt(LocalDateTime.now());
 
-        Trajet saved=trajetRepository.save(trajet);
+        Trajet saved = trajetRepository.save(trajet);
 
-        // trouver chauffeurs (5km → 10km)
+        // trouver chauffeurs
         List<Chauffeur> drivers = findDriversWithExpansion(
                 trajetRequest.getPickupLatitude(),
                 trajetRequest.getPickupLongitude()
@@ -89,14 +105,16 @@ public class TrajetService {
             throw new RuntimeException("Aucun chauffeur disponible");
         }
 
-        //envoyer demande via WebSocket
         sendTrajetToDrivers(saved, drivers);
-
-        //lancer timer
         timeoutService.handleTimeout(saved.getId());
         return trajetMapper.toDTO(saved);
     }
 
+    private Double calculatePrice(Double distanceKm) {
+        final double BASE_FARE = 0.7;
+        final double PER_KM_RATE = 0.8;
+        return BASE_FARE + (distanceKm * PER_KM_RATE);
+    }
 
     public void sendTrajetToDrivers(Trajet trajet, List<Chauffeur> drivers) {
         for (Chauffeur driver : drivers) {
@@ -106,6 +124,7 @@ public class TrajetService {
             );
         }
     }
+
     public List<Chauffeur> findDriversWithExpansion(double lat, double lon) {
         Set<Chauffeur> driversSet = new LinkedHashSet<>();
         for (int i = 1; i < 10; i += 2) {
@@ -120,7 +139,6 @@ public class TrajetService {
 
     @Transactional
     public synchronized void handleDriverResponse(Long trajetId, String action) {
-        // récupérer chauffeur connecté depuis JWT
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Chauffeur chauffeur = (Chauffeur) userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Chauffeur not found"));
@@ -137,28 +155,27 @@ public class TrajetService {
             trajet.setStatus(TripStatus.Accepted);
             trajetRepository.save(trajet);
 
-            // créer un payload JSON avec les détails du chauffeur
             Map<String, Object> driverDetails = new HashMap<>();
+            driverDetails.put("status", "ACCEPTED");
             driverDetails.put("driverId", chauffeur.getId());
             driverDetails.put("driverName", chauffeur.getFullName());
-            driverDetails.put("driverPhoto", chauffeur.getFirebaseUid()); // ou URL de la photo si disponible
-            driverDetails.put("driverRating", 0.0); // à implémenter avec un vrai système de notation
-            driverDetails.put("vehicleModel", ""); // à implémenter avec les détails du véhicule
-            driverDetails.put("vehiclePlate", ""); // à implémenter avec les détails du véhicule
+            driverDetails.put("driverPhoto", chauffeur.getPhotoUrl() != null ? chauffeur.getPhotoUrl() : "");
+            driverDetails.put("driverRating", chauffeur.getRating() != null ? chauffeur.getRating() : 0.0);
+            driverDetails.put("vehicleModel", chauffeur.getVehicleModel() != null ? chauffeur.getVehicleModel() : "Moto-Taxi");
+            driverDetails.put("vehiclePlate", chauffeur.getVehiclePlate() != null ? chauffeur.getVehiclePlate() : "");
 
-            // notifier client avec les détails du chauffeur
             messagingTemplate.convertAndSend(
                     "/topic/client/" + trajet.getClient().getId(),
                     driverDetails
             );
 
-            // notifier autres chauffeurs
             messagingTemplate.convertAndSend(
                     "/topic/trajet/" + trajetId,
-                    "Trajet déjà pris"
+                    Map.of("status", "TAKEN", "trajetId", trajetId)
             );
         }
     }
+
     public TrajetResponse startTrajet(Long trajetId) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User chauffeur = userRepository.findByEmail(email)
@@ -170,16 +187,12 @@ public class TrajetService {
         if (trajet.getStatus() != TripStatus.Accepted) {
             throw new RuntimeException("Trajet déjà pris ou non disponible");
         }
-        trajet.setChauffeur((Chauffeur) chauffeur);
+        trajet.setStartedAt(LocalDateTime.now());
         trajet.setStatus(TripStatus.Started);
         Trajet saved = trajetRepository.save(trajet);
 
-        // Notify Rider
-        Map<String, Object> startNotification = new HashMap<>();
-        startNotification.put("status", "STARTED");
-        startNotification.put("message", "Le trajet a commencé !");
-        startNotification.put("trajetId", trajetId);
-        messagingTemplate.convertAndSend("/topic/client/" + trajet.getClient().getId(), startNotification);
+        messagingTemplate.convertAndSend("/topic/client/" + trajet.getClient().getId(),
+                Map.of("status", "STARTED", "trajetId", trajetId, "message", "Trip started!"));
 
         return trajetMapper.toDTO(saved);
     }
@@ -200,14 +213,11 @@ public class TrajetService {
             throw new RuntimeException("Le trajet n'est pas en cours");
         }
         trajet.setStatus(TripStatus.Completed);
+        trajet.setCompletedAt(LocalDateTime.now());
         Trajet saved = trajetRepository.save(trajet);
 
-        // Notify Rider
-        Map<String, Object> completeNotification = new HashMap<>();
-        completeNotification.put("status", "COMPLETED");
-        completeNotification.put("message", "Votre course est terminée !");
-        completeNotification.put("trajetId", trajetId);
-        messagingTemplate.convertAndSend("/topic/client/" + trajet.getClient().getId(), completeNotification);
+        messagingTemplate.convertAndSend("/topic/client/" + trajet.getClient().getId(),
+                Map.of("status", "COMPLETED", "trajetId", trajetId, "message", "Trip completed!"));
 
         return trajetMapper.toDTO(saved);
     }
@@ -229,29 +239,18 @@ public class TrajetService {
         }
         trajet.setStatus(TripStatus.Canceled);
 
-        Trajet saved=trajetRepository.save(trajet);
-        messagingTemplate.convertAndSend("/topic/trajet/" + trajetId, "Trajet annulé");
-        return trajetMapper.toDTO(saved);
-    }
+        Trajet saved = trajetRepository.save(trajet);
+        messagingTemplate.convertAndSend("/topic/trajet/" + trajetId,
+                Map.of("status", "CANCELLED", "trajetId", trajetId));
 
-    public double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-        final int R = 6371;
-        double latDistance = Math.toRadians(lat2 - lat1);
-        double lonDistance = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
-                + Math.cos(Math.toRadians(lat1))
-                * Math.cos(Math.toRadians(lat2))
-                * Math.sin(lonDistance / 2)
-                * Math.sin(lonDistance / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c;
+        return trajetMapper.toDTO(saved);
     }
 
     public TrajetResponse getTrajetById(Long id){
         String email=SecurityContextHolder.getContext().getAuthentication().getName();
         User user=userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
         Trajet trajet = trajetRepository.findById(id).orElseThrow(() -> new RuntimeException("trajet not found"));
-        //verification coté securité
+
         Boolean isClient=trajet.getClient().getId().equals(user.getId());
         Boolean isChauffeur=trajet.getChauffeur()!=null && trajet.getChauffeur().getId().equals(user.getId());
         if (!isChauffeur && !isClient){
@@ -261,19 +260,14 @@ public class TrajetService {
     }
 
     public List<TrajetResponse> getAvailableTrajetsForDriver() {
-
-        // 🔐 récupérer chauffeur connecté
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-
         Chauffeur chauffeur = chauffeurRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Chauffeur not found"));
 
-        // 🚫 vérifier disponibilité du chauffeur
         if (chauffeur.getAvailability() == Availability.FALSE) {
             return Collections.emptyList();
         }
 
-        // 📍 vérifier si la position du chauffeur est connue
         if (chauffeur.getLocation() == null) {
             return Collections.emptyList();
         }
@@ -283,7 +277,6 @@ public class TrajetService {
 
         Set<Trajet> trajetsSet = new LinkedHashSet<>();
 
-        // 🔁 expansion intelligente (1km → 9km)
         for (int i = 1; i < 10; i += 2) {
             List<Trajet> found = trajetRepository.findNearbyAvailableTrajets(lat, lon, i);
             trajetsSet.addAll(found);
@@ -309,20 +302,29 @@ public class TrajetService {
             throw new RuntimeException("Ce trajet ne t'appartient pas");
         }
 
-        // 1. Update status locally if needed (optional, keeping it Started/Accepted or adding Arrived)
-        // For now, we keep the status but notify the client.
-
-        // 2. Notify client with a specific "ARRIVED" status and message
-        Map<String, Object> arrivalNotification = new HashMap<>();
-        arrivalNotification.put("status", "ARRIVED");
-        arrivalNotification.put("message", "your driver here");
-        arrivalNotification.put("trajetId", trajetId);
-
         messagingTemplate.convertAndSend(
                 "/topic/client/" + trajet.getClient().getId(),
-                arrivalNotification
+                Map.of("status", "ARRIVED", "trajetId", trajetId, "message", "Your driver is here")
         );
 
         return trajetMapper.toDTO(trajet);
+    }
+
+    public List<TrajetResponse> getClientHistory() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User client = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Client not found"));
+        return trajetRepository.findByClientIdOrderByRequestedAtDesc(client.getId())
+                .stream()
+                .map(trajetMapper::toDTO)
+                .toList();
+    }
+
+    public List<TrajetResponse> getDriverHistory() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User driver = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Driver not found"));
+        return trajetRepository.findByChauffeurIdOrderByRequestedAtDesc(driver.getId())
+                .stream()
+                .map(trajetMapper::toDTO)
+                .toList();
     }
 }

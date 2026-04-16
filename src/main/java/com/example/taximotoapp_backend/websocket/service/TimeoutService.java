@@ -32,11 +32,12 @@ public class TimeoutService {
                 // 🔥 notifier client
                 messagingTemplate.convertAndSend(
                         "/topic/client/" + trajet.getClient().getId(),
-                        "Aucun chauffeur disponible"
+                        java.util.Map.of("status", "NO_DRIVER", "message", "Aucun chauffeur disponible", "trajetId", trajetId)
                 );
 
-                // 🔥 ADD THIS: Notify drivers to remove the request from their screen
-                messagingTemplate.convertAndSend("/topic/trajet/" + trajetId, "Trajet annulé (Timeout)");
+                // 🔥 Notify drivers to remove the request from their screen
+                messagingTemplate.convertAndSend("/topic/trajet/" + trajetId,
+                        java.util.Map.of("status", "TIMEOUT", "trajetId", trajetId));
             }
 
         } catch (InterruptedException e) {

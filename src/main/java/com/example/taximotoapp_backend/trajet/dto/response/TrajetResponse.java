@@ -11,6 +11,9 @@ public class TrajetResponse {
     private Double pickupLongitude;
     private Double destinationLatitude;
     private Double destinationLongitude;
+    private String pickupAddress;
+    private String destinationAddress;
+    private String encodedPolyline;
     private Double distanceKm;
     private Double price;
     private TripStatus status;
