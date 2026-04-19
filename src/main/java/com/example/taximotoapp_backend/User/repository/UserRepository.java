@@ -2,6 +2,7 @@ package com.example.taximotoapp_backend.User.repository;
 
 import com.example.taximotoapp_backend.User.model.User;
 import com.example.taximotoapp_backend.model.enumClass.Role;
+import com.example.taximotoapp_backend.reclamation.model.Reclamation;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

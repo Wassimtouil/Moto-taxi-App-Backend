@@ -32,4 +32,16 @@ public class ReclamationService {
         Reclamation Rsaved=repository.save(r);
         return mapper.toResponse(Rsaved);
     }
+    public List<ReclamationResponse> getMyReclamations() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Reclamation> reclamations = repository.findByUser(user);
+
+        return reclamations.stream()
+                .map(mapper::toResponse)
+                .collect(Collectors.toList());
+    }
 }
