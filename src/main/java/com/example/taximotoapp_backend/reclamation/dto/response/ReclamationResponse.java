@@ -1,5 +1,6 @@
 package com.example.taximotoapp_backend.reclamation.dto.response;
 
+import com.example.taximotoapp_backend.model.enumClass.ReclamationStatus;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -10,4 +11,6 @@ public class ReclamationResponse {
     private String objet;
     private String contenu;
     private LocalDateTime createdAt;
+    private String adminResponse;
+    private ReclamationStatus reclamationStatus;
 }
