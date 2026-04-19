@@ -36,7 +36,7 @@ public class TrajetController {
     }
 
     @PostMapping("/cancel/{id}")
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasAnyRole('CLIENT', 'CHAUFFEUR')")
     public ResponseEntity<?> cancelTrajet(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(trajetService.annulerTrajet(id));
@@ -63,6 +63,7 @@ public class TrajetController {
     @PostMapping("/{id}/arrived")
     @PreAuthorize("hasRole('CHAUFFEUR')")
     public ResponseEntity<?> driverArrived(@PathVariable Long id) {
+        System.out.println("📍 Driver Arrival REST call for trajet: " + id);
         try {
             return ResponseEntity.ok(trajetService.driverArrivedAtPickup(id));
         } catch (RuntimeException e) {
@@ -127,16 +128,41 @@ public class TrajetController {
         return ResponseEntity.ok(trajetService.getAvailableTrajetsForDriver());
     }
 
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/active")
+    public ResponseEntity<?> getActiveTrajet() {
+        try {
+            var auth = SecurityContextHolder.getContext().getAuthentication();
+            boolean isDriver = auth.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_CHAUFFEUR"));
+
+            if (isDriver) {
+                return trajetService.getActiveTrajetForDriver()
+                        .map(ResponseEntity::ok)
+                        .orElse(ResponseEntity.noContent().build());
+            } else {
+                return trajetService.getActiveTrajetForClient()
+                        .map(ResponseEntity::ok)
+                        .orElse(ResponseEntity.noContent().build());
+            }
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @MessageMapping("/trajet.arrived")
     public void driverArrivedFastPing(Map<String, Object> payload, SimpMessageHeaderAccessor headerAccessor) {
         if (payload == null || !payload.containsKey("trajetId")) return;
         Long trajetId = Long.valueOf(payload.get("trajetId").toString());
         String email = (String) headerAccessor.getSessionAttributes().get("username");
         if (email != null) {
+            System.out.println("📍 Driver Arrival FAST PING for trajet: " + trajetId + " by " + email);
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(email, null, Collections.emptyList());
             SecurityContextHolder.getContext().setAuthentication(auth);
             try {
                 trajetService.driverArrivedAtPickup(trajetId);
+            } catch (Exception e) {
+                System.err.println("❌ Error processing fast ping arrived: " + e.getMessage());
             } finally {
                 SecurityContextHolder.clearContext();
             }

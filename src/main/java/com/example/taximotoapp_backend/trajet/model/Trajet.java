@@ -34,7 +34,7 @@ public class Trajet {
     private Double price;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 30)
     private TripStatus status;
 
     @OneToOne(mappedBy = "trajet",cascade = CascadeType.ALL)
@@ -42,10 +42,18 @@ public class Trajet {
 
     @Column(name = "requested_at")
     private LocalDateTime requestedAt;
+
+    @Column(name = "scheduled_at")
+    private LocalDateTime scheduledAt;
+
+    @Column(name = "preferred_driver_gender", length = 10)
+    private String preferredDriverGender;
     @PrePersist
     protected void onCreate(){
         requestedAt = LocalDateTime.now();
-        status=TripStatus.Created;
+        if (this.status == null) {
+            this.status = TripStatus.Created;
+        }
     }
     @Column(name = "started_at")
     private LocalDateTime startedAt;
@@ -135,5 +143,21 @@ public class Trajet {
 
     public void setChat(Chat chat) {
         this.chat = chat;
+    }
+
+    public LocalDateTime getScheduledAt() {
+        return scheduledAt;
+    }
+
+    public void setScheduledAt(LocalDateTime scheduledAt) {
+        this.scheduledAt = scheduledAt;
+    }
+
+    public String getPreferredDriverGender() {
+        return preferredDriverGender;
+    }
+
+    public void setPreferredDriverGender(String preferredDriverGender) {
+        this.preferredDriverGender = preferredDriverGender;
     }
 }

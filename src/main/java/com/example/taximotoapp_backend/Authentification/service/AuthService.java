@@ -64,7 +64,14 @@ public class AuthService {
             );
         }
         String token = jwtService.generateToken(user);
-        return new AuthResponse(token,user.getId(), user.getFullName(), user.getEmail(), user.getRole().name());
+        return new AuthResponse(
+                token,
+                user.getId(),
+                user.getFullName(),
+                user.getEmail(),
+                user.getRole().name(),
+                user.getGender() != null ? user.getGender().name() : null
+        );
     }
 
     public AuthResponse register(RegisterRequest request){
@@ -98,6 +105,13 @@ public class AuthService {
         user.setFirebaseUid(request.getFirebaseUid());
         userRepository.save(user);
         String token = jwtService.generateToken(user);
-        return new AuthResponse(token, user.getId(), user.getFullName(), user.getEmail(), user.getRole().name());
+        return new AuthResponse(
+                token,
+                user.getId(),
+                user.getFullName(),
+                user.getEmail(),
+                user.getRole().name(),
+                user.getGender() != null ? user.getGender().name() : null
+        );
     }
 }

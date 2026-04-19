@@ -1,5 +1,6 @@
 package com.example.taximotoapp_backend.trajet.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 @Data
@@ -12,4 +13,9 @@ public class TrajetRequest {
 
     private String pickupAddress;
     private String destinationAddress;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+    private java.time.LocalDateTime scheduledAt;
+
+    private String preferredDriverGender;
 }

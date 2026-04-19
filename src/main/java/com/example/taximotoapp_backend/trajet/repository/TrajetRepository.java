@@ -12,10 +12,10 @@ import java.util.Optional;
 public interface TrajetRepository extends JpaRepository<Trajet,Long> {
     Optional<Trajet> findById(Long id);
     List<Trajet> findByStatus(TripStatus status);
-    @Query("SELECT t FROM Trajet t WHERE t.chauffeur.id = :chauffeurId AND (t.status = 'Accepted' OR t.status = 'Started') ORDER BY t.id DESC")
+    @Query("SELECT t FROM Trajet t WHERE t.chauffeur.id = :chauffeurId AND (t.status = 'Accepted' OR t.status = 'Arrived' OR t.status = 'Started') ORDER BY t.id DESC")
     List<Trajet> findActiveTrajetByChauffeurId(@Param("chauffeurId") Long chauffeurId);
 
-    @Query("SELECT t FROM Trajet t WHERE t.client.id = :clientId AND (t.status = 'Accepted' OR t.status = 'Started') ORDER BY t.id DESC")
+    @Query("SELECT t FROM Trajet t WHERE t.client.id = :clientId AND (t.status = 'Accepted' OR t.status = 'Arrived' OR t.status = 'Started') ORDER BY t.id DESC")
     List<Trajet> findActiveTrajetByClientId(@Param("clientId") Long clientId);
 
 
@@ -50,4 +50,10 @@ public interface TrajetRepository extends JpaRepository<Trajet,Long> {
 
     List<Trajet> findByClientIdOrderByRequestedAtDesc(Long clientId);
     List<Trajet> findByChauffeurIdOrderByRequestedAtDesc(Long chauffeurId);
+
+    @Query("SELECT t FROM Trajet t WHERE t.status = 'Scheduled' AND t.scheduledAt <= :limitTime")
+    List<Trajet> findUpcomingScheduledTrajets(@Param("limitTime") java.time.LocalDateTime limitTime);
+
+    @Query("SELECT t FROM Trajet t WHERE t.status = 'Created' AND t.chauffeur IS NULL AND t.scheduledAt IS NOT NULL AND t.scheduledAt < :now")
+    List<Trajet> findExpiredScheduledTrajets(@Param("now") java.time.LocalDateTime now);
 }

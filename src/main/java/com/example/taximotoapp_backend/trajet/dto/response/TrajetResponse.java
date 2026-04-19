@@ -1,5 +1,6 @@
 package com.example.taximotoapp_backend.trajet.dto.response;
 import com.example.taximotoapp_backend.model.enumClass.TripStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -17,7 +18,11 @@ public class TrajetResponse {
     private Double distanceKm;
     private Double price;
     private TripStatus status;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime requestedAt;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+    private LocalDateTime scheduledAt;
     private Long clientId;
     private Long chauffeurId;
     private String clientName;
