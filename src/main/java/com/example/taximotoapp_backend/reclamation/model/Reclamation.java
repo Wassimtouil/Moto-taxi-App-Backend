@@ -1,6 +1,7 @@
 package com.example.taximotoapp_backend.reclamation.model;
 
 import com.example.taximotoapp_backend.User.model.User;
+import com.example.taximotoapp_backend.model.enumClass.ReclamationStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -12,15 +13,21 @@ public class Reclamation {
     private Long id;
     private String objet;
     private String message;
+
+    @Enumerated(EnumType.STRING)
+    private ReclamationStatus reclamationStatus;
+
     private LocalDate dateReclamation;
     @PrePersist
     void onCreate (){
         dateReclamation=LocalDate.now();
+        reclamationStatus=ReclamationStatus.NON_VU;
     }
     @ManyToOne
     @JoinColumn(name = "user_id",nullable = false)
     private User user;
 
+    private String adminResponse;
     public Long getId() {
         return id;
     }
@@ -41,6 +48,12 @@ public class Reclamation {
         return user;
     }
 
+    public String getAdminResponse() { return adminResponse; }
+
+    public ReclamationStatus getReclamationStatus() {
+        return reclamationStatus;
+    }
+
     public void setObjet(String objet) {
         this.objet = objet;
     }
@@ -51,5 +64,10 @@ public class Reclamation {
 
     public void setUser(User user) {
         this.user = user;
+    }
+    public void setAdminResponse(String adminResponse) { this.adminResponse = adminResponse; }
+
+    public void setReclamationStatus(ReclamationStatus reclamationStatus) {
+        this.reclamationStatus = reclamationStatus;
     }
 }
