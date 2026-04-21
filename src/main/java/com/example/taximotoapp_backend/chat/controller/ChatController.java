@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import java.security.Principal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,13 +35,13 @@ public class ChatController {
     //  Récupérer messages
     @PreAuthorize("hasAnyRole('CLIENT','CHAUFFEUR')")
     @GetMapping("/getMessages/{chatId}")
-    public ResponseEntity<List<MessageResponse>> getMessages(@PathVariable Long chatId) {
-        return ResponseEntity.ok(chatService.getMessages(chatId));
+    public ResponseEntity<List<MessageResponse>> getMessages(@PathVariable Long chatId, Authentication authentication) {
+        return ResponseEntity.ok(chatService.getMessages(chatId, authentication.getName()));
     }
 
     @MessageMapping("/chat.send")
-    public void sendMessage(ChatMessage dto) {
-        MessageResponse response = chatService.sendMessage(dto);
+    public void sendMessage(ChatMessage dto, Principal principal) {
+        MessageResponse response = chatService.sendMessage(dto, principal.getName());
         messagingTemplate.convertAndSend(
                 "/topic/chat/" + dto.getChatId(),
                 response

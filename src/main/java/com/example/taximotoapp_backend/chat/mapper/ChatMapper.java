@@ -17,6 +17,7 @@ public interface ChatMapper {
     ChatResponse toChatResponse(Chat chat);
 
     @Mapping(source = "chat.id", target = "chatId")
+    @Mapping(source = "senderType", target = "sender")
     MessageResponse toMessageResponse(Message message);
 
     List<MessageResponse> toMessageResponseList(List<Message> messages);

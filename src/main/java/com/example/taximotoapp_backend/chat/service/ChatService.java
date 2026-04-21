@@ -17,12 +17,14 @@ import com.example.taximotoapp_backend.trajet.repository.TrajetRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ChatService {
     private final ChatRepository chatRepository;
     private final MessageRepository messageRepository;
@@ -45,26 +47,33 @@ public class ChatService {
     }
 
     // récupérer messages
-    public List<MessageResponse> getMessages(Long chatId) {
+    public List<MessageResponse> getMessages(Long chatId, String email) {
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new RuntimeException("Chat not found"));
-        checkAccess(chat); // 🔐 sécurité
+        checkAccess(chat, email); // 🔐 sécurité
 
         List<Message> messages = messageRepository.findByChatIdOrderBySentAtAsc(chatId);
         return chatMapper.toMessageResponseList(messages);
     }
 
     // 🔹 envoyer message (logique métier)
-    public MessageResponse sendMessage(ChatMessage dto) {
+    public MessageResponse sendMessage(ChatMessage dto, String email) {
         Chat chat = chatRepository.findById(dto.getChatId())
                 .orElseThrow(() -> new RuntimeException("Chat not found"));
-        checkAccess(chat); // 🔐 sécurité
+        checkAccess(chat, email); // 🔐 sécurité
+        // 🔐 restriction: chat only allowed if trajet is active
+        Trajet trajet = chat.getTrajet();
+        if (trajet.getStatus() == com.example.taximotoapp_backend.model.enumClass.TripStatus.Completed ||
+                trajet.getStatus() == com.example.taximotoapp_backend.model.enumClass.TripStatus.Canceled) {
+            throw new RuntimeException("Le trajet est terminé ou annulé. Le chat est désactivé.");
+        }
+
         Message message = new Message();
         message.setChat(chat);
         message.setContenu(dto.getContenu());
         message.setSentAt(LocalDateTime.now());
-        // 🔐 récupérer utilisateur depuis JWT
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        // 🔐 utilisateur récupéré depuis le paramètre (injecté depuis le contrôleur)
         User user=userRepository.findByEmail(email).orElseThrow();
         if (user.getRole()== Role.ROLE_CHAUFFEUR){
             message.setSenderType(SenderType.chauffeur);
@@ -75,12 +84,16 @@ public class ChatService {
         return chatMapper.toMessageResponse(saved);
     }
 
-    private void checkAccess(Chat chat) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+    private void checkAccess(Chat chat, String email) {
         User client = chat.getTrajet().getClient();
         User chauffeur = chat.getTrajet().getChauffeur();
-        if (!client.getEmail().equals(email) && !chauffeur.getEmail().equals(email)) {
-            throw new RuntimeException("Access denied to this chat");
-        }
+
+        // Autorisé si c'est le client
+        if (client.getEmail().equals(email)) return;
+
+        // Autorisé si c'est le chauffeur (et qu'un chauffeur est assigné)
+        if (chauffeur != null && chauffeur.getEmail().equals(email)) return;
+
+        throw new RuntimeException("Access denied to this chat");
     }
 }
