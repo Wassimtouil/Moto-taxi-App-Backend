@@ -25,7 +25,9 @@ public class LocationService {
     private final LocationRepository locationRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
+    @org.springframework.transaction.annotation.Transactional
     public LocationResponse updateLocation(LocationRequest locationRequest, String email){
+        System.out.println("📍 [BACKEND] Updating location for user: " + email + " (" + locationRequest.getLatitude() + ", " + locationRequest.getLongitude() + ")");
         // récupérer utilisateur par email (CLIENT ou CHAUFFEUR)
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));

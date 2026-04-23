@@ -21,7 +21,7 @@ public class Reclamation {
     @PrePersist
     void onCreate (){
         dateReclamation=LocalDate.now();
-        reclamationStatus=ReclamationStatus.NON_VU;
+        reclamationStatus=ReclamationStatus.EN_ATTENTE;
     }
     @ManyToOne
     @JoinColumn(name = "user_id",nullable = false)

@@ -51,8 +51,8 @@ public class ReclamationService {
         if (!reclamation.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("Unauthorized");
         }
-        if (reclamation.getReclamationStatus().equals(ReclamationStatus.VU)){
-            throw new RuntimeException("reclamation deja vu par l'admin");
+        if (!ReclamationStatus.EN_ATTENTE.equals(reclamation.getReclamationStatus())){
+            throw new RuntimeException("reclamation deja traitée ou résolue par l'admin");
         }
         reclamation.setObjet(request.getObjet());
         reclamation.setMessage(request.getContenu());
