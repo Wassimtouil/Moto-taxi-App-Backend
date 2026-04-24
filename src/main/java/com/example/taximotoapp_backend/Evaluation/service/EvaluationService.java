@@ -5,6 +5,7 @@ import com.example.taximotoapp_backend.Evaluation.dto.request.EvaluationRequest;
 import com.example.taximotoapp_backend.Evaluation.dto.response.EvaluationResponse;
 import com.example.taximotoapp_backend.Evaluation.mapper.EvaluationMapper;
 import com.example.taximotoapp_backend.Evaluation.model.Evaluation;
+import com.example.taximotoapp_backend.model.enumClass.TripStatus;
 import com.example.taximotoapp_backend.trajet.model.Trajet;
 import com.example.taximotoapp_backend.trajet.repository.TrajetRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,13 +17,10 @@ public class EvaluationService {
     private final TrajetRepository trajetRepository;
     private final EvaluationRepository evaluationRepository;
     private final EvaluationMapper mapper;
-    public EvaluationResponse ajouterEvaluation(EvaluationRequest dto,Long cliendId) {
+    public EvaluationResponse ajouterEvaluation(EvaluationRequest dto) {
         Trajet trajet = trajetRepository.findById(dto.getTrajetId())
                 .orElseThrow(() -> new RuntimeException("Trajet non trouvé"));
-        if (!trajet.getClient().getId().equals(cliendId)){
-            throw new RuntimeException("User non autorisé");
-        }
-        if (!trajet.getStatus().equals("TERMINE")) {
+        if (!trajet.getStatus().equals(TripStatus.Completed)) {
             throw new RuntimeException("Trajet non terminé");
         }
         if (evaluationRepository.findByTrajetId(dto.getTrajetId()).isPresent()) {
