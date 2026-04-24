@@ -37,4 +37,11 @@ public class EvaluationService {
         Evaluation saved = evaluationRepository.save(evaluation);
         return mapper.toResponse(saved);
     }
+    public double getMoyenneChauffeur(Long chauffeurId) {
+        return evaluationRepository.findByChauffeurId(chauffeurId)
+                .stream()
+                .mapToInt(Evaluation::getNote)
+                .average()
+                .orElse(0.0);
+    }
 }
