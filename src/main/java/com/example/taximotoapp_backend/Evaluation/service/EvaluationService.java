@@ -5,6 +5,8 @@ import com.example.taximotoapp_backend.Evaluation.dto.request.EvaluationRequest;
 import com.example.taximotoapp_backend.Evaluation.dto.response.EvaluationResponse;
 import com.example.taximotoapp_backend.Evaluation.mapper.EvaluationMapper;
 import com.example.taximotoapp_backend.Evaluation.model.Evaluation;
+import com.example.taximotoapp_backend.User.model.Chauffeur;
+import com.example.taximotoapp_backend.User.repository.ChauffeurRepository;
 import com.example.taximotoapp_backend.model.enumClass.TripStatus;
 import com.example.taximotoapp_backend.trajet.model.Trajet;
 import com.example.taximotoapp_backend.trajet.repository.TrajetRepository;
@@ -17,6 +19,7 @@ public class EvaluationService {
     private final TrajetRepository trajetRepository;
     private final EvaluationRepository evaluationRepository;
     private final EvaluationMapper mapper;
+    private final ChauffeurRepository chauffeurRepository;
     public EvaluationResponse ajouterEvaluation(EvaluationRequest dto) {
         Trajet trajet = trajetRepository.findById(dto.getTrajetId())
                 .orElseThrow(() -> new RuntimeException("Trajet non trouvé"));
@@ -32,14 +35,15 @@ public class EvaluationService {
         evaluation.setClient(trajet.getClient());
         evaluation.setChauffeur(trajet.getChauffeur());
         evaluation.setTrajet(trajet);
+        Double moyenne = evaluationRepository.getMoyenne(trajet.getChauffeur().getId());
+        Chauffeur chauffeur = trajet.getChauffeur();
+        chauffeur.setNoteMoyenne(moyenne != null ? moyenne : 0.0);
+        chauffeurRepository.save(chauffeur);
         Evaluation saved = evaluationRepository.save(evaluation);
         return mapper.toResponse(saved);
     }
     public double getMoyenneChauffeur(Long chauffeurId) {
-        return evaluationRepository.findByChauffeurId(chauffeurId)
-                .stream()
-                .mapToInt(Evaluation::getNote)
-                .average()
-                .orElse(0.0);
+        Chauffeur chauffeur=chauffeurRepository.findById(chauffeurId).orElseThrow(()->new RuntimeException("Chauffeur not found"));
+        return chauffeur.getNoteMoyenne() != null ? chauffeur.getNoteMoyenne() : 0.0;
     }
 }

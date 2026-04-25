@@ -20,6 +20,14 @@ public class Chauffeur extends User {
 
     private Double noteMoyenne;
 
+    public Double getNoteMoyenne() {
+        return noteMoyenne;
+    }
+
+    public void setNoteMoyenne(Double noteMoyenne) {
+        this.noteMoyenne = noteMoyenne;
+    }
+
     public Availability getAvailability() {
         return availability;
     }
