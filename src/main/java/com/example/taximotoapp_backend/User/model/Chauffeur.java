@@ -13,11 +13,12 @@ public class Chauffeur extends User {
     private List<Trajet> trajets;
     @Enumerated(EnumType.STRING)
     private Availability availability;
-
     private String vehicleModel;
     private String vehiclePlate;
     private String photoUrl;
     private Double rating;
+
+    private Double noteMoyenne;
 
     public Availability getAvailability() {
         return availability;
