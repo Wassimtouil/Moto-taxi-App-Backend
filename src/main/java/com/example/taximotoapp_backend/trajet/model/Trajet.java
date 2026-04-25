@@ -1,9 +1,11 @@
 package com.example.taximotoapp_backend.trajet.model;
 
+import com.example.taximotoapp_backend.Evaluation.model.Evaluation;
 import com.example.taximotoapp_backend.User.model.Chauffeur;
 import com.example.taximotoapp_backend.User.model.Client;
 import com.example.taximotoapp_backend.chat.model.Chat;
 import com.example.taximotoapp_backend.model.enumClass.TripStatus;
+import com.example.taximotoapp_backend.paiement.model.Paiement;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -48,6 +50,14 @@ public class Trajet {
 
     @Column(name = "preferred_driver_gender", length = 10)
     private String preferredDriverGender;
+
+    @OneToOne(mappedBy = "trajet")
+    private Evaluation evaluation;
+
+    @OneToOne(mappedBy = "trajet", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Paiement paiement;
+
+
     @PrePersist
     protected void onCreate(){
         requestedAt = LocalDateTime.now();
