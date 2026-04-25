@@ -30,6 +30,10 @@ public class Paiement {
         this.montant = montant;
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public void setStatus(PaiementStatus status) {
         this.status = status;
     }
