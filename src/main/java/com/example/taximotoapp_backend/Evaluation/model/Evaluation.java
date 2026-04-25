@@ -14,7 +14,7 @@ public class Evaluation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private int note;
+    private double note;
     private String commentaire;
     private LocalDateTime dateEvaluation;
     protected void onCreate(){
@@ -31,7 +31,7 @@ public class Evaluation {
         return id;
     }
 
-    public int getNote() {
+    public double getNote() {
         return note;
     }
 
@@ -71,7 +71,7 @@ public class Evaluation {
         this.commentaire = commentaire;
     }
 
-    public void setNote(int note) {
+    public void setNote(double note) {
         this.note = note;
     }
 }

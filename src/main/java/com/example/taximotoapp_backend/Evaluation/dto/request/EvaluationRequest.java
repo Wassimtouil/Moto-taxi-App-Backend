@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class EvaluationRequest {
     private Long trajetId;
-    private int note;
+    private double note;
     private String commentaire;
 }

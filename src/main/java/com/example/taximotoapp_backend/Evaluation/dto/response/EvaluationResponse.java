@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 @Data
 public class EvaluationResponse {
     private Long id;
-    private int note;
+    private double note;
     private String commentaire;
     private String clientNom;
     private String chauffeurNom;
