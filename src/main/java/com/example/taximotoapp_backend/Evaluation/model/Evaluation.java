@@ -8,6 +8,7 @@ import com.example.taximotoapp_backend.trajet.model.Trajet;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 public class Evaluation {
@@ -16,7 +17,12 @@ public class Evaluation {
     private Long id;
     private double note;
     private String commentaire;
+
+    @ElementCollection
+    private List<String> quickChoices;
+
     private LocalDateTime dateEvaluation;
+    @PrePersist
     protected void onCreate(){
         dateEvaluation = LocalDateTime.now();
     }
@@ -37,6 +43,10 @@ public class Evaluation {
 
     public String getCommentaire() {
         return commentaire;
+    }
+
+    public List<String> getQuickChoices() {
+        return quickChoices;
     }
 
     public LocalDateTime getDateEvaluation() {
@@ -69,6 +79,10 @@ public class Evaluation {
 
     public void setCommentaire(String commentaire) {
         this.commentaire = commentaire;
+    }
+
+    public void setQuickChoices(List<String> quickChoices) {
+        this.quickChoices = quickChoices;
     }
 
     public void setNote(double note) {

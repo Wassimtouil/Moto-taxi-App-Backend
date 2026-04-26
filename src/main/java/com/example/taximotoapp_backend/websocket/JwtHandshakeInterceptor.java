@@ -26,12 +26,20 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
     ) {
         if (request instanceof ServletServerHttpRequest servletRequest) {
             String token = servletRequest.getServletRequest().getParameter("token");
-            if (token != null && jwtService.isTokenValid(token)) {
-                String username = jwtService.extractUsername(token);
-                attributes.put("username", username);
-                return true;
+            System.out.println("🔍 [JwtHandshakeInterceptor] Token from request: " + (token != null ? "PRESENT" : "NULL"));
+            if (token != null) {
+                boolean isValid = jwtService.isTokenValid(token);
+                System.out.println("🔍 [JwtHandshakeInterceptor] isTokenValid: " + isValid);
+                if (isValid) {
+                    String username = jwtService.extractUsername(token);
+                    attributes.put("username", username);
+                    System.out.println("✅ [JwtHandshakeInterceptor] Handshake successful for user: " + username);
+                    return true;
+                }
             }
         }
+        System.out.println("❌ [JwtHandshakeInterceptor] Handshake rejected. Token invalid or missing.");
+        response.setStatusCode(org.springframework.http.HttpStatus.FORBIDDEN);
         return false; // refuse connexion si JWT invalide
     }
 
