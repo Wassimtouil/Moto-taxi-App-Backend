@@ -17,7 +17,6 @@ import java.util.Map;
 @RequestMapping("/api/evaluation")
 public class EvaluationController {
     private final EvaluationService evaluationService;
-
     @PreAuthorize("hasRole('CLIENT')")
     @PostMapping("/createEvaluation")
     public ResponseEntity<?> addEvaluation(@RequestBody EvaluationRequest dto) {

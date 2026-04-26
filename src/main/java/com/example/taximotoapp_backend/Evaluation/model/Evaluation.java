@@ -3,6 +3,7 @@ package com.example.taximotoapp_backend.Evaluation.model;
 import com.example.taximotoapp_backend.User.model.Chauffeur;
 import com.example.taximotoapp_backend.User.model.Client;
 import com.example.taximotoapp_backend.User.model.User;
+import com.example.taximotoapp_backend.model.enumClass.QuickChoices;
 import com.example.taximotoapp_backend.model.enumClass.TripStatus;
 import com.example.taximotoapp_backend.trajet.model.Trajet;
 import jakarta.persistence.*;
@@ -18,8 +19,8 @@ public class Evaluation {
     private double note;
     private String commentaire;
 
-    @ElementCollection
-    private List<String> quickChoices;
+    @Enumerated(EnumType.STRING)
+    private QuickChoices quickChoices;
 
     private LocalDateTime dateEvaluation;
     @PrePersist
@@ -45,7 +46,7 @@ public class Evaluation {
         return commentaire;
     }
 
-    public List<String> getQuickChoices() {
+    public QuickChoices getQuickChoices() {
         return quickChoices;
     }
 
@@ -81,7 +82,7 @@ public class Evaluation {
         this.commentaire = commentaire;
     }
 
-    public void setQuickChoices(List<String> quickChoices) {
+    public void setQuickChoices(QuickChoices quickChoices) {
         this.quickChoices = quickChoices;
     }
 
