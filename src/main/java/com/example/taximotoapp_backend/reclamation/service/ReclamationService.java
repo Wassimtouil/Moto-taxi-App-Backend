@@ -59,4 +59,16 @@ public class ReclamationService {
         Reclamation updated = repository.save(reclamation);
         return mapper.toResponse(updated);
     }
+    public void delete(Long id){
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        Reclamation reclamation = repository.findById(id).orElseThrow(() -> new RuntimeException("Reclamation not found"));
+        if (!reclamation.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Unauthorized");
+        }
+        if (!ReclamationStatus.EN_ATTENTE.equals(reclamation.getReclamationStatus())){
+            throw new RuntimeException("reclamation deja traitée ou résolue par l'admin");
+        }
+        repository.delete(reclamation);
+    }
 }

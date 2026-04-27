@@ -57,4 +57,10 @@ public class ReclamationController {
                     .body(Map.of("error", e.getMessage()));
         }
     }
+
+    @PreAuthorize("hasAnyRole('CLIENT','CHAUFFEUR')")
+    @DeleteMapping("/delete/{id}")
+    public void deleteReclamation(@PathVariable Long id){
+        service.delete(id);
+    }
 }
