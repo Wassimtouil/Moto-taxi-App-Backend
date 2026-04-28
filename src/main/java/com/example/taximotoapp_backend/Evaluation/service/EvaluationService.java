@@ -36,11 +36,16 @@ public class EvaluationService {
         evaluation.setClient(trajet.getClient());
         evaluation.setChauffeur(trajet.getChauffeur());
         evaluation.setTrajet(trajet);
+
+        // Save evaluation first
+        Evaluation saved = evaluationRepository.save(evaluation);
+
+        // Then calculate and update the average
         Double moyenne = evaluationRepository.getMoyenne(trajet.getChauffeur().getId());
         Chauffeur chauffeur = trajet.getChauffeur();
         chauffeur.setNoteMoyenne(moyenne != null ? moyenne : 0.0);
         chauffeurRepository.save(chauffeur);
-        Evaluation saved = evaluationRepository.save(evaluation);
+
         return mapper.toResponse(saved);
     }
     public double getMoyenneChauffeur(Long chauffeurId) {

@@ -20,6 +20,7 @@ public class EvaluationController {
     @PreAuthorize("hasRole('CLIENT')")
     @PostMapping("/createEvaluation")
     public ResponseEntity<?> addEvaluation(@RequestBody EvaluationRequest dto) {
+        System.out.println("DEBUG: Received evaluation request: " + dto);
         try {
             EvaluationResponse response = evaluationService.ajouterEvaluation(dto);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);

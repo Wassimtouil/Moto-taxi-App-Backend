@@ -25,6 +25,11 @@ public class TrajetResponse {
     private LocalDateTime scheduledAt;
     private Long clientId;
     private Long chauffeurId;
+    private String driverName;
+    private Double driverRating;
+    private String vehicleModel;
+    private String vehiclePlate;
+    private String driverPhoto;
     private String clientName;
     private Double clientLatitude;
     private Double clientLongitude;

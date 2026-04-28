@@ -20,6 +20,11 @@ public interface TrajetMapper {
     @Mapping(source = "trajetLocation.destinationAddress", target = "destinationAddress")
     @Mapping(source = "trajetLocation.encodedPolyline", target = "encodedPolyline")
     @Mapping(source = "client.fullName", target = "clientName")
+    @Mapping(source = "chauffeur.fullName", target = "driverName")
+    @Mapping(source = "chauffeur.noteMoyenne", target = "driverRating")
+    @Mapping(source = "chauffeur.vehicleModel", target = "vehicleModel")
+    @Mapping(source = "chauffeur.vehiclePlate", target = "vehiclePlate")
+    @Mapping(source = "chauffeur.photoUrl", target = "driverPhoto")
     @Mapping(source = "client.location.latitude", target = "clientLatitude")
     @Mapping(source = "client.location.longitude", target = "clientLongitude")
     TrajetResponse toDTO(Trajet trajet);

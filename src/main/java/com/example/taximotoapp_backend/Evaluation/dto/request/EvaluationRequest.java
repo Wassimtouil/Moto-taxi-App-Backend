@@ -9,5 +9,5 @@ public class EvaluationRequest {
     private Long trajetId;
     private double note;
     private String commentaire;
-    private QuickChoices quickChoices;
+    private List<QuickChoices> quickChoices;
 }

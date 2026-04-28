@@ -19,8 +19,11 @@ public class Evaluation {
     private double note;
     private String commentaire;
 
+    @ElementCollection(targetClass = QuickChoices.class)
+    @CollectionTable(name = "evaluation_quick_choices", joinColumns = @JoinColumn(name = "evaluation_id"))
     @Enumerated(EnumType.STRING)
-    private QuickChoices quickChoices;
+    @Column(name = "quick_choice")
+    private List<QuickChoices> quickChoices;
 
     private LocalDateTime dateEvaluation;
     @PrePersist
@@ -46,7 +49,7 @@ public class Evaluation {
         return commentaire;
     }
 
-    public QuickChoices getQuickChoices() {
+    public List<QuickChoices> getQuickChoices() {
         return quickChoices;
     }
 
@@ -82,7 +85,7 @@ public class Evaluation {
         this.commentaire = commentaire;
     }
 
-    public void setQuickChoices(QuickChoices quickChoices) {
+    public void setQuickChoices(List<QuickChoices> quickChoices) {
         this.quickChoices = quickChoices;
     }
 

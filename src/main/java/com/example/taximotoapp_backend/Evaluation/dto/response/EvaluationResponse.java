@@ -11,7 +11,7 @@ public class EvaluationResponse {
     private Long id;
     private double note;
     private String commentaire;
-    private QuickChoices quickChoices;
+    private List<QuickChoices> quickChoices;
     private String clientNom;
     private String chauffeurNom;
     private LocalDateTime dateEvaluation;

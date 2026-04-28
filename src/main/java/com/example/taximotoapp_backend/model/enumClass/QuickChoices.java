@@ -3,8 +3,8 @@ package com.example.taximotoapp_backend.model.enumClass;
 public enum QuickChoices {
     Excellent_service,
     Conduite_prudente,
-    Véhicule_propre,
+    Vehicule_propre,
     Ponctuel,
-    Expérience_moyenne,
-    Pourrait_être_mieux
+    Experience_moyenne,
+    Pourrait_etre_mieux
 }
