@@ -51,6 +51,9 @@ public class Trajet {
     @Column(name = "preferred_driver_gender", length = 10)
     private String preferredDriverGender;
 
+    @Column(name = "preferred_driver_id")
+    private Long preferredDriverId;
+
     @OneToOne(mappedBy = "trajet")
     private Evaluation evaluation;
 
@@ -169,5 +172,13 @@ public class Trajet {
 
     public void setPreferredDriverGender(String preferredDriverGender) {
         this.preferredDriverGender = preferredDriverGender;
+    }
+
+    public Long getPreferredDriverId() {
+        return preferredDriverId;
+    }
+
+    public void setPreferredDriverId(Long preferredDriverId) {
+        this.preferredDriverId = preferredDriverId;
     }
 }

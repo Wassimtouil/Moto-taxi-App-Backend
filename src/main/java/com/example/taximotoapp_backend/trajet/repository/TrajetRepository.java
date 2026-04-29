@@ -25,6 +25,7 @@ public interface TrajetRepository extends JpaRepository<Trajet,Long> {
     JOIN trajet_location tl ON tl.trajet_id = t.id
     WHERE t.status = 'Created'
       AND t.chauffeur_id IS NULL
+      AND (t.preferred_driver_id IS NULL OR t.preferred_driver_id = :chauffeurId)
       AND tl.pickup_latitude BETWEEN :lat - (:radius / 111) AND :lat + (:radius / 111)
       AND tl.pickup_longitude BETWEEN :lon - (:radius / (111 * cos(radians(:lat))))
                                  AND :lon + (:radius / (111 * cos(radians(:lat))))
@@ -43,7 +44,8 @@ public interface TrajetRepository extends JpaRepository<Trajet,Long> {
     List<Trajet> findNearbyAvailableTrajets(
             @Param("lat") double lat,
             @Param("lon") double lon,
-            @Param("radius") double radius
+            @Param("radius") double radius,
+            @Param("chauffeurId") Long chauffeurId
     );
 
     List<Trajet> findByChauffeurIdAndStatus(Long chauffeurId, TripStatus status);

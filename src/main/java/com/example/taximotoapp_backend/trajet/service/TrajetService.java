@@ -105,6 +105,7 @@ public class TrajetService {
         trajet.setRequestedAt(LocalDateTime.now());
         trajet.setScheduledAt(trajetRequest.getScheduledAt());
         trajet.setPreferredDriverGender(trajetRequest.getPreferredDriverGender());
+        trajet.setPreferredDriverId(trajetRequest.getPreferredDriverId());
 
         Trajet saved = trajetRepository.save(trajet);
         System.out.println("🔍 [DB SAVE] Ride ID: " + saved.getId() + " Status: " + saved.getStatus() + " ScheduledAt: " + saved.getScheduledAt());
@@ -366,7 +367,7 @@ public class TrajetService {
         Set<Trajet> trajetsSet = new LinkedHashSet<>();
 
         for (int i = 1; i < 10; i += 2) {
-            List<Trajet> found = trajetRepository.findNearbyAvailableTrajets(lat, lon, i);
+            List<Trajet> found = trajetRepository.findNearbyAvailableTrajets(lat, lon, i, chauffeur.getId());
             trajetsSet.addAll(found);
             if (trajetsSet.size() >= 5) {
                 break;
