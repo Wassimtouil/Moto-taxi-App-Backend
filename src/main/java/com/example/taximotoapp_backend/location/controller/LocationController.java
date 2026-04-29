@@ -36,6 +36,19 @@ public class LocationController {
         }
     }
 
+    @GetMapping("/nearby-drivers")
+    @PreAuthorize("hasRole('CLIENT')")
+    public ResponseEntity<?> getNearbyDrivers(
+            @RequestParam double lat,
+            @RequestParam double lon,
+            @RequestParam(defaultValue = "5.0") double radius) {
+        try {
+            return ResponseEntity.ok(locationService.getNearbyDrivers(lat, lon, radius));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        }
+    }
+
     // --- WebSocket Endpoint (STOMP) ---
     // Cette méthode gère les mises à jour en temps réel envoyées via /app/location.update
     @MessageMapping("/location.update")

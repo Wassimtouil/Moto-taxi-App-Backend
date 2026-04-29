@@ -2,10 +2,12 @@ package com.example.taximotoapp_backend.location.service;
 
 import com.example.taximotoapp_backend.User.model.User;
 import com.example.taximotoapp_backend.User.repository.UserRepository;
+import com.example.taximotoapp_backend.User.repository.ChauffeurRepository;
 import com.example.taximotoapp_backend.location.dto.request.LocationRequest;
 import com.example.taximotoapp_backend.location.model.Location;
 import com.example.taximotoapp_backend.location.repository.LocationRepository;
 import com.example.taximotoapp_backend.location.dto.response.LocationResponse;
+import com.example.taximotoapp_backend.location.dto.response.NearbyDriverResponse;
 import com.example.taximotoapp_backend.model.enumClass.Role;
 import com.example.taximotoapp_backend.trajet.model.Trajet;
 import com.example.taximotoapp_backend.trajet.repository.TrajetRepository;
@@ -23,6 +25,7 @@ public class LocationService {
     private final UserRepository userRepository;
     private final TrajetRepository trajetRepository;
     private final LocationRepository locationRepository;
+    private final ChauffeurRepository chauffeurRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
     @org.springframework.transaction.annotation.Transactional
@@ -79,5 +82,25 @@ public class LocationService {
         return new LocationResponse(locationRequest.getLatitude(),
                 locationRequest.getLongitude(),
                 "Location updated successfully");
+    }
+
+    public List<NearbyDriverResponse> getNearbyDrivers(double lat, double lon, double radius) {
+        List<com.example.taximotoapp_backend.User.model.Chauffeur> drivers = chauffeurRepository
+                .findAllNearbyDrivers(lat, lon, radius);
+
+        return drivers.stream()
+                .filter(c -> c.getLocation() != null)
+                .map(c -> NearbyDriverResponse.builder()
+                        .id(c.getId())
+                        .fullName(c.getFullName())
+                        .latitude(c.getLocation().getLatitude())
+                        .longitude(c.getLocation().getLongitude())
+                        .isAvailable(c.getAvailability() == com.example.taximotoapp_backend.model.enumClass.Availability.TRUE)
+                        .rating(c.getRating() != null ? c.getRating() : 0.0)
+                        .photoUrl(c.getPhotoUrl())
+                        .vehicleModel(c.getVehicleModel())
+                        .vehiclePlate(c.getVehiclePlate())
+                        .build())
+                .toList();
     }
 }

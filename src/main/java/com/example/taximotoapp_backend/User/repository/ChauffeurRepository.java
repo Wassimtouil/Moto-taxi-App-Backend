@@ -73,5 +73,31 @@ public interface ChauffeurRepository extends JpaRepository<Chauffeur,Long> {
             @Param("gender") String gender
     );
 
-
+    @Query(value = """
+    SELECT c.*, u.*
+    FROM chauffeur c
+    JOIN user u ON c.user_id = u.id
+    JOIN location l ON l.user_id = u.id
+    WHERE u.activity_status = 'ONLINE'
+      AND l.latitude BETWEEN :lat - (:radius / 111) AND :lat + (:radius / 111)
+      AND l.longitude BETWEEN :lon - (:radius / (111 * cos(radians(:lat))))
+                           AND :lon + (:radius / (111 * cos(radians(:lat))))
+    ORDER BY (
+        6371 * acos(
+            LEAST(1, GREATEST(-1,
+                cos(radians(:lat)) *
+                cos(radians(l.latitude)) *
+                cos(radians(l.longitude) - radians(:lon)) +
+                sin(radians(:lat)) *
+                sin(radians(l.latitude))
+            ))
+        )
+    )
+    LIMIT 20
+""", nativeQuery = true)
+    List<Chauffeur> findAllNearbyDrivers(
+            @Param("lat") double lat,
+            @Param("lon") double lon,
+            @Param("radius") double radius
+    );
 }

@@ -18,4 +18,5 @@ public class TrajetRequest {
     private java.time.LocalDateTime scheduledAt;
 
     private String preferredDriverGender;
+    private Long preferredDriverId;
 }

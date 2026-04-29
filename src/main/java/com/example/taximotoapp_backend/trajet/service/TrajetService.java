@@ -121,12 +121,26 @@ public class TrajetService {
         }
 
         System.out.println("⚡ Ride is starting SOON or NOW. Searching for drivers...");
+        System.out.println("🎯 [DEBUG] preferredDriverId from request: " + trajetRequest.getPreferredDriverId());
         // trouver chauffeurs (Immediate ride)
-        List<Chauffeur> drivers = findDriversWithExpansion(
-                trajetRequest.getPickupLatitude(),
-                trajetRequest.getPickupLongitude(),
-                trajetRequest.getPreferredDriverGender()
-        );
+        List<Chauffeur> drivers;
+
+        if (trajetRequest.getPreferredDriverId() != null) {
+            System.out.println("🎯 Rider explicitly requested driver ID: " + trajetRequest.getPreferredDriverId());
+            Chauffeur preferredDriver = chauffeurRepository.findById(trajetRequest.getPreferredDriverId())
+                    .orElseThrow(() -> new RuntimeException("Le chauffeur sélectionné n'existe pas"));
+
+            if (preferredDriver.getAvailability() != com.example.taximotoapp_backend.model.enumClass.Availability.TRUE) {
+                throw new RuntimeException("Le chauffeur sélectionné n'est plus disponible");
+            }
+            drivers = List.of(preferredDriver);
+        } else {
+            drivers = findDriversWithExpansion(
+                    trajetRequest.getPickupLatitude(),
+                    trajetRequest.getPickupLongitude(),
+                    trajetRequest.getPreferredDriverGender()
+            );
+        }
 
         System.out.println("🚗 Found " + drivers.size() + " nearby available drivers.");
 
@@ -231,7 +245,7 @@ public class TrajetService {
         driverDetails.put("driverId", chauffeur.getId());
         driverDetails.put("driverName", chauffeur.getFullName());
         driverDetails.put("driverPhoto", chauffeur.getPhotoUrl() != null ? chauffeur.getPhotoUrl() : "");
-        driverDetails.put("driverRating", chauffeur.getNoteMoyenne() != null ? chauffeur.getNoteMoyenne() : 0.0);
+        driverDetails.put("driverRating", chauffeur.getRating() != null ? chauffeur.getRating() : 0.0);
         driverDetails.put("vehicleModel", chauffeur.getVehicleModel() != null ? chauffeur.getVehicleModel() : "Moto-Taxi");
         driverDetails.put("vehiclePlate", chauffeur.getVehiclePlate() != null ? chauffeur.getVehiclePlate() : "");
         if (scheduledAt != null) {
