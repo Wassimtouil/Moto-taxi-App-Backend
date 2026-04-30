@@ -96,7 +96,7 @@ public class LocationService {
                         .latitude(c.getLocation().getLatitude())
                         .longitude(c.getLocation().getLongitude())
                         .isAvailable(c.getAvailability() == com.example.taximotoapp_backend.model.enumClass.Availability.TRUE)
-                        .rating(c.getRating() != null ? c.getRating() : 0.0)
+                        .rating(c.getNoteMoyenne() != null ? c.getNoteMoyenne() : 0.0)
                         .photoUrl(c.getPhotoUrl())
                         .vehicleModel(c.getVehicleModel())
                         .vehiclePlate(c.getVehiclePlate())

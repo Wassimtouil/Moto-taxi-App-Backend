@@ -16,7 +16,6 @@ public class Chauffeur extends User {
     private String vehicleModel;
     private String vehiclePlate;
     private String photoUrl;
-    private Double rating;
 
     private Double noteMoyenne;
 
@@ -60,12 +59,6 @@ public class Chauffeur extends User {
         this.photoUrl = photoUrl;
     }
 
-    public Double getRating() {
-        return rating;
-    }
 
-    public void setRating(Double rating) {
-        this.rating = rating;
-    }
 
 }
