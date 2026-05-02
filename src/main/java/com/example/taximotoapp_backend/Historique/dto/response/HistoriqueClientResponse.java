@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 
 @Data
 public class HistoriqueClientResponse {
-    private Long trajetId;
     private LocalDateTime dateCourse;
     private String depart;
     private String destination;
@@ -14,5 +13,5 @@ public class HistoriqueClientResponse {
     private String modePaiement;
     private String statutPaiement;
     private String nomChauffeur;
-    private Integer noteDonnee;
+    private double noteDonnee;
 }
