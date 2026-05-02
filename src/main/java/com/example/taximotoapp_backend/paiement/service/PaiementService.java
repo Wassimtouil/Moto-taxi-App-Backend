@@ -31,12 +31,9 @@ public class PaiementService {
         paiement.setMontant(dto.getMontant());
         paiement.setType(dto.getType());
         paiement.setTrajet(trajet);
-        // logique métier
-        if (dto.getType() == PaiementType.ONLINE) {
-            paiement.setStatus(PaiementStatus.PAYE);
-        } else {
-            paiement.setStatus(PaiementStatus.EN_ATTENTE);
-        }
+
+        paiement.setStatus(PaiementStatus.EN_ATTENTE);
+
         paiementRepository.save(paiement);
         return mapper.toResponse(paiement);
     }
@@ -51,7 +48,6 @@ public class PaiementService {
 
     // Get paiement par trajet
     public PaiementResponse getByTrajet(Long trajetId) {
-
         Paiement paiement = paiementRepository.findByTrajetId(trajetId)
                 .orElseThrow(() -> new RuntimeException("Paiement not found"));
         return mapper.toResponse(paiement);
