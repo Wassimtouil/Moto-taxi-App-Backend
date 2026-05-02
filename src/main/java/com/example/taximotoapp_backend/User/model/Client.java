@@ -13,4 +13,8 @@ import java.util.List;
 public class Client extends User{
     @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
     private List<Trajet> trajets;
+
+    public List<Trajet> getTrajets() {
+        return trajets;
+    }
 }
