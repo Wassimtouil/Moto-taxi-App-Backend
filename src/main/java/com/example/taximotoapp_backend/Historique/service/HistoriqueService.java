@@ -1,5 +1,6 @@
 package com.example.taximotoapp_backend.Historique.service;
 
+import com.example.taximotoapp_backend.Historique.dto.response.HistoriqueChauffeurResponse;
 import com.example.taximotoapp_backend.Historique.dto.response.HistoriqueClientResponse;
 import com.example.taximotoapp_backend.Historique.mapper.HistoriqueMapper;
 import com.example.taximotoapp_backend.User.model.Chauffeur;
@@ -37,5 +38,16 @@ public class HistoriqueService {
                 .toList();
     }
 
+    public List<HistoriqueChauffeurResponse> getHistoriqueChauffeur() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User introuvable"));
+        if (!(user instanceof Chauffeur chauffeur)) {
+            throw new RuntimeException("Accès refusé : utilisateur non Chauffeur");
+        }
+        return chauffeur.getTrajets()
+                .stream()
+                .map(mapper::toHistoriqueChauffeurResponse)
+                .toList();
+    }
 
 }
