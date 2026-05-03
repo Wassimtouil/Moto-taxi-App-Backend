@@ -12,7 +12,7 @@ public class HistoriqueChauffeurResponse {
     private Double prix;
     private String modePaiement;
     private String statutPaiement;
-    private String nomClient;
     private double noteDonnee;
+    private String commentaire;
     private String statutTrajet;
 }
