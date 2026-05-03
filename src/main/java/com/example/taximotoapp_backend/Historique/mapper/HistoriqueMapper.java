@@ -17,6 +17,7 @@ public class HistoriqueMapper {
         historiqueClientResponse.setStatutPaiement(trajet.getPaiement().getStatus().name());
         historiqueClientResponse.setNoteDonnee(trajet.getEvaluation().getNote());
         historiqueClientResponse.setDateCourse(trajet.getStartedAt());
+        historiqueClientResponse.setStatutTrajet(trajet.getStatus().name());
         return historiqueClientResponse;
     }
 }
