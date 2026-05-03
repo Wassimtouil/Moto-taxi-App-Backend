@@ -1,5 +1,6 @@
 package com.example.taximotoapp_backend.Historique.mapper;
 
+import com.example.taximotoapp_backend.Historique.dto.response.HistoriqueChauffeurResponse;
 import com.example.taximotoapp_backend.Historique.dto.response.HistoriqueClientResponse;
 import com.example.taximotoapp_backend.trajet.model.Trajet;
 import org.springframework.stereotype.Component;
@@ -20,4 +21,19 @@ public class HistoriqueMapper {
         historiqueClientResponse.setStatutTrajet(trajet.getStatus().name());
         return historiqueClientResponse;
     }
+    public HistoriqueChauffeurResponse toHistoriqueChauffeurResponse(Trajet trajet){
+        HistoriqueChauffeurResponse historiqueChauffeurResponse = new HistoriqueChauffeurResponse();
+        historiqueChauffeurResponse.setPrix(trajet.getPrice());
+        historiqueChauffeurResponse.setDepart(trajet.getTrajetLocation().getPickupAddress());
+        historiqueChauffeurResponse.setDestination(trajet.getTrajetLocation().getDestinationAddress());
+        historiqueChauffeurResponse.setNomClient(trajet.getClient().getFullName());
+        historiqueChauffeurResponse.setModePaiement(trajet.getPaiement().getType().name());
+        historiqueChauffeurResponse.setStatutPaiement(trajet.getPaiement().getStatus().name());
+        historiqueChauffeurResponse.setNoteDonnee(trajet.getEvaluation().getNote());
+        historiqueChauffeurResponse.setDateCourse(trajet.getStartedAt());
+        historiqueChauffeurResponse.setStatutTrajet(trajet.getStatus().name());
+        return historiqueChauffeurResponse;
+    }
+
+
 }
