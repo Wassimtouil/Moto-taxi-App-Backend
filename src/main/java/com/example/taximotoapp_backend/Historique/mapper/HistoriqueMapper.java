@@ -26,7 +26,7 @@ public class HistoriqueMapper {
         historiqueChauffeurResponse.setPrix(trajet.getPrice());
         historiqueChauffeurResponse.setDepart(trajet.getTrajetLocation().getPickupAddress());
         historiqueChauffeurResponse.setDestination(trajet.getTrajetLocation().getDestinationAddress());
-        historiqueChauffeurResponse.setNomClient(trajet.getClient().getFullName());
+        historiqueChauffeurResponse.setCommentaire(trajet.getEvaluation().getCommentaire());
         historiqueChauffeurResponse.setModePaiement(trajet.getPaiement().getType().name());
         historiqueChauffeurResponse.setStatutPaiement(trajet.getPaiement().getStatus().name());
         historiqueChauffeurResponse.setNoteDonnee(trajet.getEvaluation().getNote());
