@@ -18,8 +18,6 @@ import java.util.List;
 @RequestMapping("/api/historique")
 public class HistoriqueController {
     private final HistoriqueService historiqueService;
-
-
     @PreAuthorize("hasRole('CLIENT')")
     @GetMapping("/client")
     public ResponseEntity<?> getHistoriqueClient() {

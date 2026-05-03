@@ -14,4 +14,5 @@ public class HistoriqueClientResponse {
     private String statutPaiement;
     private String nomChauffeur;
     private double noteDonnee;
+    private String statutTrajet;
 }
