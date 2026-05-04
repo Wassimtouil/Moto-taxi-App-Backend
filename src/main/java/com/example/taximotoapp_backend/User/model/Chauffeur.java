@@ -72,9 +72,7 @@ public class Chauffeur extends User {
         this.rating = rating;
     }
 
-    public List<Trajet> getTrajets() {
-        return trajets;
-    }
+
 
     public void setTrajets(List<Trajet> trajets) {
         this.trajets = trajets;
