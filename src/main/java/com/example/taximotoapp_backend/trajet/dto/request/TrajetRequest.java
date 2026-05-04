@@ -19,4 +19,5 @@ public class TrajetRequest {
 
     private String preferredDriverGender;
     private Long preferredDriverId;
+    private com.example.taximotoapp_backend.model.enumClass.PaiementType paymentMethod;
 }

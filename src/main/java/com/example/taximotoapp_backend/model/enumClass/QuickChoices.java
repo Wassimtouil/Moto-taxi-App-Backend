@@ -6,5 +6,9 @@ public enum QuickChoices {
     Vehicule_propre,
     Ponctuel,
     Experience_moyenne,
-    Pourrait_etre_mieux
+    Pourrait_etre_mieux,
+    Mauvaise_conduite,
+    Vehicule_sale,
+    En_retard,
+    Comportement_inapproprie
 }

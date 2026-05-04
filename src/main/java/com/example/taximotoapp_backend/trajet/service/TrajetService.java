@@ -12,6 +12,7 @@ import com.example.taximotoapp_backend.trajet.mapper.TrajetMapper;
 import com.example.taximotoapp_backend.trajet.model.Trajet;
 import com.example.taximotoapp_backend.trajet.model.TrajetLocation;
 import com.example.taximotoapp_backend.trajet.repository.TrajetRepository;
+import com.example.taximotoapp_backend.paiement.service.PaiementService;
 import com.example.taximotoapp_backend.trajet.dto.response.TrajetResponse;
 import com.example.taximotoapp_backend.websocket.service.TimeoutService;
 import jakarta.transaction.Transactional;
@@ -35,6 +36,7 @@ public class TrajetService {
     private final TimeoutService timeoutService;
     private final com.example.taximotoapp_backend.location.repository.LocationRepository locationRepository;
     private final MapboxService mapboxService;
+    private final PaiementService paiementService;
 
     public TrajetResponse createTrajet(TrajetRequest trajetRequest){
         // recuperer user a travers le jwt
@@ -106,6 +108,7 @@ public class TrajetService {
         trajet.setScheduledAt(trajetRequest.getScheduledAt());
         trajet.setPreferredDriverGender(trajetRequest.getPreferredDriverGender());
         trajet.setPreferredDriverId(trajetRequest.getPreferredDriverId());
+        trajet.setPaymentMethod(trajetRequest.getPaymentMethod() != null ? trajetRequest.getPaymentMethod() : com.example.taximotoapp_backend.model.enumClass.PaiementType.CASH);
 
         Trajet saved = trajetRepository.save(trajet);
         System.out.println("🔍 [DB SAVE] Ride ID: " + saved.getId() + " Status: " + saved.getStatus() + " ScheduledAt: " + saved.getScheduledAt());
@@ -230,7 +233,7 @@ public class TrajetService {
 
             messagingTemplate.convertAndSend(
                     "/topic/client/" + trajet.getClient().getId(),
-                    buildDriverDetailsMap(chauffeur, trajet.getScheduledAt())
+                    buildDriverDetailsMap(chauffeur, trajet)
             );
 
             messagingTemplate.convertAndSend(
@@ -252,6 +255,17 @@ public class TrajetService {
         if (scheduledAt != null) {
             driverDetails.put("scheduledAt", scheduledAt.toString());
         }
+        if (chauffeur.getTrajets() != null && !chauffeur.getTrajets().isEmpty()) {
+            // Get the last trajet to determine payment method if needed,
+            // but better to pass Trajet object directly to this method.
+            // For now, let's just make sure handleDriverResponse passes it or we fetch it.
+        }
+        return driverDetails;
+    }
+
+    private Map<String, Object> buildDriverDetailsMap(Chauffeur chauffeur, Trajet trajet) {
+        Map<String, Object> driverDetails = buildDriverDetailsMap(chauffeur, trajet.getScheduledAt());
+        driverDetails.put("paymentMethod", trajet.getPaymentMethod());
         return driverDetails;
     }
 
@@ -267,10 +281,13 @@ public class TrajetService {
         trajet.setStatus(TripStatus.Started);
         Trajet saved = trajetRepository.save(trajet);
 
+        // User instruction: Create payment and mark as PAYE when trip starts
+        paiementService.createFromTrajet(saved);
+
         messagingTemplate.convertAndSend("/topic/client/" + trajet.getClient().getId(),
-                Map.of("status", "STARTED", "trajetId", trajetId, "message", "Trip started!"));
+                Map.of("status", "STARTED", "trajetId", trajetId, "message", "Trip started!", "paymentMethod", saved.getPaymentMethod()));
         messagingTemplate.convertAndSend("/topic/trajet/" + trajetId,
-                Map.of("status", "STARTED", "trajetId", trajetId));
+                Map.of("status", "STARTED", "trajetId", trajetId, "paymentMethod", saved.getPaymentMethod()));
 
         return trajetMapper.toDTO(saved);
     }

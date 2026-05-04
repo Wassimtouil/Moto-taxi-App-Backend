@@ -4,6 +4,7 @@ import com.example.taximotoapp_backend.Evaluation.model.Evaluation;
 import com.example.taximotoapp_backend.User.model.Chauffeur;
 import com.example.taximotoapp_backend.User.model.Client;
 import com.example.taximotoapp_backend.chat.model.Chat;
+import com.example.taximotoapp_backend.model.enumClass.PaiementType;
 import com.example.taximotoapp_backend.model.enumClass.TripStatus;
 import com.example.taximotoapp_backend.paiement.model.Paiement;
 import jakarta.persistence.*;
@@ -59,6 +60,10 @@ public class Trajet {
 
     @OneToOne(mappedBy = "trajet", cascade = CascadeType.ALL, orphanRemoval = true)
     private Paiement paiement;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_method", length = 20)
+    private PaiementType paymentMethod;
 
 
     @PrePersist
@@ -180,5 +185,13 @@ public class Trajet {
 
     public void setPreferredDriverId(Long preferredDriverId) {
         this.preferredDriverId = preferredDriverId;
+    }
+
+    public PaiementType getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(PaiementType paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 }

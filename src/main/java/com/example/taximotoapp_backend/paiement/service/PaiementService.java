@@ -23,22 +23,42 @@ public class PaiementService {
     // Créer paiement
     @Transactional
     public PaiementResponse createPaiement(PaiementRequest dto) {
-        Trajet trajet = trajetRepository.findById(dto.getTrajetId()).orElseThrow(() -> new RuntimeException("Trajet not found"));
-        // Vérifier si paiement existe déjà
-        Paiement paiementAnc=paiementRepository.findByTrajetId(trajet.getId()).orElseThrow(()-> new RuntimeException("Paiement déjà existe pour ce trajet"));
+        Trajet trajet = trajetRepository.findById(dto.getTrajetId())
+                .orElseThrow(() -> new RuntimeException("Trajet not found"));
+
+        // Fix: Check if payment exists correctly
+        if (paiementRepository.findByTrajetId(trajet.getId()).isPresent()) {
+            throw new RuntimeException("Paiement déjà existe pour ce trajet");
+        }
 
         Paiement paiement = new Paiement();
         paiement.setMontant(dto.getMontant());
         paiement.setType(dto.getType());
         paiement.setTrajet(trajet);
-        // logique métier
-        if (dto.getType() == PaiementType.ONLINE) {
-            paiement.setStatus(PaiementStatus.PAYE);
-        } else {
-            paiement.setStatus(PaiementStatus.EN_ATTENTE);
-        }
+
+        // Use user's instruction: simulated payments are marked PAYE
+        paiement.setStatus(PaiementStatus.PAYE);
+
         paiementRepository.save(paiement);
         return mapper.toResponse(paiement);
+    }
+
+    @Transactional
+    public void createFromTrajet(Trajet trajet) {
+        // If payment already exists, just return or update
+        if (paiementRepository.findByTrajetId(trajet.getId()).isPresent()) {
+            return;
+        }
+
+        Paiement paiement = new Paiement();
+        paiement.setMontant(trajet.getPrice());
+        paiement.setType(trajet.getPaymentMethod() != null ? trajet.getPaymentMethod() : PaiementType.CASH);
+        paiement.setTrajet(trajet);
+
+        // User instruction: Mark as PAYE when trip starts
+        paiement.setStatus(PaiementStatus.PAYE);
+
+        paiementRepository.save(paiement);
     }
 
     // Valider paiement (cash)
