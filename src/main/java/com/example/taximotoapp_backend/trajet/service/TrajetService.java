@@ -431,23 +431,7 @@ public class TrajetService {
         return trajetMapper.toDTO(saved);
     }
 
-    public List<TrajetResponse> getClientHistory() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User client = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Client not found"));
-        return trajetRepository.findByClientIdOrderByRequestedAtDesc(client.getId())
-                .stream()
-                .map(trajetMapper::toDTO)
-                .toList();
-    }
 
-    public List<TrajetResponse> getDriverHistory() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User driver = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Driver not found"));
-        return trajetRepository.findByChauffeurIdOrderByRequestedAtDesc(driver.getId())
-                .stream()
-                .map(trajetMapper::toDTO)
-                .toList();
-    }
 
     @Transactional
     public Optional<TrajetResponse> getActiveTrajetForDriver() {

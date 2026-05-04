@@ -104,23 +104,7 @@ public class TrajetController {
         }
     }
 
-    @PreAuthorize("isAuthenticated()")
-    @GetMapping("/history")
-    public ResponseEntity<?> getHistory() {
-        try {
-            var auth = SecurityContextHolder.getContext().getAuthentication();
-            boolean isDriver = auth.getAuthorities().stream()
-                    .anyMatch(a -> a.getAuthority().equals("ROLE_CHAUFFEUR"));
 
-            if (isDriver) {
-                return ResponseEntity.ok(trajetService.getDriverHistory());
-            } else {
-                return ResponseEntity.ok(trajetService.getClientHistory());
-            }
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
-        }
-    }
 
     @PreAuthorize("hasRole('CHAUFFEUR')")
     @GetMapping("/available")

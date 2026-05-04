@@ -86,6 +86,14 @@ public class Trajet {
         return client;
     }
 
+    public Paiement getPaiement() {
+        return paiement;
+    }
+
+    public Evaluation getEvaluation() {
+        return evaluation;
+    }
+
     public Chauffeur getChauffeur() {
         return chauffeur;
     }

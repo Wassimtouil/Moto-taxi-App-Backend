@@ -28,6 +28,10 @@ public class Chauffeur extends User {
         this.noteMoyenne = noteMoyenne;
     }
 
+    public List<Trajet> getTrajets() {
+        return trajets;
+    }
+
     public Availability getAvailability() {
         return availability;
     }

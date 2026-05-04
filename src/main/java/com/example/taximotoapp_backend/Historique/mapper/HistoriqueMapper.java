@@ -1,0 +1,39 @@
+package com.example.taximotoapp_backend.Historique.mapper;
+
+import com.example.taximotoapp_backend.Historique.dto.response.HistoriqueChauffeurResponse;
+import com.example.taximotoapp_backend.Historique.dto.response.HistoriqueClientResponse;
+import com.example.taximotoapp_backend.trajet.model.Trajet;
+import org.springframework.stereotype.Component;
+
+@Component
+public class HistoriqueMapper {
+
+    public HistoriqueClientResponse toHistoriqueClientResponse(Trajet trajet) {
+        HistoriqueClientResponse historiqueClientResponse = new HistoriqueClientResponse();
+        historiqueClientResponse.setPrix(trajet.getPrice());
+        historiqueClientResponse.setDepart(trajet.getTrajetLocation().getPickupAddress());
+        historiqueClientResponse.setDestination(trajet.getTrajetLocation().getDestinationAddress());
+        historiqueClientResponse.setNomChauffeur(trajet.getChauffeur().getFullName());
+        historiqueClientResponse.setModePaiement(trajet.getPaiement().getType().name());
+        historiqueClientResponse.setStatutPaiement(trajet.getPaiement().getStatus().name());
+        historiqueClientResponse.setNoteDonnee(trajet.getEvaluation().getNote());
+        historiqueClientResponse.setDateCourse(trajet.getStartedAt());
+        historiqueClientResponse.setStatutTrajet(trajet.getStatus().name());
+        return historiqueClientResponse;
+    }
+    public HistoriqueChauffeurResponse toHistoriqueChauffeurResponse(Trajet trajet){
+        HistoriqueChauffeurResponse historiqueChauffeurResponse = new HistoriqueChauffeurResponse();
+        historiqueChauffeurResponse.setPrix(trajet.getPrice());
+        historiqueChauffeurResponse.setDepart(trajet.getTrajetLocation().getPickupAddress());
+        historiqueChauffeurResponse.setDestination(trajet.getTrajetLocation().getDestinationAddress());
+        historiqueChauffeurResponse.setCommentaire(trajet.getEvaluation().getCommentaire());
+        historiqueChauffeurResponse.setModePaiement(trajet.getPaiement().getType().name());
+        historiqueChauffeurResponse.setStatutPaiement(trajet.getPaiement().getStatus().name());
+        historiqueChauffeurResponse.setNoteDonnee(trajet.getEvaluation().getNote());
+        historiqueChauffeurResponse.setDateCourse(trajet.getStartedAt());
+        historiqueChauffeurResponse.setStatutTrajet(trajet.getStatus().name());
+        return historiqueChauffeurResponse;
+    }
+
+
+}
