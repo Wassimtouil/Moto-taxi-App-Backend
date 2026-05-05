@@ -18,6 +18,7 @@ public class TrajetResponse {
     private Double distanceKm;
     private Double price;
     private TripStatus status;
+    private String paymentMethod;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime requestedAt;
 
@@ -28,5 +29,4 @@ public class TrajetResponse {
     private String clientName;
     private Double clientLatitude;
     private Double clientLongitude;
-    private com.example.taximotoapp_backend.model.enumClass.PaiementType paymentMethod;
 }

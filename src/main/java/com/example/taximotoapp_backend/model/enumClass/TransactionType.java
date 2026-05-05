@@ -1,4 +1,7 @@
 package com.example.taximotoapp_backend.model.enumClass;
 
-public class TransactionType {
+public enum TransactionType {
+    DEPOSIT,
+    WITHDRAWAL,
+    PAYMENT
 }

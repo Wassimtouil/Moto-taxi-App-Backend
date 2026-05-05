@@ -1,4 +1,7 @@
 package com.example.taximotoapp_backend.model.enumClass;
 
-public class TransactionStatus {
+public enum TransactionStatus {
+    PENDING,
+    COMPLETED,
+    FAILED
 }

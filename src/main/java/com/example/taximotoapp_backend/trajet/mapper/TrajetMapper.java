@@ -22,7 +22,7 @@ public interface TrajetMapper {
     @Mapping(source = "client.fullName", target = "clientName")
     @Mapping(source = "client.location.latitude", target = "clientLatitude")
     @Mapping(source = "client.location.longitude", target = "clientLongitude")
-    @Mapping(source = "paymentMethod", target = "paymentMethod")
+    @Mapping(source = "paiement.type", target = "paymentMethod")
     TrajetResponse toDTO(Trajet trajet);
 
     // request -> Entity (ignorer les champs gérés manuellement dans le service)
@@ -37,6 +37,5 @@ public interface TrajetMapper {
     @Mapping(target = "startedAt", ignore = true)
     @Mapping(target = "completedAt", ignore = true)
     @Mapping(target = "chat", ignore = true)
-    @Mapping(source = "paymentMethod", target = "paymentMethod")
     Trajet toEntity(TrajetRequest request);
 }
