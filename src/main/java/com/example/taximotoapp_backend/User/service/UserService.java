@@ -1,5 +1,6 @@
 package com.example.taximotoapp_backend.User.service;
 
+import com.example.taximotoapp_backend.User.dto.RegistrationStatDTO;
 import com.example.taximotoapp_backend.User.model.Admin;
 import com.example.taximotoapp_backend.User.model.User;
 import com.example.taximotoapp_backend.User.repository.AdminRepository;
@@ -133,5 +134,17 @@ public class UserService implements UserDetailsService {
                 "online", online,
                 "unverified", unverified
         );
+    }
+    public List<RegistrationStatDTO> getRegistrationStats(Role role) {
+        List<Object[]> results = userRepository.countRegistrationsByDate(role);
+        return results.stream()
+                .map(result -> new RegistrationStatDTO(result[0].toString(), (Long) result[1]))
+                .toList();
+    }
+    public List<RegistrationStatDTO> getGenderStats(Role role) {
+        List<Object[]> results = userRepository.countByRoleAndGender(role);
+        return results.stream()
+                .map(result -> new RegistrationStatDTO(result[0] != null ? result[0].toString() : "NON_SPECIFIE", (Long) result[1]))
+                .toList();
     }
 }

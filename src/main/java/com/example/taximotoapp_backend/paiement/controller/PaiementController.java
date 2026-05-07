@@ -1,8 +1,10 @@
 package com.example.taximotoapp_backend.paiement.controller;
+import com.example.taximotoapp_backend.model.enumClass.Role;
 import com.example.taximotoapp_backend.paiement.dto.response.PaiementResponse;
 import com.example.taximotoapp_backend.paiement.service.PaiementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,4 +22,5 @@ public class PaiementController {
     public ResponseEntity<PaiementResponse> confirmerPaiement(@PathVariable Long paiementId) {
         return ResponseEntity.ok(paiementService.confirmerPaiement(paiementId));
     }
+
 }

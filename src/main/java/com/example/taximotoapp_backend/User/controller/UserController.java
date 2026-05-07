@@ -1,12 +1,16 @@
 package com.example.taximotoapp_backend.User.controller;
 
+import com.example.taximotoapp_backend.User.dto.RegistrationStatDTO;
 import com.example.taximotoapp_backend.User.dto.UserDTO;
 import com.example.taximotoapp_backend.User.model.User;
 import com.example.taximotoapp_backend.User.service.UserService;
 import com.example.taximotoapp_backend.model.enumClass.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/users")
@@ -92,5 +96,15 @@ public class UserController {
     public String deleteUser(@PathVariable int id) {
         userService.deleteUser(id);
         return "Utilisateur supprimé avec succès";
+    }
+    @GetMapping("/stats/registrations")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<RegistrationStatDTO> getRegistrationStats(@RequestParam String role) {
+        return userService.getRegistrationStats(Role.valueOf(role.toUpperCase()));
+    }
+    @GetMapping("/stats/gender")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<RegistrationStatDTO> getGenderStats(@RequestParam String role) {
+        return userService.getGenderStats(Role.valueOf(role.toUpperCase()));
     }
 }
