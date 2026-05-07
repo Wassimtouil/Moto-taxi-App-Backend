@@ -47,4 +47,42 @@ public class HistoriqueController {
                     .body("Erreur lors de la récupération de l'historique chauffeur");
         }
     }
+
+    @GetMapping("/transactions")
+    public ResponseEntity<?> getTransactions() {
+        try {
+            return ResponseEntity.ok(historiqueService.getTransactions());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur lors de la récupération de l'historique des transactions");
+        }
+    }
+
+    @GetMapping("/trips")
+    @PreAuthorize("hasRole('CLIENT')")
+    public ResponseEntity<?> getTrips() {
+        try {
+            return ResponseEntity.ok(historiqueService.getTrajetHistoryClient());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur lors de la récupération de l'historique des trajets");
+        }
+    }
+
+    @GetMapping("/driver-trips")
+    @PreAuthorize("hasRole('CHAUFFEUR')")
+    public ResponseEntity<?> getDriverTrips() {
+        try {
+            return ResponseEntity.ok(historiqueService.getTrajetHistoryChauffeur());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur lors de la récupération de l'historique des trajets chauffeur");
+        }
+    }
 }

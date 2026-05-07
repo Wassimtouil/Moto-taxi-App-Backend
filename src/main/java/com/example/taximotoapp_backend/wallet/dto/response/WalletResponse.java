@@ -1,5 +1,7 @@
 package com.example.taximotoapp_backend.wallet.dto.response;
 
+import com.example.taximotoapp_backend.Historique.dto.response.TransactionResponse;
+
 import lombok.Data;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;

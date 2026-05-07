@@ -9,30 +9,45 @@ import org.springframework.stereotype.Component;
 public class HistoriqueMapper {
 
     public HistoriqueClientResponse toHistoriqueClientResponse(Trajet trajet) {
-        HistoriqueClientResponse historiqueClientResponse = new HistoriqueClientResponse();
-        historiqueClientResponse.setPrix(trajet.getPrice());
-        historiqueClientResponse.setDepart(trajet.getTrajetLocation().getPickupAddress());
-        historiqueClientResponse.setDestination(trajet.getTrajetLocation().getDestinationAddress());
-        historiqueClientResponse.setNomChauffeur(trajet.getChauffeur().getFullName());
-        historiqueClientResponse.setModePaiement(trajet.getPaiement().getType().name());
-        historiqueClientResponse.setStatutPaiement(trajet.getPaiement().getStatus().name());
-        historiqueClientResponse.setNoteDonnee(trajet.getEvaluation().getNote());
-        historiqueClientResponse.setDateCourse(trajet.getStartedAt());
-        historiqueClientResponse.setStatutTrajet(trajet.getStatus().name());
-        return historiqueClientResponse;
+        HistoriqueClientResponse response = new HistoriqueClientResponse();
+        response.setPrix(trajet.getPrice());
+        if (trajet.getTrajetLocation() != null) {
+            response.setDepart(trajet.getTrajetLocation().getPickupAddress());
+            response.setDestination(trajet.getTrajetLocation().getDestinationAddress());
+        }
+        if (trajet.getChauffeur() != null) {
+            response.setNomChauffeur(trajet.getChauffeur().getFullName());
+        }
+        if (trajet.getPaiement() != null) {
+            response.setModePaiement(trajet.getPaiement().getType() != null ? trajet.getPaiement().getType().name() : "N/A");
+            response.setStatutPaiement(trajet.getPaiement().getStatus() != null ? trajet.getPaiement().getStatus().name() : "N/A");
+        }
+        if (trajet.getEvaluation() != null) {
+            response.setNoteDonnee(trajet.getEvaluation().getNote());
+        }
+        response.setDateCourse(trajet.getStartedAt() != null ? trajet.getStartedAt() : trajet.getRequestedAt());
+        response.setStatutTrajet(trajet.getStatus() != null ? trajet.getStatus().name() : "UNKNOWN");
+        return response;
     }
-    public HistoriqueChauffeurResponse toHistoriqueChauffeurResponse(Trajet trajet){
-        HistoriqueChauffeurResponse historiqueChauffeurResponse = new HistoriqueChauffeurResponse();
-        historiqueChauffeurResponse.setPrix(trajet.getPrice());
-        historiqueChauffeurResponse.setDepart(trajet.getTrajetLocation().getPickupAddress());
-        historiqueChauffeurResponse.setDestination(trajet.getTrajetLocation().getDestinationAddress());
-        historiqueChauffeurResponse.setCommentaire(trajet.getEvaluation().getCommentaire());
-        historiqueChauffeurResponse.setModePaiement(trajet.getPaiement().getType().name());
-        historiqueChauffeurResponse.setStatutPaiement(trajet.getPaiement().getStatus().name());
-        historiqueChauffeurResponse.setNoteDonnee(trajet.getEvaluation().getNote());
-        historiqueChauffeurResponse.setDateCourse(trajet.getStartedAt());
-        historiqueChauffeurResponse.setStatutTrajet(trajet.getStatus().name());
-        return historiqueChauffeurResponse;
+
+    public HistoriqueChauffeurResponse toHistoriqueChauffeurResponse(Trajet trajet) {
+        HistoriqueChauffeurResponse response = new HistoriqueChauffeurResponse();
+        response.setPrix(trajet.getPrice());
+        if (trajet.getTrajetLocation() != null) {
+            response.setDepart(trajet.getTrajetLocation().getPickupAddress());
+            response.setDestination(trajet.getTrajetLocation().getDestinationAddress());
+        }
+        if (trajet.getPaiement() != null) {
+            response.setModePaiement(trajet.getPaiement().getType() != null ? trajet.getPaiement().getType().name() : "N/A");
+            response.setStatutPaiement(trajet.getPaiement().getStatus() != null ? trajet.getPaiement().getStatus().name() : "N/A");
+        }
+        if (trajet.getEvaluation() != null) {
+            response.setNoteDonnee(trajet.getEvaluation().getNote());
+            response.setCommentaire(trajet.getEvaluation().getCommentaire());
+        }
+        response.setDateCourse(trajet.getStartedAt() != null ? trajet.getStartedAt() : trajet.getRequestedAt());
+        response.setStatutTrajet(trajet.getStatus() != null ? trajet.getStatus().name() : "UNKNOWN");
+        return response;
     }
 
 

@@ -5,7 +5,7 @@ import com.example.taximotoapp_backend.User.repository.UserRepository;
 import com.example.taximotoapp_backend.wallet.dto.request.DepositRequest;
 import com.example.taximotoapp_backend.wallet.dto.request.WithdrawRequest;
 import com.example.taximotoapp_backend.wallet.dto.response.ApiResponse;
-import com.example.taximotoapp_backend.wallet.dto.response.TransactionResponse;
+import com.example.taximotoapp_backend.Historique.dto.response.TransactionResponse;
 import com.example.taximotoapp_backend.wallet.dto.response.WalletResponse;
 import com.example.taximotoapp_backend.wallet.model.PaymentCard;
 import com.example.taximotoapp_backend.wallet.model.Transaction;
