@@ -14,6 +14,7 @@ public class HistoriqueMapper {
         if (trajet.getTrajetLocation() != null) {
             response.setDepart(trajet.getTrajetLocation().getPickupAddress());
             response.setDestination(trajet.getTrajetLocation().getDestinationAddress());
+            response.setEncodedPolyline(trajet.getTrajetLocation().getEncodedPolyline());
         }
         if (trajet.getChauffeur() != null) {
             response.setNomChauffeur(trajet.getChauffeur().getFullName());
@@ -36,6 +37,7 @@ public class HistoriqueMapper {
         if (trajet.getTrajetLocation() != null) {
             response.setDepart(trajet.getTrajetLocation().getPickupAddress());
             response.setDestination(trajet.getTrajetLocation().getDestinationAddress());
+            response.setEncodedPolyline(trajet.getTrajetLocation().getEncodedPolyline());
         }
         if (trajet.getPaiement() != null) {
             response.setModePaiement(trajet.getPaiement().getType() != null ? trajet.getPaiement().getType().name() : "N/A");

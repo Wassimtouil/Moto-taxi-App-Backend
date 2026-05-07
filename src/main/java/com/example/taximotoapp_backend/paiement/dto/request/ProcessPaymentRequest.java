@@ -1,4 +1,4 @@
-package com.example.taximotoapp_backend.wallet.dto.request;
+package com.example.taximotoapp_backend.paiement.dto.request;
 
 import lombok.Data;
 
@@ -6,3 +6,4 @@ import lombok.Data;
 public class ProcessPaymentRequest {
     private Long tripId;
 }
+

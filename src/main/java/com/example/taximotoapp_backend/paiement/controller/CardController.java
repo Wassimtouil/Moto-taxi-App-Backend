@@ -1,11 +1,11 @@
-package com.example.taximotoapp_backend.wallet.controller;
+package com.example.taximotoapp_backend.paiement.controller;
 
 import com.example.taximotoapp_backend.User.model.User;
 import com.example.taximotoapp_backend.User.repository.UserRepository;
-import com.example.taximotoapp_backend.wallet.dto.request.AddCardRequest;
-import com.example.taximotoapp_backend.wallet.dto.response.ApiResponse;
-import com.example.taximotoapp_backend.wallet.dto.response.CardResponse;
-import com.example.taximotoapp_backend.wallet.service.CardService;
+import com.example.taximotoapp_backend.paiement.dto.request.AddCardRequest;
+import com.example.taximotoapp_backend.paiement.dto.response.ApiResponse;
+import com.example.taximotoapp_backend.paiement.dto.response.CardResponse;
+import com.example.taximotoapp_backend.paiement.service.CardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -47,3 +47,4 @@ public class CardController {
         return ResponseEntity.ok(cardService.setDefaultCard(getCurrentUserId(), cardId));
     }
 }
+

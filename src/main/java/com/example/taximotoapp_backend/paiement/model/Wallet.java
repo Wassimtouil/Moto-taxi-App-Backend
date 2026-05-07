@@ -1,4 +1,4 @@
-package com.example.taximotoapp_backend.wallet.model;
+package com.example.taximotoapp_backend.paiement.model;
 
 import com.example.taximotoapp_backend.User.model.User;
 import jakarta.persistence.*;
@@ -46,3 +46,4 @@ public class Wallet {
         updatedAt = LocalDateTime.now();
     }
 }
+

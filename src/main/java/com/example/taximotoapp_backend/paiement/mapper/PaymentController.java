@@ -1,7 +1,7 @@
-package com.example.taximotoapp_backend.wallet.controller;
+package com.example.taximotoapp_backend.paiement.mapper;
 
-import com.example.taximotoapp_backend.wallet.dto.response.ApiResponse;
-import com.example.taximotoapp_backend.wallet.service.PaymentService;
+import com.example.taximotoapp_backend.paiement.dto.response.ApiResponse;
+import com.example.taximotoapp_backend.paiement.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,3 +26,4 @@ public class PaymentController {
         }
     }
 }
+

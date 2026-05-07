@@ -1,20 +1,20 @@
-package com.example.taximotoapp_backend.wallet.service;
+package com.example.taximotoapp_backend.paiement.service;
 
 import com.example.taximotoapp_backend.User.model.User;
 import com.example.taximotoapp_backend.User.repository.UserRepository;
-import com.example.taximotoapp_backend.wallet.dto.request.DepositRequest;
-import com.example.taximotoapp_backend.wallet.dto.request.WithdrawRequest;
-import com.example.taximotoapp_backend.wallet.dto.response.ApiResponse;
+import com.example.taximotoapp_backend.paiement.dto.request.DepositRequest;
+import com.example.taximotoapp_backend.paiement.dto.request.WithdrawRequest;
+import com.example.taximotoapp_backend.paiement.dto.response.ApiResponse;
 import com.example.taximotoapp_backend.Historique.dto.response.TransactionResponse;
-import com.example.taximotoapp_backend.wallet.dto.response.WalletResponse;
-import com.example.taximotoapp_backend.wallet.model.PaymentCard;
-import com.example.taximotoapp_backend.wallet.model.Transaction;
-import com.example.taximotoapp_backend.wallet.model.Wallet;
+import com.example.taximotoapp_backend.paiement.dto.response.WalletResponse;
+import com.example.taximotoapp_backend.paiement.model.PaymentCard;
+import com.example.taximotoapp_backend.paiement.model.Transaction;
+import com.example.taximotoapp_backend.paiement.model.Wallet;
 import com.example.taximotoapp_backend.model.enumClass.TransactionStatus;
 import com.example.taximotoapp_backend.model.enumClass.TransactionType;
-import com.example.taximotoapp_backend.wallet.repository.PaymentCardRepository;
-import com.example.taximotoapp_backend.wallet.repository.TransactionRepository;
-import com.example.taximotoapp_backend.wallet.repository.WalletRepository;
+import com.example.taximotoapp_backend.paiement.repository.PaymentCardRepository;
+import com.example.taximotoapp_backend.paiement.repository.TransactionRepository;
+import com.example.taximotoapp_backend.paiement.repository.WalletRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -131,3 +131,4 @@ public class WalletService {
         );
     }
 }
+

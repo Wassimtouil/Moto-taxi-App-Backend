@@ -165,6 +165,8 @@ public class TrajetController {
             SecurityContextHolder.getContext().setAuthentication(auth);
             try {
                 trajetService.startTrajet(trajetId);
+            } catch (Exception e) {
+                // Ignore if it's already started by HTTP
             } finally {
                 SecurityContextHolder.clearContext();
             }
@@ -181,10 +183,11 @@ public class TrajetController {
             SecurityContextHolder.getContext().setAuthentication(auth);
             try {
                 trajetService.terminerTrajet(trajetId);
+            } catch (Exception e) {
+                // Ignore if it's already completed by HTTP
             } finally {
                 SecurityContextHolder.clearContext();
             }
         }
     }
-
 }

@@ -1,4 +1,4 @@
-package com.example.taximotoapp_backend.wallet.dto.request;
+package com.example.taximotoapp_backend.paiement.dto.request;
 
 import lombok.Data;
 
@@ -12,3 +12,4 @@ public class AddCardRequest {
     private String brand;
     private Boolean isDefault;
 }
+

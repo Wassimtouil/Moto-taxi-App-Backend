@@ -13,9 +13,9 @@ import com.example.taximotoapp_backend.trajet.model.Trajet;
 import com.example.taximotoapp_backend.trajet.model.TrajetLocation;
 import com.example.taximotoapp_backend.trajet.repository.TrajetRepository;
 import com.example.taximotoapp_backend.trajet.dto.response.TrajetResponse;
-import com.example.taximotoapp_backend.wallet.service.PaymentService;
-import com.example.taximotoapp_backend.wallet.service.WalletService;
-import com.example.taximotoapp_backend.wallet.model.Wallet;
+import com.example.taximotoapp_backend.paiement.service.PaymentService;
+import com.example.taximotoapp_backend.paiement.service.WalletService;
+import com.example.taximotoapp_backend.paiement.model.Wallet;
 import com.example.taximotoapp_backend.paiement.model.Paiement;
 import com.example.taximotoapp_backend.paiement.repository.PaiementRepository;
 import com.example.taximotoapp_backend.model.enumClass.PaiementStatus;
@@ -54,7 +54,7 @@ public class TrajetService {
         // mapping request -> entity
         Trajet trajet = trajetMapper.toEntity(trajetRequest);
 
-        // --- Initialiser/Mettre à jour la position du client dans la base ---
+        // --- Initialiser/Mettre Ã  jour la position du client dans la base ---
         com.example.taximotoapp_backend.location.model.Location clientLocation = client.getLocation();
         if (clientLocation == null) {
             clientLocation = new com.example.taximotoapp_backend.location.model.Location();
@@ -65,7 +65,7 @@ public class TrajetService {
         clientLocation.setLongitude(trajetRequest.getPickupLongitude());
         locationRepository.save(clientLocation);
 
-        // créer et attacher TrajetLocation
+        // crÃ©er et attacher TrajetLocation
         TrajetLocation trajetLocation = new TrajetLocation();
         trajetLocation.setPickupLatitude(trajetRequest.getPickupLatitude());
         trajetLocation.setPickupLongitude(trajetRequest.getPickupLongitude());
@@ -129,16 +129,20 @@ public class TrajetService {
         Paiement paiement = new Paiement();
         paiement.setTrajet(saved);
         paiement.setMontant(saved.getPrice());
-        paiement.setType(trajetRequest.getPaymentMethod() != null ? trajetRequest.getPaymentMethod() : PaiementType.CASH);
+        PaiementType method = trajetRequest.getPaymentMethod() != null ? trajetRequest.getPaymentMethod() : PaiementType.CASH;
+        paiement.setType(method);
         paiement.setStatus(PaiementStatus.EN_ATTENTE);
         paiementRepository.save(paiement);
 
-        System.out.println("🔍 [DB SAVE] Ride ID: " + saved.getId() + " Status: " + saved.getStatus() + " ScheduledAt: " + saved.getScheduledAt());
-        System.out.println("🔍 [DB SAVE] Server Local Time is: " + LocalDateTime.now());
+        saved.setPaiement(paiement);
+        saved.setPaymentMethod(method);
+
+        System.out.println("ðŸ” [DB SAVE] Ride ID: " + saved.getId() + " Status: " + saved.getStatus() + " ScheduledAt: " + saved.getScheduledAt());
+        System.out.println("ðŸ” [DB SAVE] Server Local Time is: " + LocalDateTime.now());
 
         // If it's a far-future scheduled ride, we don't dispatch immediately
         if (saved.getStatus() == TripStatus.Scheduled) {
-            System.out.println("📅 Ride is far in the future. Waiting for scheduler.");
+            System.out.println("ðŸ“… Ride is far in the future. Waiting for scheduler.");
             TrajetResponse response = trajetMapper.toDTO(saved);
             if (saved.getScheduledAt() != null && response.getScheduledAt() == null) {
                 response.setScheduledAt(saved.getScheduledAt());
@@ -146,18 +150,18 @@ public class TrajetService {
             return response;
         }
 
-        System.out.println("⚡ Ride is starting SOON or NOW. Searching for drivers...");
-        System.out.println("🎯 [DEBUG] preferredDriverId from request: " + trajetRequest.getPreferredDriverId());
+        System.out.println("âš¡ Ride is starting SOON or NOW. Searching for drivers...");
+        System.out.println("ðŸŽ¯ [DEBUG] preferredDriverId from request: " + trajetRequest.getPreferredDriverId());
         // trouver chauffeurs (Immediate ride)
         List<Chauffeur> drivers;
 
         if (trajetRequest.getPreferredDriverId() != null) {
-            System.out.println("🎯 Rider explicitly requested driver ID: " + trajetRequest.getPreferredDriverId());
+            System.out.println("ðŸŽ¯ Rider explicitly requested driver ID: " + trajetRequest.getPreferredDriverId());
             Chauffeur preferredDriver = chauffeurRepository.findById(trajetRequest.getPreferredDriverId())
-                    .orElseThrow(() -> new RuntimeException("Le chauffeur sélectionné n'existe pas"));
+                    .orElseThrow(() -> new RuntimeException("Le chauffeur sÃ©lectionnÃ© n'existe pas"));
 
             if (preferredDriver.getAvailability() != com.example.taximotoapp_backend.model.enumClass.Availability.TRUE) {
-                throw new RuntimeException("Le chauffeur sélectionné n'est plus disponible");
+                throw new RuntimeException("Le chauffeur sÃ©lectionnÃ© n'est plus disponible");
             }
             drivers = List.of(preferredDriver);
         } else {
@@ -168,14 +172,14 @@ public class TrajetService {
             );
         }
 
-        System.out.println("🚗 Found " + drivers.size() + " nearby available drivers.");
+        System.out.println("ðŸš— Found " + drivers.size() + " nearby available drivers.");
 
         if (drivers.isEmpty()) {
-            System.out.println("❌ No drivers found for the ride.");
+            System.out.println("âŒ No drivers found for the ride.");
             throw new RuntimeException("Aucun chauffeur disponible");
         }
 
-        System.out.println("📡 Dispatching ride to found drivers...");
+        System.out.println("ðŸ“¡ Dispatching ride to found drivers...");
         sendTrajetToDrivers(saved, drivers);
 
         // ONLY trigger the 15-second timeout for IMMEDIATE rides.
@@ -183,7 +187,7 @@ public class TrajetService {
         if (saved.getScheduledAt() == null) {
             timeoutService.handleTimeout(saved.getId());
         } else {
-            System.out.println("⏳ Scheduled ride detected. Persistent until departure time (no 15s timeout).");
+            System.out.println("â³ Scheduled ride detected. Persistent until departure time (no 15s timeout).");
         }
 
         return trajetMapper.toDTO(saved);
@@ -200,9 +204,9 @@ public class TrajetService {
         // Force-set scheduledAt in case MapStruct's generated code is stale
         if (trajet.getScheduledAt() != null && dto.getScheduledAt() == null) {
             dto.setScheduledAt(trajet.getScheduledAt());
-            System.out.println("⚠️ [BROADCAST] MapStruct missed scheduledAt — manually set it!");
+            System.out.println("âš ï¸ [BROADCAST] MapStruct missed scheduledAt â€” manually set it!");
         }
-        System.out.println("📡 [BROADCAST] Preparing to send Trajet " + trajet.getId() + " to " + drivers.size() + " drivers.");
+        System.out.println("ðŸ“¡ [BROADCAST] Preparing to send Trajet " + trajet.getId() + " to " + drivers.size() + " drivers.");
         System.out.println("   -> scheduledAt on Entity: " + trajet.getScheduledAt());
         System.out.println("   -> scheduledAt on DTO: " + dto.getScheduledAt());
         System.out.println("   -> Status: " + dto.getStatus());
@@ -211,9 +215,9 @@ public class TrajetService {
             String destination = "/topic/driver/" + driver.getId();
             try {
                 messagingTemplate.convertAndSend(destination, dto);
-                System.out.println("✅ [BROADCAST] Message sent successfully to " + destination);
+                System.out.println("âœ… [BROADCAST] Message sent successfully to " + destination);
             } catch (Exception e) {
-                System.err.println("❌ [BROADCAST] Error sending to " + destination + ": " + e.getMessage());
+                System.err.println("âŒ [BROADCAST] Error sending to " + destination + ": " + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -245,7 +249,7 @@ public class TrajetService {
                 .orElseThrow(() -> new RuntimeException("Trajet not found"));
 
         if (trajet.getStatus() != TripStatus.Created) {
-            throw new RuntimeException("Trajet déjà pris");
+            throw new RuntimeException("Trajet dÃ©jÃ  pris");
         }
 
         if (action.equalsIgnoreCase("ACCEPT")) {
@@ -286,7 +290,7 @@ public class TrajetService {
                 .orElseThrow(() -> new RuntimeException("trajet not found"));
 
         if (trajet.getStatus() != TripStatus.Accepted && trajet.getStatus() != TripStatus.Arrived) {
-            throw new RuntimeException("Trajet déjà pris ou non disponible (status=" + trajet.getStatus() + ")");
+            throw new RuntimeException("Trajet dÃ©jÃ  pris ou non disponible (status=" + trajet.getStatus() + ")");
         }
 
         // Process payment if it's ONLINE
@@ -351,7 +355,7 @@ public class TrajetService {
         }
 
         if (trajet.getStatus() == TripStatus.Completed) {
-            throw new RuntimeException("Impossible d'annuler un trajet terminé");
+            throw new RuntimeException("Impossible d'annuler un trajet terminÃ©");
         }
         trajet.setStatus(TripStatus.Canceled);
 
@@ -434,7 +438,7 @@ public class TrajetService {
         Trajet saved = trajetRepository.save(trajet);
 
         String destination = "/topic/client/" + trajet.getClient().getId();
-        System.out.println("📡 Sending ARRIVED notification to: " + destination);
+        System.out.println("ðŸ“¡ Sending ARRIVED notification to: " + destination);
         messagingTemplate.convertAndSend(
                 destination,
                 Map.of("status", "ARRIVED", "trajetId", trajetId, "message", "Your driver is here")
@@ -485,44 +489,44 @@ public class TrajetService {
     @Scheduled(fixedRate = 5000) // Every 5 seconds (Optimized from 30s)
     public void checkUpcomingScheduledRides() {
         LocalDateTime now = LocalDateTime.now();
-        System.out.println("⏰ [SCHEDULER] Running at: " + now);
+        System.out.println("â° [SCHEDULER] Running at: " + now);
 
         // --- Phase 1: Triggering Upcoming Rides (now + 10 mins) ---
         LocalDateTime limit = now.plusMinutes(10);
         List<Trajet> upcoming = trajetRepository.findUpcomingScheduledTrajets(limit);
 
         if (upcoming.isEmpty()) {
-            System.out.println("📝 [SCHEDULER] No rides matching query (status='Scheduled' AND scheduledAt <= " + limit + ")");
+            System.out.println("ðŸ“ [SCHEDULER] No rides matching query (status='Scheduled' AND scheduledAt <= " + limit + ")");
             // Debug: Check if there are ANY scheduled rides at all
             List<Trajet> allScheduled = trajetRepository.findByStatus(TripStatus.Scheduled);
             if (!allScheduled.isEmpty()) {
-                System.out.println("📝 [SCHEDULER DEBUG] Found " + allScheduled.size() + " total 'Scheduled' rides in DB:");
+                System.out.println("ðŸ“ [SCHEDULER DEBUG] Found " + allScheduled.size() + " total 'Scheduled' rides in DB:");
                 for (Trajet s : allScheduled) {
                     System.out.println("   -> ID: " + s.getId() + " is for: " + s.getScheduledAt());
                 }
             }
         } else {
-            System.out.println("📝 [SCHEDULER] Found " + upcoming.size() + " rides to trigger.");
+            System.out.println("ðŸ“ [SCHEDULER] Found " + upcoming.size() + " rides to trigger.");
         }
 
         for (Trajet t : upcoming) {
-            System.out.println("🚀 [SCHEDULER] Triggering ride ID " + t.getId());
+            System.out.println("ðŸš€ [SCHEDULER] Triggering ride ID " + t.getId());
 
             double lat = 0, lon = 0;
             if (t.getTrajetLocation() != null) {
                 lat = t.getTrajetLocation().getPickupLatitude();
                 lon = t.getTrajetLocation().getPickupLongitude();
             }
-            System.out.println("📍 [SCHEDULER] Pickup Location: " + lat + ", " + lon);
+            System.out.println("ðŸ“ [SCHEDULER] Pickup Location: " + lat + ", " + lon);
 
             t.setStatus(TripStatus.Created);
             trajetRepository.save(t);
 
             List<Chauffeur> drivers = findDriversWithExpansion(lat, lon, t.getPreferredDriverGender());
-            System.out.println("🚗 [SCHEDULER] Found " + drivers.size() + " drivers for ride " + t.getId());
+            System.out.println("ðŸš— [SCHEDULER] Found " + drivers.size() + " drivers for ride " + t.getId());
 
             if (!drivers.isEmpty()) {
-                System.out.println("📡 [SCHEDULER] Dispatching to WS...");
+                System.out.println("ðŸ“¡ [SCHEDULER] Dispatching to WS...");
                 sendTrajetToDrivers(t, drivers);
             }
         }
@@ -530,7 +534,7 @@ public class TrajetService {
         // --- Phase 2: Expiring Missed Rides (time has passed) ---
         List<Trajet> expired = trajetRepository.findExpiredScheduledTrajets(now);
         for (Trajet e : expired) {
-            System.out.println("⚠️ [SCHEDULER] Expiring ride ID " + e.getId() + " (Time reached, no driver)");
+            System.out.println("âš ï¸ [SCHEDULER] Expiring ride ID " + e.getId() + " (Time reached, no driver)");
 
             e.setStatus(TripStatus.Canceled);
             trajetRepository.save(e);
@@ -538,7 +542,7 @@ public class TrajetService {
             // Notify Rider
             messagingTemplate.convertAndSend(
                     "/topic/client/" + e.getClient().getId(),
-                    Map.of("status", "NO_DRIVER", "message", "Votre trajet planifié a été annulé car aucun chauffeur n'est disponible.", "trajetId", e.getId())
+                    Map.of("status", "NO_DRIVER", "message", "Votre trajet planifiÃ© a Ã©tÃ© annulÃ© car aucun chauffeur n'est disponible.", "trajetId", e.getId())
             );
 
             // Notify Drivers to remove card
@@ -549,3 +553,4 @@ public class TrajetService {
         }
     }
 }
+

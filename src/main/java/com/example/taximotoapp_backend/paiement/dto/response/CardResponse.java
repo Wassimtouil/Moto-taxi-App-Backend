@@ -1,4 +1,4 @@
-package com.example.taximotoapp_backend.wallet.dto.response;
+package com.example.taximotoapp_backend.paiement.dto.response;
 
 import lombok.Data;
 import lombok.AllArgsConstructor;
@@ -19,3 +19,4 @@ public class CardResponse {
     private Boolean isDefault;
     private LocalDateTime createdAt;
 }
+

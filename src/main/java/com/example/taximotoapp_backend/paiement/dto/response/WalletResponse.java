@@ -1,4 +1,4 @@
-package com.example.taximotoapp_backend.wallet.dto.response;
+package com.example.taximotoapp_backend.paiement.dto.response;
 
 import com.example.taximotoapp_backend.Historique.dto.response.TransactionResponse;
 
@@ -18,3 +18,4 @@ public class WalletResponse {
     private String currency;
     private List<TransactionResponse> recentTransactions;
 }
+

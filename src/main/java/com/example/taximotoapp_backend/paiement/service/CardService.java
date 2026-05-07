@@ -1,12 +1,12 @@
-package com.example.taximotoapp_backend.wallet.service;
+package com.example.taximotoapp_backend.paiement.service;
 
 import com.example.taximotoapp_backend.User.model.User;
 import com.example.taximotoapp_backend.User.repository.UserRepository;
-import com.example.taximotoapp_backend.wallet.dto.request.AddCardRequest;
-import com.example.taximotoapp_backend.wallet.dto.response.ApiResponse;
-import com.example.taximotoapp_backend.wallet.dto.response.CardResponse;
-import com.example.taximotoapp_backend.wallet.model.PaymentCard;
-import com.example.taximotoapp_backend.wallet.repository.PaymentCardRepository;
+import com.example.taximotoapp_backend.paiement.dto.request.AddCardRequest;
+import com.example.taximotoapp_backend.paiement.dto.response.ApiResponse;
+import com.example.taximotoapp_backend.paiement.dto.response.CardResponse;
+import com.example.taximotoapp_backend.paiement.model.PaymentCard;
+import com.example.taximotoapp_backend.paiement.repository.PaymentCardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -148,3 +148,4 @@ public class CardService {
                 card.getCreatedAt());
     }
 }
+

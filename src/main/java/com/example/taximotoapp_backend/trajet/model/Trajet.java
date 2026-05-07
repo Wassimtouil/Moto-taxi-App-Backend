@@ -202,4 +202,8 @@ public class Trajet {
     public void setPaymentMethod(PaiementType paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
+
+    public void setPaiement(Paiement paiement) {
+        this.paiement = paiement;
+    }
 }

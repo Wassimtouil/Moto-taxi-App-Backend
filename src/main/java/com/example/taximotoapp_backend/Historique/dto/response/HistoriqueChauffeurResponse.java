@@ -15,4 +15,5 @@ public class HistoriqueChauffeurResponse {
     private double noteDonnee;
     private String commentaire;
     private String statutTrajet;
+    private String encodedPolyline;
 }

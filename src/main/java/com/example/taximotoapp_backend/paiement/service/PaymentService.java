@@ -1,4 +1,4 @@
-package com.example.taximotoapp_backend.wallet.service;
+package com.example.taximotoapp_backend.paiement.service;
 
 import com.example.taximotoapp_backend.User.model.Chauffeur;
 import com.example.taximotoapp_backend.User.model.Client;
@@ -8,11 +8,11 @@ import com.example.taximotoapp_backend.paiement.model.Paiement;
 import com.example.taximotoapp_backend.paiement.repository.PaiementRepository;
 import com.example.taximotoapp_backend.trajet.model.Trajet;
 import com.example.taximotoapp_backend.trajet.repository.TrajetRepository;
-import com.example.taximotoapp_backend.wallet.dto.response.ApiResponse;
-import com.example.taximotoapp_backend.wallet.model.Wallet;
+import com.example.taximotoapp_backend.paiement.dto.response.ApiResponse;
+import com.example.taximotoapp_backend.paiement.model.Wallet;
 import com.example.taximotoapp_backend.model.enumClass.TransactionStatus;
 import com.example.taximotoapp_backend.model.enumClass.TransactionType;
-import com.example.taximotoapp_backend.wallet.repository.WalletRepository;
+import com.example.taximotoapp_backend.paiement.repository.WalletRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,8 +63,7 @@ public class PaymentService {
                     Double currentCash = driverWallet.getCashBalance() != null ? driverWallet.getCashBalance() : 0.0;
                     driverWallet.setCashBalance(currentCash + price);
                     walletRepository.save(driverWallet);
-                    // Optionally record a transaction for the cash collection, but maybe skip it to keep transaction history focused on app-managed funds
-                    walletService.createTransaction(driverWallet, price, TransactionType.DEPOSIT, TransactionStatus.COMPLETED, "Cash collected for trip " + tripId);
+                    // We DO NOT record a Transaction here for CASH. It is dynamically synthesized in HistoriqueService.
                 }
             }
 
@@ -75,3 +74,4 @@ public class PaymentService {
         return new ApiResponse(true, "Payment processed successfully");
     }
 }
+

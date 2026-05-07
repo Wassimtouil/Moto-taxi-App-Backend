@@ -18,9 +18,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import com.example.taximotoapp_backend.Historique.dto.response.TransactionResponse;
-import com.example.taximotoapp_backend.wallet.model.Wallet;
-import com.example.taximotoapp_backend.wallet.repository.TransactionRepository;
-import com.example.taximotoapp_backend.wallet.repository.WalletRepository;
+import com.example.taximotoapp_backend.paiement.model.Wallet;
+import com.example.taximotoapp_backend.paiement.repository.TransactionRepository;
+import com.example.taximotoapp_backend.paiement.repository.WalletRepository;
 
 import com.example.taximotoapp_backend.trajet.dto.response.TrajetResponse;
 import com.example.taximotoapp_backend.trajet.mapper.TrajetMapper;
@@ -61,7 +61,7 @@ public class HistoriqueService {
         if (!(user instanceof Client client)) {
             throw new RuntimeException("Accès refusé : utilisateur non client");
         }
-        return client.getTrajets()
+        return trajetRepository.findByClientIdOrderByRequestedAtDesc(client.getId())
                 .stream()
                 .map(mapper::toHistoriqueClientResponse)
                 .toList();
@@ -73,7 +73,7 @@ public class HistoriqueService {
         if (!(user instanceof Chauffeur chauffeur)) {
             throw new RuntimeException("Accès refusé : utilisateur non Chauffeur");
         }
-        return chauffeur.getTrajets()
+        return trajetRepository.findByChauffeurIdOrderByRequestedAtDesc(chauffeur.getId())
                 .stream()
                 .map(mapper::toHistoriqueChauffeurResponse)
                 .toList();
@@ -115,7 +115,7 @@ public class HistoriqueService {
                         t.getPaiement().getMontant(),
                         finalIsClient ? "PAYMENT" : "EARNING",
                         t.getPaiement().getStatus().name(),
-                        (finalIsClient ? "Paiement" : "Gain") + " en espèces (Trajet #" + t.getId() + ")",
+                        (finalIsClient ? "Paiement" : "Gain") + " en espÃ¨ces (Trajet #" + t.getId() + ")",
                         t.getPaiement().getDatePaiement() != null ? t.getPaiement().getDatePaiement() : t.getRequestedAt()
                 ))
                 .toList();
@@ -128,3 +128,4 @@ public class HistoriqueService {
     }
 
 }
+

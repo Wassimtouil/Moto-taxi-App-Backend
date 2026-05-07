@@ -1,4 +1,4 @@
-package com.example.taximotoapp_backend.wallet.model;
+package com.example.taximotoapp_backend.paiement.model;
 
 import com.example.taximotoapp_backend.model.enumClass.TransactionStatus;
 import com.example.taximotoapp_backend.model.enumClass.TransactionType;
@@ -40,3 +40,4 @@ public class Transaction {
         timestamp = LocalDateTime.now();
     }
 }
+

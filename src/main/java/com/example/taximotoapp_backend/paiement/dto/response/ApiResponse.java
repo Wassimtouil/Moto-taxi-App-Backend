@@ -1,4 +1,4 @@
-package com.example.taximotoapp_backend.wallet.dto.response;
+package com.example.taximotoapp_backend.paiement.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,3 +11,4 @@ public class ApiResponse {
     private boolean success;
     private String message;
 }
+

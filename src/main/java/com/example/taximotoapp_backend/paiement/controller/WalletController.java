@@ -1,12 +1,12 @@
-package com.example.taximotoapp_backend.wallet.controller;
+package com.example.taximotoapp_backend.paiement.controller;
 
 import com.example.taximotoapp_backend.User.model.User;
 import com.example.taximotoapp_backend.User.repository.UserRepository;
-import com.example.taximotoapp_backend.wallet.dto.request.DepositRequest;
-import com.example.taximotoapp_backend.wallet.dto.request.WithdrawRequest;
-import com.example.taximotoapp_backend.wallet.dto.response.ApiResponse;
-import com.example.taximotoapp_backend.wallet.dto.response.WalletResponse;
-import com.example.taximotoapp_backend.wallet.service.WalletService;
+import com.example.taximotoapp_backend.paiement.dto.request.DepositRequest;
+import com.example.taximotoapp_backend.paiement.dto.request.WithdrawRequest;
+import com.example.taximotoapp_backend.paiement.dto.response.ApiResponse;
+import com.example.taximotoapp_backend.paiement.dto.response.WalletResponse;
+import com.example.taximotoapp_backend.paiement.service.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -44,3 +44,4 @@ public class WalletController {
         return ResponseEntity.ok(walletService.withdraw(getCurrentUserId(), request));
     }
 }
+
