@@ -73,14 +73,14 @@ public class UserController {
 
     // 5. Détails utilisateur
     @GetMapping("/{id}")
-    public UserDTO getUserById(@PathVariable int id) {
+    public UserDTO getUserById(@PathVariable Long id) {
         User user = userService.getUserById(id);
         return user != null ? new UserDTO(user) : null;
     }
 
     // 6. Basculer la vérification
     @PatchMapping("/{id}/verify")
-    public UserDTO toggleVerification(@PathVariable int id) {
+    public UserDTO toggleVerification(@PathVariable Long id) {
         User user = userService.getUserById(id);
         user.setIsVerified(!user.getIsVerified());
         return new UserDTO(userService.saveUser(user));
@@ -93,7 +93,7 @@ public class UserController {
 
     // 7. Suppression utilisateur
     @DeleteMapping("/{id}")
-    public String deleteUser(@PathVariable int id) {
+    public String deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return "Utilisateur supprimé avec succès";
     }
