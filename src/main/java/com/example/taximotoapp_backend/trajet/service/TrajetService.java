@@ -12,8 +12,14 @@ import com.example.taximotoapp_backend.trajet.mapper.TrajetMapper;
 import com.example.taximotoapp_backend.trajet.model.Trajet;
 import com.example.taximotoapp_backend.trajet.model.TrajetLocation;
 import com.example.taximotoapp_backend.trajet.repository.TrajetRepository;
-import com.example.taximotoapp_backend.paiement.service.PaiementService;
 import com.example.taximotoapp_backend.trajet.dto.response.TrajetResponse;
+import com.example.taximotoapp_backend.wallet.service.PaymentService;
+import com.example.taximotoapp_backend.wallet.service.WalletService;
+import com.example.taximotoapp_backend.wallet.model.Wallet;
+import com.example.taximotoapp_backend.paiement.model.Paiement;
+import com.example.taximotoapp_backend.paiement.repository.PaiementRepository;
+import com.example.taximotoapp_backend.model.enumClass.PaiementStatus;
+import com.example.taximotoapp_backend.model.enumClass.PaiementType;
 import com.example.taximotoapp_backend.websocket.service.TimeoutService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +42,9 @@ public class TrajetService {
     private final TimeoutService timeoutService;
     private final com.example.taximotoapp_backend.location.repository.LocationRepository locationRepository;
     private final MapboxService mapboxService;
-    private final PaiementService paiementService;
+    private final WalletService walletService;
+    private final PaymentService paymentService;
+    private final PaiementRepository paiementRepository;
 
     public TrajetResponse createTrajet(TrajetRequest trajetRequest){
         // recuperer user a travers le jwt
@@ -108,9 +116,23 @@ public class TrajetService {
         trajet.setScheduledAt(trajetRequest.getScheduledAt());
         trajet.setPreferredDriverGender(trajetRequest.getPreferredDriverGender());
         trajet.setPreferredDriverId(trajetRequest.getPreferredDriverId());
-        trajet.setPaymentMethod(trajetRequest.getPaymentMethod() != null ? trajetRequest.getPaymentMethod() : com.example.taximotoapp_backend.model.enumClass.PaiementType.CASH);
+
+        if (trajetRequest.getPaymentMethod() == PaiementType.ONLINE) {
+            Wallet wallet = walletService.getOrCreateWallet(client.getId());
+            if (wallet.getBalance() < trajet.getPrice()) {
+                throw new RuntimeException("Insufficient funds");
+            }
+        }
 
         Trajet saved = trajetRepository.save(trajet);
+
+        Paiement paiement = new Paiement();
+        paiement.setTrajet(saved);
+        paiement.setMontant(saved.getPrice());
+        paiement.setType(trajetRequest.getPaymentMethod() != null ? trajetRequest.getPaymentMethod() : PaiementType.CASH);
+        paiement.setStatus(PaiementStatus.EN_ATTENTE);
+        paiementRepository.save(paiement);
+
         System.out.println("🔍 [DB SAVE] Ride ID: " + saved.getId() + " Status: " + saved.getStatus() + " ScheduledAt: " + saved.getScheduledAt());
         System.out.println("🔍 [DB SAVE] Server Local Time is: " + LocalDateTime.now());
 
@@ -233,7 +255,7 @@ public class TrajetService {
 
             messagingTemplate.convertAndSend(
                     "/topic/client/" + trajet.getClient().getId(),
-                    buildDriverDetailsMap(chauffeur, trajet)
+                    buildDriverDetailsMap(chauffeur, trajet.getScheduledAt())
             );
 
             messagingTemplate.convertAndSend(
@@ -255,17 +277,6 @@ public class TrajetService {
         if (scheduledAt != null) {
             driverDetails.put("scheduledAt", scheduledAt.toString());
         }
-        if (chauffeur.getTrajets() != null && !chauffeur.getTrajets().isEmpty()) {
-            // Get the last trajet to determine payment method if needed,
-            // but better to pass Trajet object directly to this method.
-            // For now, let's just make sure handleDriverResponse passes it or we fetch it.
-        }
-        return driverDetails;
-    }
-
-    private Map<String, Object> buildDriverDetailsMap(Chauffeur chauffeur, Trajet trajet) {
-        Map<String, Object> driverDetails = buildDriverDetailsMap(chauffeur, trajet.getScheduledAt());
-        driverDetails.put("paymentMethod", trajet.getPaymentMethod());
         return driverDetails;
     }
 
@@ -277,17 +288,18 @@ public class TrajetService {
         if (trajet.getStatus() != TripStatus.Accepted && trajet.getStatus() != TripStatus.Arrived) {
             throw new RuntimeException("Trajet déjà pris ou non disponible (status=" + trajet.getStatus() + ")");
         }
+
+        // Process payment if it's ONLINE
+        paymentService.processTripPayment(trajetId);
+
         trajet.setStartedAt(LocalDateTime.now());
         trajet.setStatus(TripStatus.Started);
         Trajet saved = trajetRepository.save(trajet);
 
-        // User instruction: Create payment and mark as PAYE when trip starts
-        paiementService.createFromTrajet(saved);
-
         messagingTemplate.convertAndSend("/topic/client/" + trajet.getClient().getId(),
-                Map.of("status", "STARTED", "trajetId", trajetId, "message", "Trip started!", "paymentMethod", saved.getPaymentMethod()));
+                Map.of("status", "STARTED", "trajetId", trajetId, "message", "Trip started!"));
         messagingTemplate.convertAndSend("/topic/trajet/" + trajetId,
-                Map.of("status", "STARTED", "trajetId", trajetId, "paymentMethod", saved.getPaymentMethod()));
+                Map.of("status", "STARTED", "trajetId", trajetId));
 
         return trajetMapper.toDTO(saved);
     }
@@ -311,6 +323,8 @@ public class TrajetService {
         trajet.setStatus(TripStatus.Completed);
         trajet.setCompletedAt(LocalDateTime.now());
         Trajet saved = trajetRepository.save(trajet);
+
+        // Payment is now processed at startTrajet only, as per user requirement
 
         messagingTemplate.convertAndSend("/topic/client/" + trajet.getClient().getId(),
                 Map.of("status", "COMPLETED", "trajetId", trajetId, "message", "Trip completed!"));
@@ -431,7 +445,23 @@ public class TrajetService {
         return trajetMapper.toDTO(saved);
     }
 
+    public List<TrajetResponse> getClientHistory() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User client = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Client not found"));
+        return trajetRepository.findByClientIdOrderByRequestedAtDesc(client.getId())
+                .stream()
+                .map(trajetMapper::toDTO)
+                .toList();
+    }
 
+    public List<TrajetResponse> getDriverHistory() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User driver = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Driver not found"));
+        return trajetRepository.findByChauffeurIdOrderByRequestedAtDesc(driver.getId())
+                .stream()
+                .map(trajetMapper::toDTO)
+                .toList();
+    }
 
     @Transactional
     public Optional<TrajetResponse> getActiveTrajetForDriver() {
