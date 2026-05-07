@@ -6,7 +6,9 @@ import com.example.taximotoapp_backend.Authentification.response.AuthResponse;
 import com.example.taximotoapp_backend.User.model.Chauffeur;
 import com.example.taximotoapp_backend.User.model.Client;
 import com.example.taximotoapp_backend.User.model.User;
+import com.example.taximotoapp_backend.User.repository.AdminRepository;
 import com.example.taximotoapp_backend.User.repository.UserRepository;
+import com.example.taximotoapp_backend.User.service.UserService;
 import com.example.taximotoapp_backend.model.enumClass.ActivityStatus;
 import com.example.taximotoapp_backend.model.enumClass.Availability;
 import com.example.taximotoapp_backend.model.enumClass.Gender;
@@ -24,54 +26,44 @@ import java.util.Optional;
 @Service
 public class AuthService {
     private final UserRepository userRepository;
+    private final AdminRepository adminRepository;
+    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
     //login service
     public AuthResponse login(LoginRequest request) {
-        User user;
-        if (request.getFirebaseUid() != null) {
-            // Login via OAuth
-            user = userRepository.findByFirebaseUid(request.getFirebaseUid())
-                    .orElseThrow(() -> new RuntimeException("OAuth user not found"));
-        } else {
-            // Login classique
-            Optional<User> optionalUser = userRepository.findByEmail(request.getEmail());
-            if (optionalUser.isEmpty()) {
-                throw new RuntimeException("User not found");
-            }
-            user = optionalUser.get();
+        String identifier = request.getEmail() != null ? request.getEmail() : request.getFirebaseUid();
 
-            ActivityStatus activityStatus;
-            activityStatus=ActivityStatus.valueOf("ONLINE");
-            user.setActivityStatus(activityStatus);
-
-            if (user instanceof Chauffeur){
-                Chauffeur chauffeur=(Chauffeur) user;
-                Availability availability;
-                availability=Availability.valueOf("TRUE");
-                chauffeur.setAvailability(availability);
-            }
-
-            userRepository.save(user);
-            // Vérification du mot de passe
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getEmail(),
-                            request.getPassword()
-                    )
-            );
-        }
-        String token = jwtService.generateToken(user);
-        return new AuthResponse(
-                token,
-                user.getId(),
-                user.getFullName(),
-                user.getEmail(),
-                user.getRole().name(),
-                user.getGender() != null ? user.getGender().name() : null
+        // 1. Authentifier
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(identifier, request.getPassword())
         );
+
+        // 2. Charger les détails
+        org.springframework.security.core.userdetails.UserDetails userDetails = userService.loadUserByUsername(identifier);
+        String token = jwtService.generateToken(userDetails);
+
+        // 3. Réponse
+        var userOpt = userRepository.findByEmail(identifier);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            user.setActivityStatus(ActivityStatus.ONLINE);
+            if (user instanceof Chauffeur) ((Chauffeur) user).setAvailability(Availability.TRUE);
+            userRepository.save(user);
+
+            return new AuthResponse(token, user.getId(), user.getFullName(), user.getEmail(), user.getRole().name(),
+                    user.getGender() != null ? user.getGender().name() : null);
+        }
+
+        var adminOpt = adminRepository.findByUsername(identifier);
+        if (adminOpt.isPresent()) {
+            com.example.taximotoapp_backend.User.model.Admin admin = adminOpt.get();
+            return new AuthResponse(token, admin.getId(), admin.getUsername(), admin.getUsername(), "ROLE_ADMIN", null);
+        }
+
+        throw new RuntimeException("Erreur post-authentification");
     }
 
     public AuthResponse register(RegisterRequest request){

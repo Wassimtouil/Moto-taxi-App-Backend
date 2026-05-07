@@ -44,7 +44,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/chauffeur/**").hasRole("CHAUFFEUR")
 
                         // ADMIN
-                        //.requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         .anyRequest().authenticated()
                 )
