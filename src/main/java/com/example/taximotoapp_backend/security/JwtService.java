@@ -1,6 +1,5 @@
 package com.example.taximotoapp_backend.security;
 
-import com.example.taximotoapp_backend.User.model.User;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -16,10 +15,15 @@ public class JwtService {
     private Key getSignKey() {
         return Keys.hmacShaKeyFor(SECRET.getBytes());
     }
-    public String generateToken(User user) {
+    public String generateToken(org.springframework.security.core.userdetails.UserDetails userDetails) {
+        String role = userDetails.getAuthorities().stream()
+                .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+                .findFirst()
+                .orElse("");
+
         return Jwts.builder()
-                .setSubject(user.getEmail())
-                .claim("role", user.getRole().name())
+                .setSubject(userDetails.getUsername())
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)

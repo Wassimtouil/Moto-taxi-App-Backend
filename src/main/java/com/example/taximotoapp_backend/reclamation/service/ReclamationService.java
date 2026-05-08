@@ -5,6 +5,7 @@ import com.example.taximotoapp_backend.User.repository.UserRepository;
 import com.example.taximotoapp_backend.model.enumClass.ReclamationStatus;
 import com.example.taximotoapp_backend.reclamation.dto.request.ReclamationRequest;
 import com.example.taximotoapp_backend.reclamation.dto.response.ReclamationResponse;
+import com.example.taximotoapp_backend.reclamation.dto.response.ReclamationResponseAdmin;
 import com.example.taximotoapp_backend.reclamation.mapper.ReclamationMapper;
 import com.example.taximotoapp_backend.reclamation.model.Reclamation;
 import com.example.taximotoapp_backend.reclamation.repository.ReclamationRepository;
@@ -70,5 +71,33 @@ public class ReclamationService {
             throw new RuntimeException("reclamation deja traitée ou résolue par l'admin");
         }
         repository.delete(reclamation);
+    }
+    // --- ADMIN METHODS ---
+
+    public List<ReclamationResponseAdmin> getAllForAdmin() {
+        return repository.findAll().stream()
+                .map(mapper::toAdminResponse)
+                .collect(Collectors.toList());
+    }
+
+    public ReclamationResponseAdmin reply(Long id, String adminResponse) {
+        Reclamation reclamation = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reclamation not found"));
+
+        reclamation.setAdminResponse(adminResponse);
+        reclamation.setReclamationStatus(ReclamationStatus.RESOLU);
+
+        Reclamation saved = repository.save(reclamation);
+        return mapper.toAdminResponse(saved);
+    }
+
+    public void deleteByAdmin(Long id) {
+        if (!repository.existsById(id)) {
+            throw new RuntimeException("Reclamation not found");
+        }
+        repository.deleteById(id);
+    }
+    public long countPendingReclamations() {
+        return repository.countByReclamationStatus(ReclamationStatus.EN_ATTENTE);
     }
 }

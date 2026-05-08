@@ -1,13 +1,48 @@
 package com.example.taximotoapp_backend.trajet.mapper;
 
+import com.example.taximotoapp_backend.User.model.Chauffeur;
+import com.example.taximotoapp_backend.model.enumClass.TripStatus;
 import com.example.taximotoapp_backend.trajet.dto.request.TrajetRequest;
+import com.example.taximotoapp_backend.trajet.dto.response.ChauffeurStatResponse;
 import com.example.taximotoapp_backend.trajet.model.Trajet;
 import com.example.taximotoapp_backend.trajet.dto.response.TrajetResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.time.Duration;
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface TrajetMapper {
+
+    default ChauffeurStatResponse toChauffeurStatResponse(Chauffeur chauffeur, List<Trajet> trajets) {
+        if (chauffeur == null) return null;
+        ChauffeurStatResponse response = new ChauffeurStatResponse();
+        response.setId(chauffeur.getId().longValue());
+        response.setFullName(chauffeur.getFullName());
+        response.setEmail(chauffeur.getEmail());
+        response.setVehicleModel(chauffeur.getVehicleModel());
+        response.setVehiclePlate(chauffeur.getVehiclePlate());
+        response.setPhotoUrl(chauffeur.getPhotoUrl());
+        response.setRating(chauffeur.getNoteMoyenne());
+        response.setAvailability(chauffeur.getAvailability());
+        if (trajets != null) {
+            response.setTotalTrips(trajets.size());
+            response.setCompletedTrips(trajets.stream().filter(t -> t.getStatus() == TripStatus.Completed).count());
+            response.setCanceledTrips(trajets.stream().filter(t -> t.getStatus() == TripStatus.Canceled).count());
+            response.setTotalRevenue(trajets.stream()
+                    .filter(t -> t.getStatus() == TripStatus.Completed && t.getPrice() != null)
+                    .mapToDouble(Trajet::getPrice)
+                    .sum());
+            response.setTotalWorkTimeMinutes(trajets.stream()
+                    .filter(t -> t.getStatus() == TripStatus.Completed && t.getStartedAt() != null && t.getCompletedAt() != null)
+                    .mapToLong(t -> Duration.between(t.getStartedAt(), t.getCompletedAt()).toMinutes())
+                    .sum());
+        }
+
+        return response;
+    }
+
 
     // Entity -> response (les coordonnées viennent maintenant de TrajetLocation)
     @Mapping(source = "client.id", target = "clientId")

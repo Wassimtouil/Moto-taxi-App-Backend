@@ -8,6 +8,7 @@ import com.example.taximotoapp_backend.User.repository.UserRepository;
 import com.example.taximotoapp_backend.model.enumClass.Availability;
 import com.example.taximotoapp_backend.model.enumClass.TripStatus;
 import com.example.taximotoapp_backend.trajet.dto.request.TrajetRequest;
+import com.example.taximotoapp_backend.trajet.dto.response.ChauffeurStatResponse;
 import com.example.taximotoapp_backend.trajet.mapper.TrajetMapper;
 import com.example.taximotoapp_backend.trajet.model.Trajet;
 import com.example.taximotoapp_backend.trajet.model.TrajetLocation;
@@ -30,6 +31,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -551,6 +553,25 @@ public class TrajetService {
                     Map.of("status", "TIMEOUT", "trajetId", e.getId())
             );
         }
+    }
+
+    // --- ADMIN METHODS ---
+
+    public List<ChauffeurStatResponse> getAllChauffeurStats() {
+        List<Chauffeur> chauffeurs = chauffeurRepository.findAll();
+        return chauffeurs.stream().map(this::calculateChauffeurStats).collect(Collectors.toList());
+    }
+
+    public List<TrajetResponse> getTrajetsByChauffeurId(Long chauffeurId) {
+        return trajetRepository.findByChauffeurIdOrderByRequestedAtDesc(chauffeurId)
+                .stream()
+                .map(trajetMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    private ChauffeurStatResponse calculateChauffeurStats(Chauffeur chauffeur) {
+        List<Trajet> trajets = trajetRepository.findByChauffeurIdOrderByRequestedAtDesc(chauffeur.getId());
+        return trajetMapper.toChauffeurStatResponse(chauffeur, trajets);
     }
 }
 

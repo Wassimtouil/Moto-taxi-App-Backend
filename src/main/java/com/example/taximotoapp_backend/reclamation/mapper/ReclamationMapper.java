@@ -1,6 +1,7 @@
 package com.example.taximotoapp_backend.reclamation.mapper;
 
 import com.example.taximotoapp_backend.reclamation.dto.response.ReclamationResponse;
+import com.example.taximotoapp_backend.reclamation.dto.response.ReclamationResponseAdmin;
 import com.example.taximotoapp_backend.reclamation.model.Reclamation;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,21 @@ public class ReclamationMapper {
         response.setDateReclamation(reclamation.getDateReclamation());
         response.setAdminResponse(reclamation.getAdminResponse());
         response.setReclamationStatus(reclamation.getReclamationStatus());
+        return response;
+    }
+    public ReclamationResponseAdmin toAdminResponse(Reclamation reclamation) {
+        ReclamationResponseAdmin response = new ReclamationResponseAdmin();
+        response.setId(reclamation.getId());
+        response.setObjet(reclamation.getObjet());
+        response.setMessage(reclamation.getMessage());
+        response.setDateReclamation(reclamation.getDateReclamation());
+        response.setAdminResponse(reclamation.getAdminResponse());
+        response.setReclamationStatus(reclamation.getReclamationStatus());
+        if (reclamation.getUser() != null) {
+            response.setUserName(reclamation.getUser().getFullName());
+            response.setUserEmail(reclamation.getUser().getEmail());
+            response.setUserId(reclamation.getUser().getId());
+        }
         return response;
     }
 }
