@@ -1,7 +1,9 @@
 package com.example.taximotoapp_backend.trajet.controller;
 
 import com.example.taximotoapp_backend.trajet.dto.request.TrajetRequest;
+import com.example.taximotoapp_backend.trajet.dto.request.TrajetPreviewRequest;
 import com.example.taximotoapp_backend.trajet.dto.response.TrajetResponse;
+import com.example.taximotoapp_backend.trajet.dto.response.TrajetPreviewResponse;
 import com.example.taximotoapp_backend.trajet.service.TrajetService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,17 @@ public class TrajetController {
         try {
             TrajetResponse response = trajetService.createTrajet(trajetRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/preview")
+    @PreAuthorize("hasRole('CLIENT')")
+    public ResponseEntity<?> previewTrajet(@RequestBody TrajetPreviewRequest request) {
+        try {
+            TrajetPreviewResponse response = trajetService.previewTrajet(request);
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         }

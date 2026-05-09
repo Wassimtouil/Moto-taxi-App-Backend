@@ -16,6 +16,7 @@ public class TrajetResponse {
     private String destinationAddress;
     private String encodedPolyline;
     private Double distanceKm;
+    private Integer durationMinutes;
     private Double price;
     private TripStatus status;
     private String paymentMethod;

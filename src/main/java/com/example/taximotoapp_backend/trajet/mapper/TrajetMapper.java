@@ -58,6 +58,7 @@ public interface TrajetMapper {
     @Mapping(source = "client.location.latitude", target = "clientLatitude")
     @Mapping(source = "client.location.longitude", target = "clientLongitude")
     @Mapping(source = "paiement.type", target = "paymentMethod")
+    @Mapping(source = "durationMinutes", target = "durationMinutes")
     TrajetResponse toDTO(Trajet trajet);
 
     // request -> Entity (ignorer les champs gérés manuellement dans le service)
@@ -67,6 +68,7 @@ public interface TrajetMapper {
     @Mapping(target = "trajetLocation", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "distanceKm", ignore = true)
+    @Mapping(target = "durationMinutes", ignore = true)
     @Mapping(target = "price", ignore = true)
     @Mapping(target = "requestedAt", ignore = true)
     @Mapping(target = "startedAt", ignore = true)

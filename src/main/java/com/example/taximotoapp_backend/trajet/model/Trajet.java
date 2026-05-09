@@ -33,6 +33,9 @@ public class Trajet {
     @Column(name = "distance_km")
     private Double distanceKm;
 
+    @Column(name = "duration_minutes")
+    private Integer durationMinutes;
+
     @Column(name = "price")
     private Double price;
 
@@ -133,6 +136,14 @@ public class Trajet {
 
     public void setDistanceKm(Double distanceKm) {
         this.distanceKm = distanceKm;
+    }
+
+    public Integer getDurationMinutes() {
+        return durationMinutes;
+    }
+
+    public void setDurationMinutes(Integer durationMinutes) {
+        this.durationMinutes = durationMinutes;
     }
 
     public void setPrice(Double price) {

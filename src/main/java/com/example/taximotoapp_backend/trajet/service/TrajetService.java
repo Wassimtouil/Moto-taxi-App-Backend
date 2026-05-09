@@ -12,6 +12,8 @@ import com.example.taximotoapp_backend.trajet.dto.response.ChauffeurStatResponse
 import com.example.taximotoapp_backend.trajet.mapper.TrajetMapper;
 import com.example.taximotoapp_backend.trajet.model.Trajet;
 import com.example.taximotoapp_backend.trajet.model.TrajetLocation;
+import com.example.taximotoapp_backend.trajet.dto.request.TrajetPreviewRequest;
+import com.example.taximotoapp_backend.trajet.dto.response.TrajetPreviewResponse;
 import com.example.taximotoapp_backend.trajet.repository.TrajetRepository;
 import com.example.taximotoapp_backend.trajet.dto.response.TrajetResponse;
 import com.example.taximotoapp_backend.paiement.service.PaymentService;
@@ -102,6 +104,7 @@ public class TrajetService {
         trajet.setClient((Client) client);
         trajet.setChauffeur(null);
         trajet.setDistanceKm(roadmap.getDistanceKm());
+        trajet.setDurationMinutes(roadmap.getDurationMinutes());
         trajet.setPrice(calculatePrice(roadmap.getDistanceKm()));
         // Determine initial status: Scheduled if far in future, Created if immediate or starting soon
         TripStatus initialStatus = TripStatus.Created;
@@ -193,6 +196,33 @@ public class TrajetService {
         }
 
         return trajetMapper.toDTO(saved);
+    }
+
+    public TrajetPreviewResponse previewTrajet(TrajetPreviewRequest request) {
+        // --- Road Data from Mapbox ---
+        MapboxService.RouteDetails roadmap = mapboxService.getRouteDetails(
+                request.getPickupLatitude(), request.getPickupLongitude(),
+                request.getDestinationLatitude(), request.getDestinationLongitude()
+        );
+
+        // --- Address Resolution ---
+        String pAddress = mapboxService.reverseGeocode(
+                request.getPickupLatitude(), request.getPickupLongitude());
+
+        String dAddress = mapboxService.reverseGeocode(
+                request.getDestinationLatitude(), request.getDestinationLongitude());
+
+        Double price = calculatePrice(roadmap.getDistanceKm());
+
+        TrajetPreviewResponse response = new TrajetPreviewResponse();
+        response.setDistanceKm(roadmap.getDistanceKm());
+        response.setDurationMinutes(roadmap.getDurationMinutes());
+        response.setPrice(price);
+        response.setEncodedPolyline(roadmap.getEncodedPolyline());
+        response.setPickupAddress(pAddress);
+        response.setDestinationAddress(dAddress);
+
+        return response;
     }
 
     private Double calculatePrice(Double distanceKm) {
