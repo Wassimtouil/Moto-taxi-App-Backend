@@ -1,7 +1,10 @@
 package com.example.taximotoapp_backend.websocket;
 
+import com.example.taximotoapp_backend.User.repository.AdminRepository;
+import com.example.taximotoapp_backend.User.repository.UserRepository;
 import com.example.taximotoapp_backend.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -16,6 +19,8 @@ import java.util.Map;
 public class JwtHandshakeInterceptor implements HandshakeInterceptor {
 
     private final JwtService jwtService;
+    private final UserRepository userRepository;
+    private final AdminRepository adminRepository;
 
     @Override
     public boolean beforeHandshake(
@@ -32,6 +37,17 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
                 System.out.println("🔍 [JwtHandshakeInterceptor] isTokenValid: " + isValid);
                 if (isValid) {
                     String username = jwtService.extractUsername(token);
+                    
+                    // Vérification supplémentaire : l'utilisateur existe-t-il encore en base ?
+                    boolean userExists = userRepository.findByEmail(username).isPresent() || 
+                                       adminRepository.findByUsername(username).isPresent();
+                    
+                    if (!userExists) {
+                        System.out.println("❌ [JwtHandshakeInterceptor] User not found in database: " + username);
+                        response.setStatusCode(HttpStatus.UNAUTHORIZED);
+                        return false;
+                    }
+
                     attributes.put("username", username);
                     System.out.println("✅ [JwtHandshakeInterceptor] Handshake successful for user: " + username);
                     return true;
@@ -39,7 +55,7 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
             }
         }
         System.out.println("❌ [JwtHandshakeInterceptor] Handshake rejected. Token invalid or missing.");
-        response.setStatusCode(org.springframework.http.HttpStatus.FORBIDDEN);
+        response.setStatusCode(HttpStatus.UNAUTHORIZED);
         return false; // refuse connexion si JWT invalide
     }
 

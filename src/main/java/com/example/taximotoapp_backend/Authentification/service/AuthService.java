@@ -44,6 +44,7 @@ public class AuthService {
         // 2. Charger les détails
         org.springframework.security.core.userdetails.UserDetails userDetails = userService.loadUserByUsername(identifier);
         String token = jwtService.generateToken(userDetails);
+        String refreshToken = jwtService.generateRefreshToken(userDetails);
 
         // 3. Réponse
         var userOpt = userRepository.findByEmail(identifier);
@@ -53,14 +54,14 @@ public class AuthService {
             if (user instanceof Chauffeur) ((Chauffeur) user).setAvailability(Availability.TRUE);
             userRepository.save(user);
 
-            return new AuthResponse(token, user.getId(), user.getFullName(), user.getEmail(), user.getRole().name(),
+            return new AuthResponse(token, refreshToken, user.getId(), user.getFullName(), user.getEmail(), user.getRole().name(),
                     user.getGender() != null ? user.getGender().name() : null);
         }
 
         var adminOpt = adminRepository.findByUsername(identifier);
         if (adminOpt.isPresent()) {
             com.example.taximotoapp_backend.User.model.Admin admin = adminOpt.get();
-            return new AuthResponse(token, admin.getId(), admin.getUsername(), admin.getUsername(), "ROLE_ADMIN", null);
+            return new AuthResponse(token, refreshToken, admin.getId(), admin.getUsername(), admin.getUsername(), "ROLE_ADMIN", null);
         }
 
         throw new RuntimeException("Erreur post-authentification");
@@ -97,13 +98,41 @@ public class AuthService {
         user.setFirebaseUid(request.getFirebaseUid());
         userRepository.save(user);
         String token = jwtService.generateToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
         return new AuthResponse(
                 token,
+                refreshToken,
                 user.getId(),
                 user.getFullName(),
                 user.getEmail(),
                 user.getRole().name(),
                 user.getGender() != null ? user.getGender().name() : null
         );
+    }
+
+    public AuthResponse refreshToken(String refreshToken) {
+        if (!jwtService.isTokenValid(refreshToken)) {
+            throw new RuntimeException("Invalid refresh token");
+        }
+        String email = jwtService.extractEmail(refreshToken);
+        org.springframework.security.core.userdetails.UserDetails userDetails = userService.loadUserByUsername(email);
+
+        String newToken = jwtService.generateToken(userDetails);
+        String newRefreshToken = jwtService.generateRefreshToken(userDetails);
+
+        var userOpt = userRepository.findByEmail(email);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            return new AuthResponse(newToken, newRefreshToken, user.getId(), user.getFullName(), user.getEmail(), user.getRole().name(),
+                    user.getGender() != null ? user.getGender().name() : null);
+        }
+
+        var adminOpt = adminRepository.findByUsername(email);
+        if (adminOpt.isPresent()) {
+            com.example.taximotoapp_backend.User.model.Admin admin = adminOpt.get();
+            return new AuthResponse(newToken, newRefreshToken, admin.getId(), admin.getUsername(), admin.getUsername(), "ROLE_ADMIN", null);
+        }
+
+        throw new RuntimeException("User not found for refresh token");
     }
 }

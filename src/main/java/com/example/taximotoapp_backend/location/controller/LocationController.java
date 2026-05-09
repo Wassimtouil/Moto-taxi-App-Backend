@@ -55,7 +55,25 @@ public class LocationController {
     public void updateLocationWebSocket(@RequestBody LocationRequest locationRequest, SimpMessageHeaderAccessor headerAccessor) {
         String email = (String) headerAccessor.getSessionAttributes().get("username");
         if (email != null) {
-            locationService.updateLocation(locationRequest, email);
+            try {
+                locationService.updateLocation(locationRequest, email);
+            } catch (RuntimeException e) {
+                if ("User not found".equals(e.getMessage())) {
+                    // Si l'utilisateur n'existe plus, on pourrait envoyer un message d'erreur spécifique
+                    // ou laisser le client gérer l'absence de réponse/déconnexion.
+                    // Ici on lance l'exception pour qu'elle soit gérée par handleException
+                    throw e;
+                }
+            }
         }
+    }
+
+    @org.springframework.messaging.handler.annotation.MessageExceptionHandler
+    @org.springframework.messaging.simp.annotation.SendToUser("/queue/errors")
+    public Map<String, String> handleException(RuntimeException e) {
+        if ("User not found".equals(e.getMessage())) {
+            return Map.of("error", "User not found", "action", "logout");
+        }
+        return Map.of("error", e.getMessage());
     }
 }

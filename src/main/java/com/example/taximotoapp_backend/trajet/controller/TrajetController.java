@@ -15,6 +15,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
+import org.springframework.messaging.simp.annotation.SendToUser;
 
 import java.util.Collections;
 import java.util.List;
@@ -159,7 +161,8 @@ public class TrajetController {
             SecurityContextHolder.getContext().setAuthentication(auth);
             try {
                 trajetService.driverArrivedAtPickup(trajetId);
-            } catch (Exception e) {
+            } catch (RuntimeException e) {
+                if ("User not found".equals(e.getMessage())) throw e;
                 System.err.println("❌ Error processing fast ping arrived: " + e.getMessage());
             } finally {
                 SecurityContextHolder.clearContext();
@@ -178,8 +181,9 @@ public class TrajetController {
             SecurityContextHolder.getContext().setAuthentication(auth);
             try {
                 trajetService.startTrajet(trajetId);
-            } catch (Exception e) {
-                // Ignore if it's already started by HTTP
+            } catch (RuntimeException e) {
+                if ("User not found".equals(e.getMessage())) throw e;
+                // Ignore other errors (already started)
             } finally {
                 SecurityContextHolder.clearContext();
             }
@@ -196,11 +200,21 @@ public class TrajetController {
             SecurityContextHolder.getContext().setAuthentication(auth);
             try {
                 trajetService.terminerTrajet(trajetId);
-            } catch (Exception e) {
-                // Ignore if it's already completed by HTTP
+            } catch (RuntimeException e) {
+                if ("User not found".equals(e.getMessage())) throw e;
+                // Ignore other errors (already completed)
             } finally {
                 SecurityContextHolder.clearContext();
             }
         }
+    }
+
+    @MessageExceptionHandler
+    @SendToUser("/queue/errors")
+    public Map<String, String> handleException(RuntimeException e) {
+        if ("User not found".equals(e.getMessage())) {
+            return Map.of("error", "User not found", "action", "logout");
+        }
+        return Map.of("error", e.getMessage());
     }
 }
