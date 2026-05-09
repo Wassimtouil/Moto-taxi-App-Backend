@@ -14,9 +14,14 @@ public class EvaluationMapper {
         evaluationResponse.setDateEvaluation(evaluation.getDateEvaluation());
         evaluationResponse.setNote(evaluation.getNote());
         evaluationResponse.setCommentaire(evaluation.getCommentaire());
-        evaluationResponse.setQuickChoices(evaluation.getQuickChoices());
         evaluationResponse.setClientNom(evaluation.getClient().getFullName());
         evaluationResponse.setChauffeurNom(evaluation.getChauffeur().getFullName());
+        evaluationResponse.setNoteConduite(evaluation.getNoteConduite());
+        evaluationResponse.setNoteVehicule(evaluation.getNoteVehicule());
+        evaluationResponse.setNotePonctualite(evaluation.getNotePonctualite());
+        evaluationResponse.setNoteService(evaluation.getNoteService());
+        evaluationResponse.setNoteExperience(evaluation.getNoteExperience());
+        evaluationResponse.setNoteComportement(evaluation.getNoteComportement());
         return evaluationResponse;
     }
 }

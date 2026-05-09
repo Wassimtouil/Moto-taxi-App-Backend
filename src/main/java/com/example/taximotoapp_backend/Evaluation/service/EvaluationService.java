@@ -32,7 +32,12 @@ public class EvaluationService {
         Evaluation evaluation = new Evaluation();
         evaluation.setNote(dto.getNote());
         evaluation.setCommentaire(dto.getCommentaire());
-        evaluation.setQuickChoices(dto.getQuickChoices());
+        evaluation.setNoteConduite(dto.getNoteConduite());
+        evaluation.setNoteVehicule(dto.getNoteVehicule());
+        evaluation.setNotePonctualite(dto.getNotePonctualite());
+        evaluation.setNoteService(dto.getNoteService());
+        evaluation.setNoteExperience(dto.getNoteExperience());
+        evaluation.setNoteComportement(dto.getNoteComportement());
         evaluation.setClient(trajet.getClient());
         evaluation.setChauffeur(trajet.getChauffeur());
         evaluation.setTrajet(trajet);

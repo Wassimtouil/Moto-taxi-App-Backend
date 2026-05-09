@@ -3,13 +3,12 @@ package com.example.taximotoapp_backend.Evaluation.model;
 import com.example.taximotoapp_backend.User.model.Chauffeur;
 import com.example.taximotoapp_backend.User.model.Client;
 import com.example.taximotoapp_backend.User.model.User;
-import com.example.taximotoapp_backend.model.enumClass.QuickChoices;
 import com.example.taximotoapp_backend.model.enumClass.TripStatus;
 import com.example.taximotoapp_backend.trajet.model.Trajet;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
+
 
 @Entity
 public class Evaluation {
@@ -19,11 +18,14 @@ public class Evaluation {
     private double note;
     private String commentaire;
 
-    @ElementCollection(targetClass = QuickChoices.class)
-    @CollectionTable(name = "evaluation_quick_choices", joinColumns = @JoinColumn(name = "evaluation_id"))
-    @Enumerated(EnumType.STRING)
-    @Column(name = "quick_choice")
-    private List<QuickChoices> quickChoices;
+
+
+    private Integer noteConduite;
+    private Integer noteVehicule;
+    private Integer notePonctualite;
+    private Integer noteService;
+    private Integer noteExperience;
+    private Integer noteComportement;
 
     private LocalDateTime dateEvaluation;
     @PrePersist
@@ -49,9 +51,7 @@ public class Evaluation {
         return commentaire;
     }
 
-    public List<QuickChoices> getQuickChoices() {
-        return quickChoices;
-    }
+
 
     public LocalDateTime getDateEvaluation() {
         return dateEvaluation;
@@ -85,11 +85,57 @@ public class Evaluation {
         this.commentaire = commentaire;
     }
 
-    public void setQuickChoices(List<QuickChoices> quickChoices) {
-        this.quickChoices = quickChoices;
-    }
+
 
     public void setNote(double note) {
         this.note = note;
+    }
+
+    public Integer getNoteConduite() {
+        return noteConduite;
+    }
+
+    public void setNoteConduite(Integer noteConduite) {
+        this.noteConduite = noteConduite;
+    }
+
+    public Integer getNoteVehicule() {
+        return noteVehicule;
+    }
+
+    public void setNoteVehicule(Integer noteVehicule) {
+        this.noteVehicule = noteVehicule;
+    }
+
+    public Integer getNotePonctualite() {
+        return notePonctualite;
+    }
+
+    public void setNotePonctualite(Integer notePonctualite) {
+        this.notePonctualite = notePonctualite;
+    }
+
+    public Integer getNoteService() {
+        return noteService;
+    }
+
+    public void setNoteService(Integer noteService) {
+        this.noteService = noteService;
+    }
+
+    public Integer getNoteExperience() {
+        return noteExperience;
+    }
+
+    public void setNoteExperience(Integer noteExperience) {
+        this.noteExperience = noteExperience;
+    }
+
+    public Integer getNoteComportement() {
+        return noteComportement;
+    }
+
+    public void setNoteComportement(Integer noteComportement) {
+        this.noteComportement = noteComportement;
     }
 }

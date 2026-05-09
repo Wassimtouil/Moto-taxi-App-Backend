@@ -1,13 +1,16 @@
 package com.example.taximotoapp_backend.Evaluation.dto.request;
 
-import com.example.taximotoapp_backend.model.enumClass.QuickChoices;
 import lombok.Data;
-import java.util.List;
 
 @Data
 public class EvaluationRequest {
     private Long trajetId;
     private double note;
     private String commentaire;
-    private List<QuickChoices> quickChoices;
+    private Integer noteConduite;
+    private Integer noteVehicule;
+    private Integer notePonctualite;
+    private Integer noteService;
+    private Integer noteExperience;
+    private Integer noteComportement;
 }
