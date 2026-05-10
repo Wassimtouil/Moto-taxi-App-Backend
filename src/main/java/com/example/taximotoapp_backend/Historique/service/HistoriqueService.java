@@ -82,19 +82,25 @@ public class HistoriqueService {
     public List<TransactionResponse> getTransactions() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User introuvable"));
-        Wallet wallet = walletRepository.findByUser(user).orElseThrow(() -> new RuntimeException("Portefeuille introuvable"));
+        java.util.Optional<Wallet> walletOpt = walletRepository.findByUser(user);
 
-        List<TransactionResponse> walletTx = transactionRepository.findByWalletIdOrderByTimestampDesc(wallet.getId())
-                .stream()
-                .map(tx -> new TransactionResponse(
-                        tx.getId(),
-                        tx.getAmount(),
-                        tx.getType().name(),
-                        tx.getStatus().name(),
-                        tx.getDescription(),
-                        tx.getTimestamp()
-                ))
-                .toList();
+        List<TransactionResponse> walletTx;
+        if (walletOpt.isPresent()) {
+            walletTx = transactionRepository.findByWalletIdOrderByTimestampDesc(walletOpt.get().getId())
+                    .stream()
+                    .map(tx -> new TransactionResponse(
+                            tx.getId(),
+                            tx.getAmount(),
+                            tx.getType().name(),
+                            tx.getStatus().name(),
+                            tx.getDescription(),
+                            tx.getTimestamp()
+                    ))
+                    .toList();
+        } else {
+            walletTx = java.util.Collections.emptyList();
+        }
+
 
         List<Trajet> userTrajets;
         boolean isClient = false;

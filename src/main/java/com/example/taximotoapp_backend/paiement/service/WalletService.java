@@ -113,7 +113,7 @@ public class WalletService {
 
     private WalletResponse mapToResponse(Wallet wallet) {
         List<Transaction> txs = transactionRepository.findByWalletIdOrderByTimestampDesc(wallet.getId());
-        List<TransactionResponse> txResponses = txs.stream().map(tx -> new TransactionResponse(
+        List<TransactionResponse> walletTx = txs.stream().map(tx -> new TransactionResponse(
                 tx.getId(),
                 tx.getAmount(),
                 tx.getType().name(),
@@ -122,12 +122,48 @@ public class WalletService {
                 tx.getTimestamp()
         )).collect(Collectors.toList());
 
+        User user = wallet.getUser();
+        List<com.example.taximotoapp_backend.trajet.model.Trajet> userTrajets;
+        boolean isClient = false;
+        
+        if (user instanceof com.example.taximotoapp_backend.User.model.Client client) {
+            userTrajets = client.getTrajets();
+            isClient = true;
+        } else if (user instanceof com.example.taximotoapp_backend.User.model.Chauffeur chauffeur) {
+            userTrajets = chauffeur.getTrajets();
+        } else {
+            userTrajets = java.util.Collections.emptyList();
+        }
+
+        final boolean finalIsClient = isClient;
+        List<TransactionResponse> cashTx = userTrajets.stream()
+                .filter(t -> t.getPaiement() != null && t.getPaiement().getType() == com.example.taximotoapp_backend.model.enumClass.PaiementType.CASH)
+                .map(t -> new TransactionResponse(
+                        t.getPaiement().getId(),
+                        t.getPaiement().getMontant(),
+                        finalIsClient ? "PAYMENT" : "EARNING",
+                        t.getPaiement().getStatus().name(),
+                        (finalIsClient ? "Paiement" : "Gain") + " en espèces (Trajet #" + t.getId() + ")",
+                        t.getPaiement().getDatePaiement() != null ? t.getPaiement().getDatePaiement() : t.getRequestedAt()
+                ))
+                .collect(Collectors.toList());
+
+        List<TransactionResponse> allTx = new java.util.ArrayList<>();
+        allTx.addAll(walletTx);
+        allTx.addAll(cashTx);
+        
+        // Sort descending by timestamp
+        allTx.sort((t1, t2) -> t2.getTimestamp().compareTo(t1.getTimestamp()));
+        
+        // Limit to 5
+        List<TransactionResponse> recentTx = allTx.stream().limit(5).collect(Collectors.toList());
+
         return new WalletResponse(
                 wallet.getId(),
                 wallet.getBalance(),
                 wallet.getCashBalance(),
                 wallet.getCurrency(),
-                txResponses
+                recentTx
         );
     }
 }
