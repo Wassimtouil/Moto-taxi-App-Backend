@@ -40,4 +40,7 @@ public interface UserRepository extends JpaRepository<User,Long> {
             "SUM(CASE WHEN u.age BETWEEN 46 AND 60 THEN 1 ELSE 0 END) " +
             "FROM User u")
     List<Object[]> countUsersByAgeGroups();
+
+    @Query("SELECT u FROM User u JOIN u.location l WHERE u.activityStatus = com.example.taximotoapp_backend.model.enumClass.ActivityStatus.ONLINE")
+    List<User> findOnlineUsersWithLocation();
 }

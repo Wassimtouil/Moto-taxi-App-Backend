@@ -112,17 +112,32 @@ public class UserService implements UserDetailsService {
     }
 
     public java.util.Map<String, Long> getUserStats() {
+        List<User> allUsers = userRepository.findAll();
+        long total = allUsers.size();
+        long clients = allUsers.stream().filter(u -> u.getRole() == Role.ROLE_CLIENT).count();
+        long chauffeurs = allUsers.stream().filter(u -> u.getRole() == Role.ROLE_CHAUFFEUR).count();
 
-        long total = userRepository.count();
-        long clients = userRepository.findByRole(com.example.taximotoapp_backend.model.enumClass.Role.ROLE_CLIENT).size();
-        long chauffeurs = userRepository.findByRole(com.example.taximotoapp_backend.model.enumClass.Role.ROLE_CHAUFFEUR).size();
-
-        // On pourrait optimiser avec des requêtes personnalisées dans le repo
-        long online = userRepository.findAll().stream()
-                .filter(u -> "ONLINE".equals(u.getActivityStatus() != null ? u.getActivityStatus().name() : ""))
+        long online = allUsers.stream()
+                .filter(u -> u.getActivityStatus() != null && u.getActivityStatus().name().equals("ONLINE"))
                 .count();
 
-        long unverified = userRepository.findAll().stream()
+        long clientsOnline = allUsers.stream()
+                .filter(u -> u.getRole() == Role.ROLE_CLIENT && u.getActivityStatus() != null && u.getActivityStatus().name().equals("ONLINE"))
+                .count();
+
+        long clientsUnverified = allUsers.stream()
+                .filter(u -> u.getRole() == Role.ROLE_CLIENT && !u.getIsVerified())
+                .count();
+
+        long chauffeursOnline = allUsers.stream()
+                .filter(u -> u.getRole() == Role.ROLE_CHAUFFEUR && u.getActivityStatus() != null && u.getActivityStatus().name().equals("ONLINE"))
+                .count();
+
+        long chauffeursUnverified = allUsers.stream()
+                .filter(u -> u.getRole() == Role.ROLE_CHAUFFEUR && !u.getIsVerified())
+                .count();
+
+        long unverified = allUsers.stream()
                 .filter(u -> !u.getIsVerified())
                 .count();
 
@@ -131,6 +146,10 @@ public class UserService implements UserDetailsService {
                 "clients", clients,
                 "chauffeurs", chauffeurs,
                 "online", online,
+                "clientsOnline", clientsOnline,
+                "clientsUnverified", clientsUnverified,
+                "chauffeursOnline", chauffeursOnline,
+                "chauffeursUnverified", chauffeursUnverified,
                 "unverified", unverified
         );
     }

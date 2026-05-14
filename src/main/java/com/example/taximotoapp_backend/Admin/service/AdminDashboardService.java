@@ -1,6 +1,7 @@
 package com.example.taximotoapp_backend.Admin.service;
 
 import com.example.taximotoapp_backend.Admin.dto.AdminDashboardSummaryDto;
+import com.example.taximotoapp_backend.Admin.dto.UserLocationDto;
 import com.example.taximotoapp_backend.User.repository.UserRepository;
 import com.example.taximotoapp_backend.model.enumClass.Role;
 import com.example.taximotoapp_backend.paiement.repository.PaiementRepository;
@@ -113,7 +114,7 @@ public class AdminDashboardService {
         List<Object[]> ageCounts = userRepository.countUsersByAgeGroups();
         if (!ageCounts.isEmpty() && ageCounts.get(0) != null) {
             Object[] counts = ageCounts.get(0);
-            String[] labels = {"Jeunes", "Jeunes adultes", "Adultes", "Seniors actifs"};
+            String[] labels = {"Jeunes(16-25)", "Jeunes adultes(26-35)", "Adultes(36-45)", "Seniors actifs(46-60)"};
             String[] ranges = {"16-25 ans", "26-35 ans", "36-45 ans", "46-60 ans"};
             for (int i = 0; i < labels.length; i++) {
                 Map<String, Object> map = new HashMap<>();
@@ -141,5 +142,17 @@ public class AdminDashboardService {
                 .topZones(topZones)
                 .ageGroupStats(ageGroupStats)
                 .build();
+    }
+
+    public List<UserLocationDto> getUserLocations() {
+        return userRepository.findOnlineUsersWithLocation().stream()
+                .map(user -> UserLocationDto.builder()
+                        .id(user.getId())
+                        .fullName(user.getFullName())
+                        .role(user.getRole())
+                        .latitude(user.getLocation().getLatitude())
+                        .longitude(user.getLocation().getLongitude())
+                        .build())
+                .collect(Collectors.toList());
     }
 }
