@@ -19,7 +19,7 @@ public class UserDTO {
     // Champs spécifiques Chauffeur (optionnels)
     private String vehicleModel;
     private String vehiclePlate;
-    private Double rating;
+
 
     public UserDTO(User user) {
         this.id = user.getId();
@@ -34,7 +34,7 @@ public class UserDTO {
             Chauffeur c = (Chauffeur) user;
             this.vehicleModel = c.getVehicleModel();
             this.vehiclePlate = c.getVehiclePlate();
-            this.rating = c.getRating();
+
         }
     }
 }

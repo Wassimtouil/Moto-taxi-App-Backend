@@ -49,6 +49,10 @@ public abstract class User implements UserDetails {
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Location location;
 
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
+    private String photoBase64;
+
     @PrePersist
     protected void onCreate (){
         createdAt=LocalDateTime.now();
@@ -188,6 +192,14 @@ public abstract class User implements UserDetails {
 
     public void setLocation(Location location) {
         this.location = location;
+    }
+
+    public String getPhotoBase64() {
+        return photoBase64;
+    }
+
+    public void setPhotoBase64(String photoBase64) {
+        this.photoBase64 = photoBase64;
     }
 
 }

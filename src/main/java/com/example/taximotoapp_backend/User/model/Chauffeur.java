@@ -16,7 +16,15 @@ public class Chauffeur extends User {
     private String vehicleModel;
     private String vehiclePlate;
     private String photoUrl;
-    private Double rating;
+
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
+    private String drivingLicenceBase64;
+
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
+    private String carteGriseBase64;
+    
 
     private Double noteMoyenne;
 
@@ -64,18 +72,28 @@ public class Chauffeur extends User {
         this.photoUrl = photoUrl;
     }
 
-    public Double getRating() {
-        return rating;
-    }
 
-    public void setRating(Double rating) {
-        this.rating = rating;
-    }
 
 
 
     public void setTrajets(List<Trajet> trajets) {
         this.trajets = trajets;
+    }
+
+    public String getDrivingLicenceBase64() {
+        return drivingLicenceBase64;
+    }
+
+    public void setDrivingLicenceBase64(String drivingLicenceBase64) {
+        this.drivingLicenceBase64 = drivingLicenceBase64;
+    }
+
+    public String getCarteGriseBase64() {
+        return carteGriseBase64;
+    }
+
+    public void setCarteGriseBase64(String carteGriseBase64) {
+        this.carteGriseBase64 = carteGriseBase64;
     }
 
 }
