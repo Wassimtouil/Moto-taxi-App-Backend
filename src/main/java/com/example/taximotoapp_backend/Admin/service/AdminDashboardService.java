@@ -37,9 +37,8 @@ public class AdminDashboardService {
         long totalTrips = trajetRepository.count();
         long tripsToday = trajetRepository.countByRequestedAtAfter(startOfDay);
 
-        Double totalRevenue = paiementRepository.sumTotalRevenue();
-        Double revenueToday = paiementRepository.sumRevenueSince(startOfDay);
-
+        Double totalRevenue = trajetRepository.sumTotalRevenue();
+        Double revenueToday = trajetRepository.sumRevenueSince(startOfDay);
         // Fetch recent trips (last 10)
         List<com.example.taximotoapp_backend.trajet.dto.response.TrajetResponse> recentTrajets =
                 trajetRepository.findRecentTrajets(PageRequest.of(0, 10))
@@ -109,6 +108,21 @@ public class AdminDashboardService {
             map.put("count", ((Number) obj[3]).longValue());
             topZones.add(map);
         }
+        // Age group stats
+        List<Map<String, Object>> ageGroupStats = new ArrayList<>();
+        List<Object[]> ageCounts = userRepository.countUsersByAgeGroups();
+        if (!ageCounts.isEmpty() && ageCounts.get(0) != null) {
+            Object[] counts = ageCounts.get(0);
+            String[] labels = {"Jeunes", "Jeunes adultes", "Adultes", "Seniors actifs"};
+            String[] ranges = {"16-25 ans", "26-35 ans", "36-45 ans", "46-60 ans"};
+            for (int i = 0; i < labels.length; i++) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("label", labels[i]);
+                map.put("range", ranges[i]);
+                map.put("count", counts[i] != null ? counts[i] : 0);
+                ageGroupStats.add(map);
+            }
+        }
 
         return AdminDashboardSummaryDto.builder()
                 .totalUsers(totalUsers)
@@ -118,7 +132,6 @@ public class AdminDashboardService {
                 .tripsToday(tripsToday)
                 .totalRevenue(totalRevenue != null ? totalRevenue : 0.0)
                 .revenueToday(revenueToday != null ? revenueToday : 0.0)
-                .averageRating(4.8)
                 .recentTrajets(recentTrajets)
                 .tripsActivity(tripsActivity)
                 .registrationActivity(registrationActivity)
@@ -126,6 +139,7 @@ public class AdminDashboardService {
                 .peakHours(peakHours)
                 .peakDays(peakDays)
                 .topZones(topZones)
+                .ageGroupStats(ageGroupStats)
                 .build();
     }
 }

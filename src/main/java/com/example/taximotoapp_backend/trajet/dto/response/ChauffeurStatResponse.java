@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -26,4 +27,5 @@ public class ChauffeurStatResponse {
     private long totalWorkTimeMinutes;
     private Double rating;
     private Availability availability;
+    private boolean isVerified;
 }

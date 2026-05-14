@@ -20,7 +20,6 @@ public class AdminDashboardSummaryDto {
     private long tripsToday;
     private Double totalRevenue;
     private Double revenueToday;
-    private Double averageRating;
     private List<TrajetResponse> recentTrajets;
     private List<Map<String, Object>> tripsActivity; // Daily trip counts for chart
     private List<Map<String, Object>> registrationActivity; // Daily registration counts for chart
@@ -28,4 +27,6 @@ public class AdminDashboardSummaryDto {
     private List<Map<String, Object>> peakHours;
     private List<Map<String, Object>> peakDays;
     private List<Map<String, Object>> topZones;
+    private List<Map<String, Object>> ageGroupStats;
+
 }

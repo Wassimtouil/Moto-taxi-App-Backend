@@ -32,4 +32,12 @@ public interface UserRepository extends JpaRepository<User,Long> {
 
     @Query("SELECT u.gender, COUNT(u) FROM User u WHERE u.role = :role GROUP BY u.gender")
     List<Object[]> countByRoleAndGender(@Param("role") Role role);
+
+    @Query("SELECT " +
+            "SUM(CASE WHEN u.age BETWEEN 16 AND 25 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN u.age BETWEEN 26 AND 35 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN u.age BETWEEN 36 AND 45 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN u.age BETWEEN 46 AND 60 THEN 1 ELSE 0 END) " +
+            "FROM User u")
+    List<Object[]> countUsersByAgeGroups();
 }
