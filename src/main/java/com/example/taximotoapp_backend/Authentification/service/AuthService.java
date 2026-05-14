@@ -95,6 +95,7 @@ public class AuthService {
         user.setGender(gender);
         user.setIsVerified(true);
         user.setFirebaseUid(request.getFirebaseUid());
+        user.setAge(request.getAge());
         userRepository.save(user);
         String token = jwtService.generateToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
