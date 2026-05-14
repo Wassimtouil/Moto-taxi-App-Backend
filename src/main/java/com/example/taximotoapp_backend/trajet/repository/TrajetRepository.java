@@ -58,4 +58,37 @@ public interface TrajetRepository extends JpaRepository<Trajet,Long> {
 
     @Query("SELECT t FROM Trajet t WHERE t.status = 'Created' AND t.chauffeur IS NULL AND t.scheduledAt IS NOT NULL AND t.scheduledAt < :now")
     List<Trajet> findExpiredScheduledTrajets(@Param("now") java.time.LocalDateTime now);
+
+    // Dashboard methods
+    long countByRequestedAtAfter(java.time.LocalDateTime startOfDay);
+
+    @Query("SELECT t FROM Trajet t ORDER BY t.requestedAt DESC")
+    List<Trajet> findRecentTrajets(org.springframework.data.domain.Pageable pageable);
+
+    @Query("SELECT CAST(t.requestedAt AS date), COUNT(t) FROM Trajet t WHERE t.requestedAt >= :since GROUP BY CAST(t.requestedAt AS date) ORDER BY CAST(t.requestedAt AS date) ASC")
+    List<Object[]> countTripsByDate(@Param("since") java.time.LocalDateTime since);
+
+
+
+    @Query(value = "SELECT MONTHNAME(requested_at) as month, COUNT(*) as count FROM trajet WHERE requested_at >= :since GROUP BY MONTH(requested_at), MONTHNAME(requested_at) ORDER BY MONTH(requested_at) ASC", nativeQuery = true)
+    List<Object[]> countTripsByMonth(@Param("since") java.time.LocalDateTime since);
+
+    @Query(value = "SELECT HOUR(requested_at) as hour, COUNT(*) as count FROM trajet GROUP BY HOUR(requested_at) ORDER BY HOUR(requested_at) ASC", nativeQuery = true)
+    List<Object[]> countTripsByHour();
+
+    @Query(value = "SELECT DAYNAME(requested_at) as day, COUNT(*) as count FROM trajet GROUP BY DAYOFWEEK(requested_at), DAYNAME(requested_at) ORDER BY DAYOFWEEK(requested_at) ASC", nativeQuery = true)
+    List<Object[]> countTripsByDayOfWeek();
+
+    @Query(value = """
+        SELECT tl.pickup_address as zone,
+               AVG(tl.pickup_latitude) as lat,
+               AVG(tl.pickup_longitude) as lng,
+               COUNT(*) as count
+        FROM trajet_location tl
+        JOIN trajet t ON t.id = tl.trajet_id
+        WHERE tl.pickup_address IS NOT NULL AND tl.pickup_address != ''
+        GROUP BY ROUND(tl.pickup_latitude, 3), ROUND(tl.pickup_longitude, 3), tl.pickup_address
+        ORDER BY count DESC
+    """, nativeQuery = true)
+    List<Object[]> findTopPickupZones();
 }

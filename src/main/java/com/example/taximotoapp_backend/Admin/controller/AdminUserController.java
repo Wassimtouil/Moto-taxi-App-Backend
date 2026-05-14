@@ -1,4 +1,4 @@
-package com.example.taximotoapp_backend.User.controller;
+package com.example.taximotoapp_backend.Admin.controller;
 
 import com.example.taximotoapp_backend.User.dto.RegistrationStatDTO;
 import com.example.taximotoapp_backend.User.dto.UserDTO;
@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/admin/users")
 @RequiredArgsConstructor
-public class UserController {
+public class    AdminUserController {
 
     private final UserService userService;
 

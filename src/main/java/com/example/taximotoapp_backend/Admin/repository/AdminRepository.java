@@ -1,6 +1,6 @@
-package com.example.taximotoapp_backend.User.repository;
+package com.example.taximotoapp_backend.Admin.repository;
 
-import com.example.taximotoapp_backend.User.model.Admin;
+import com.example.taximotoapp_backend.Admin.model.Admin;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

@@ -1,4 +1,4 @@
-package com.example.taximotoapp_backend.trajet.controller;
+package com.example.taximotoapp_backend.Admin.controller;
 
 
 import com.example.taximotoapp_backend.trajet.dto.response.ChauffeurStatResponse;

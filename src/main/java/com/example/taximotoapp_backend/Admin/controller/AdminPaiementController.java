@@ -1,9 +1,11 @@
-package com.example.taximotoapp_backend.paiement.controller;
+package com.example.taximotoapp_backend.Admin.controller;
 
-import com.example.taximotoapp_backend.paiement.dto.response.*;
+import com.example.taximotoapp_backend.Admin.dto.AdminPaiementDto;
+import com.example.taximotoapp_backend.Admin.dto.AdminPaiementStatsDto;
+import com.example.taximotoapp_backend.Admin.dto.AdminTransactionDto;
+import com.example.taximotoapp_backend.Admin.dto.AdminWalletDto;
 import com.example.taximotoapp_backend.paiement.model.Paiement;
 import com.example.taximotoapp_backend.paiement.model.Transaction;
-import com.example.taximotoapp_backend.paiement.model.Wallet;
 import com.example.taximotoapp_backend.paiement.repository.PaiementRepository;
 import com.example.taximotoapp_backend.paiement.repository.TransactionRepository;
 import com.example.taximotoapp_backend.paiement.repository.WalletRepository;
@@ -32,10 +34,6 @@ public class AdminPaiementController {
         List<Paiement> paiements = paiementRepository.findAll();
         List<Transaction> transactions = transactionRepository.findAll();
 
-        Double totalRevenue = paiements.stream()
-                .mapToDouble(p -> p.getMontant() != null ? p.getMontant() : 0.0)
-                .sum();
-
         long totalPaiements = paiements.size();
         long totalTransactions = transactions.size();
 
@@ -46,7 +44,6 @@ public class AdminPaiementController {
                 .sum();
 
         AdminPaiementStatsDto stats = new AdminPaiementStatsDto(
-                totalRevenue,
                 totalTransactions,
                 totalPaiements,
                 totalDriverRevenue

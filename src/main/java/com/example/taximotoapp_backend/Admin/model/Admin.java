@@ -1,4 +1,4 @@
-package com.example.taximotoapp_backend.User.model;
+package com.example.taximotoapp_backend.Admin.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

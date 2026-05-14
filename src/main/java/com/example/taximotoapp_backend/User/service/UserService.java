@@ -1,13 +1,12 @@
 package com.example.taximotoapp_backend.User.service;
 
 import com.example.taximotoapp_backend.User.dto.RegistrationStatDTO;
-import com.example.taximotoapp_backend.User.model.Admin;
+import com.example.taximotoapp_backend.Admin.model.Admin;
 import com.example.taximotoapp_backend.User.model.User;
-import com.example.taximotoapp_backend.User.repository.AdminRepository;
+import com.example.taximotoapp_backend.Admin.repository.AdminRepository;
 import com.example.taximotoapp_backend.User.repository.UserRepository;
 import com.example.taximotoapp_backend.model.enumClass.Role;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

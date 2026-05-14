@@ -33,6 +33,7 @@ public abstract class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
+
     @Column(name = "is_verified",nullable = false)
     private Boolean isVerified = false;
 

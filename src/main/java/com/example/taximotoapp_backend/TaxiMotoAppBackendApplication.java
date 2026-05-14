@@ -1,7 +1,7 @@
 package com.example.taximotoapp_backend;
 
-import com.example.taximotoapp_backend.User.model.Admin;
-import com.example.taximotoapp_backend.User.repository.AdminRepository;
+import com.example.taximotoapp_backend.Admin.model.Admin;
+import com.example.taximotoapp_backend.Admin.repository.AdminRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

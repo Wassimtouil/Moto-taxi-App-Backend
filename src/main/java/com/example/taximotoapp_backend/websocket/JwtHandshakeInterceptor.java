@@ -1,6 +1,6 @@
 package com.example.taximotoapp_backend.websocket;
 
-import com.example.taximotoapp_backend.User.repository.AdminRepository;
+import com.example.taximotoapp_backend.Admin.repository.AdminRepository;
 import com.example.taximotoapp_backend.User.repository.UserRepository;
 import com.example.taximotoapp_backend.security.JwtService;
 import lombok.RequiredArgsConstructor;

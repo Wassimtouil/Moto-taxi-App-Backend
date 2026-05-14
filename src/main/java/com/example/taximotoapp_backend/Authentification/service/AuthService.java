@@ -1,12 +1,13 @@
 package com.example.taximotoapp_backend.Authentification.service;
 
+import com.example.taximotoapp_backend.Admin.model.Admin;
 import com.example.taximotoapp_backend.Authentification.dto.LoginRequest;
 import com.example.taximotoapp_backend.Authentification.dto.RegisterRequest;
 import com.example.taximotoapp_backend.Authentification.response.AuthResponse;
 import com.example.taximotoapp_backend.User.model.Chauffeur;
 import com.example.taximotoapp_backend.User.model.Client;
 import com.example.taximotoapp_backend.User.model.User;
-import com.example.taximotoapp_backend.User.repository.AdminRepository;
+import com.example.taximotoapp_backend.Admin.repository.AdminRepository;
 import com.example.taximotoapp_backend.User.repository.UserRepository;
 import com.example.taximotoapp_backend.User.service.UserService;
 import com.example.taximotoapp_backend.model.enumClass.ActivityStatus;
@@ -19,8 +20,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -60,7 +59,7 @@ public class AuthService {
 
         var adminOpt = adminRepository.findByUsername(identifier);
         if (adminOpt.isPresent()) {
-            com.example.taximotoapp_backend.User.model.Admin admin = adminOpt.get();
+            Admin admin = adminOpt.get();
             return new AuthResponse(token, refreshToken, admin.getId(), admin.getUsername(), admin.getUsername(), "ROLE_ADMIN", null);
         }
 
@@ -129,7 +128,7 @@ public class AuthService {
 
         var adminOpt = adminRepository.findByUsername(email);
         if (adminOpt.isPresent()) {
-            com.example.taximotoapp_backend.User.model.Admin admin = adminOpt.get();
+            Admin admin = adminOpt.get();
             return new AuthResponse(newToken, newRefreshToken, admin.getId(), admin.getUsername(), admin.getUsername(), "ROLE_ADMIN", null);
         }
 

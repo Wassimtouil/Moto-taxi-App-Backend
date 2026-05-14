@@ -1,4 +1,4 @@
-package com.example.taximotoapp_backend.paiement.dto.response;
+package com.example.taximotoapp_backend.Admin.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
