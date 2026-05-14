@@ -33,7 +33,7 @@ public abstract class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-
+    private int age;
     @Column(name = "is_verified",nullable = false)
     private Boolean isVerified = false;
 
@@ -59,6 +59,18 @@ public abstract class User implements UserDetails {
 
     public String getEmail() {
         return email;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public Boolean getVerified() {
+        return isVerified;
+    }
+
+    public List<Reclamation> getReclamations() {
+        return reclamations;
     }
 
     public String getPassword() {
@@ -101,6 +113,18 @@ public abstract class User implements UserDetails {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public void setVerified(Boolean verified) {
+        isVerified = verified;
+    }
+
+    public void setReclamations(List<Reclamation> reclamations) {
+        this.reclamations = reclamations;
     }
 
     public void setFirebaseUid(String firebaseUid) {
