@@ -33,10 +33,15 @@ public class Evaluation {
         dateEvaluation = LocalDateTime.now();
     }
     @ManyToOne
+    @JoinColumn(name = "client_id")
     private Client client;
+
     @ManyToOne
+    @JoinColumn(name = "chauffeur_id")
     private Chauffeur chauffeur;
+
     @OneToOne
+    @JoinColumn(name = "trajet_id")
     private Trajet trajet;
 
     public Long getId() {
