@@ -8,6 +8,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
 @RequiredArgsConstructor
 @EnableAsync
@@ -17,6 +19,7 @@ public class TimeoutService {
     private final SimpMessagingTemplate messagingTemplate;
 
     @Async
+    @Transactional
     public void handleTimeout(Long trajetId) {
 
         try {

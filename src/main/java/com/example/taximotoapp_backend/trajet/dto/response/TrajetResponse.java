@@ -20,6 +20,7 @@ public class TrajetResponse {
     private Double price;
     private TripStatus status;
     private String paymentMethod;
+    private String cancelledBy;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime requestedAt;
 

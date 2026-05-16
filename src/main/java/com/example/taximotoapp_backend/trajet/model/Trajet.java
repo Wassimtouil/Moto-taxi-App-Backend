@@ -68,6 +68,9 @@ public class Trajet {
     @Column(name = "payment_method", length = 20)
     private PaiementType paymentMethod;
 
+    @Column(name = "cancelled_by", length = 20)
+    private String cancelledBy;
+
 
     @PrePersist
     protected void onCreate(){
@@ -216,5 +219,13 @@ public class Trajet {
 
     public void setPaiement(Paiement paiement) {
         this.paiement = paiement;
+    }
+
+    public String getCancelledBy() {
+        return cancelledBy;
+    }
+
+    public void setCancelledBy(String cancelledBy) {
+        this.cancelledBy = cancelledBy;
     }
 }

@@ -58,7 +58,7 @@ public class WalletService {
         wallet.setBalance(wallet.getBalance() + request.getAmount());
         walletRepository.save(wallet);
 
-        createTransaction(wallet, request.getAmount(), TransactionType.DEPOSIT, TransactionStatus.COMPLETED, "Deposit via card " + card.getLast4Digits());
+        createTransaction(wallet, request.getAmount(), TransactionType.DEPOSIT, TransactionStatus.COMPLETED, "Rechargement par carte •••• " + card.getLast4Digits());
         return new ApiResponse(true, "Deposit successful");
     }
 
@@ -84,7 +84,7 @@ public class WalletService {
         wallet.setBalance(wallet.getBalance() - request.getAmount());
         walletRepository.save(wallet);
 
-        createTransaction(wallet, request.getAmount(), TransactionType.WITHDRAWAL, TransactionStatus.COMPLETED, "Withdrawal to card " + card.getLast4Digits());
+        createTransaction(wallet, request.getAmount(), TransactionType.WITHDRAWAL, TransactionStatus.COMPLETED, "Retrait vers carte •••• " + card.getLast4Digits());
         return new ApiResponse(true, "Withdrawal successful");
     }
 
@@ -138,14 +138,18 @@ public class WalletService {
         final boolean finalIsClient = isClient;
         List<TransactionResponse> cashTx = userTrajets.stream()
                 .filter(t -> t.getPaiement() != null && t.getPaiement().getType() == com.example.taximotoapp_backend.model.enumClass.PaiementType.CASH)
-                .map(t -> new TransactionResponse(
+                .map(t -> {
+                    String dest = t.getTrajetLocation() != null ? t.getTrajetLocation().getDestinationAddress() : null;
+                    String label = (finalIsClient ? "Paiement espèces" : "Gain espèces") + " → " + (dest != null && !dest.isEmpty() ? dest : "Trajet #" + t.getId());
+                    return new TransactionResponse(
                         t.getPaiement().getId(),
                         t.getPaiement().getMontant(),
                         finalIsClient ? "PAYMENT" : "EARNING",
                         t.getPaiement().getStatus().name(),
-                        (finalIsClient ? "Paiement" : "Gain") + " en espèces (Trajet #" + t.getId() + ")",
+                        label,
                         t.getPaiement().getDatePaiement() != null ? t.getPaiement().getDatePaiement() : t.getRequestedAt()
-                ))
+                    );
+                })
                 .collect(Collectors.toList());
 
         List<TransactionResponse> allTx = new java.util.ArrayList<>();

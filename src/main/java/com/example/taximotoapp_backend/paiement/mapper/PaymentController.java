@@ -1,7 +1,7 @@
 package com.example.taximotoapp_backend.paiement.mapper;
 
 import com.example.taximotoapp_backend.paiement.dto.response.ApiResponse;
-import com.example.taximotoapp_backend.paiement.service.PaymentService;
+import com.example.taximotoapp_backend.paiement.service.PaiementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/payment")
 @RequiredArgsConstructor
 public class PaymentController {
-    private final PaymentService paymentService;
+    private final PaiementService paymentService;
 
     @PostMapping("/trip/{tripId}")
     @PreAuthorize("hasAnyRole('CLIENT', 'CHAUFFEUR')")

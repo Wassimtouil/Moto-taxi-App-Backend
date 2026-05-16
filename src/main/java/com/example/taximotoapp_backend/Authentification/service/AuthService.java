@@ -86,7 +86,12 @@ public class AuthService {
         if (role == Role.ROLE_CLIENT){
             user = new Client();
         }else {
-            user = new Chauffeur();
+            Chauffeur chauffeur = new Chauffeur();
+            chauffeur.setVehicleModel(request.getVehicleModel());
+            chauffeur.setVehiclePlate(request.getVehiclePlate());
+            chauffeur.setDrivingLicenceBase64(request.getDrivingLicenceBase64());
+            chauffeur.setCarteGriseBase64(request.getCarteGriseBase64());
+            user = chauffeur;
         }
         user.setFullName(request.getFullName());
         user.setEmail(request.getEmail());
@@ -96,6 +101,7 @@ public class AuthService {
         user.setIsVerified(true);
         user.setFirebaseUid(request.getFirebaseUid());
         user.setAge(request.getAge());
+        user.setPhotoBase64(request.getPhotoBase64());
         userRepository.save(user);
         String token = jwtService.generateToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
