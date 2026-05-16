@@ -91,4 +91,10 @@ public interface TrajetRepository extends JpaRepository<Trajet,Long> {
         ORDER BY count DESC
     """, nativeQuery = true)
     List<Object[]> findTopPickupZones();
+
+    @Query("SELECT SUM(t.price) FROM Trajet t WHERE t.status = 'Completed'")
+    Double sumTotalRevenue();
+
+    @Query("SELECT SUM(t.price) FROM Trajet t WHERE t.status = 'Completed' AND t.completedAt >= :since")
+    Double sumRevenueSince(@Param("since") java.time.LocalDateTime since);
 }

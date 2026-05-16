@@ -26,6 +26,7 @@ public interface TrajetMapper {
         response.setPhotoUrl(chauffeur.getPhotoUrl());
         response.setRating(chauffeur.getNoteMoyenne());
         response.setAvailability(chauffeur.getAvailability());
+        response.setVerified(chauffeur.getIsVerified());
         if (trajets != null) {
             response.setTotalTrips(trajets.size());
             response.setCompletedTrips(trajets.stream().filter(t -> t.getStatus() == TripStatus.Completed).count());
@@ -35,8 +36,8 @@ public interface TrajetMapper {
                     .mapToDouble(Trajet::getPrice)
                     .sum());
             response.setTotalWorkTimeMinutes(trajets.stream()
-                    .filter(t -> t.getStatus() == TripStatus.Completed && t.getStartedAt() != null && t.getCompletedAt() != null)
-                    .mapToLong(t -> Duration.between(t.getStartedAt(), t.getCompletedAt()).toMinutes())
+                    .filter(t -> t.getStatus() == TripStatus.Completed && t.getDurationMinutes() != null)
+                    .mapToLong(Trajet::getDurationMinutes)
                     .sum());
         }
 

@@ -2,6 +2,7 @@ package com.example.taximotoapp_backend.reclamation.model;
 
 import com.example.taximotoapp_backend.User.model.User;
 import com.example.taximotoapp_backend.model.enumClass.ReclamationStatus;
+import com.example.taximotoapp_backend.model.enumClass.ReclamationsType;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -11,7 +12,10 @@ public class Reclamation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String objet;
+
+    @Enumerated(EnumType.STRING)
+    private ReclamationsType objet;
+
     private String message;
 
     @Enumerated(EnumType.STRING)
@@ -32,7 +36,7 @@ public class Reclamation {
         return id;
     }
 
-    public String getObjet() {
+    public ReclamationsType getObjet() {
         return objet;
     }
 
@@ -54,7 +58,7 @@ public class Reclamation {
         return reclamationStatus;
     }
 
-    public void setObjet(String objet) {
+    public void setObjet(ReclamationsType objet) {
         this.objet = objet;
     }
 
