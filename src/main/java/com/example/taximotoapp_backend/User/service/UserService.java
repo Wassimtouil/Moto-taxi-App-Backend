@@ -27,23 +27,23 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String identifier)
             throws UsernameNotFoundException {
 
-        // 1. Chercher dans User (Client/Chauffeur)
+        // 1. Chercher dans UserRepository (qui contient Clients, Chauffeurs et maintenant Admins)
         var userOpt = userRepository.findByEmail(identifier);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             return new org.springframework.security.core.userdetails.User(
                     user.getEmail(),
                     user.getPassword(),
-                    List.of(new SimpleGrantedAuthority(user.getRole().toString()))
+                    List.of(new SimpleGrantedAuthority(user.getRole().name()))
             );
         }
 
-        // 2. Chercher dans Admin
-        var adminOpt = adminRepository.findByUsername(identifier);
+        // 2. Fallback sur AdminRepository (au cas où ils ne seraient pas dans UserRepository)
+        var adminOpt = adminRepository.findByEmail(identifier);
         if (adminOpt.isPresent()) {
             Admin admin = adminOpt.get();
             return new org.springframework.security.core.userdetails.User(
-                    admin.getUsername(),
+                    admin.getEmail(),
                     admin.getPassword(),
                     List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))
             );
@@ -54,7 +54,16 @@ public class UserService implements UserDetailsService {
 
 
     public Page<User> getAllUsers(int page, int size) {
-        return userRepository.findAll(PageRequest.of(page, size));
+        List<User> filtered = userRepository.findAll().stream()
+                .filter(u -> u.getRole() != Role.ROLE_ADMIN)
+                .toList();
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min((start + pageRequest.getPageSize()), filtered.size());
+        List<User> subList = start <= end ? filtered.subList(start, end) : List.of();
+
+        return new org.springframework.data.domain.PageImpl<>(subList, pageRequest, filtered.size());
     }
 
     public Page<User> searchByName(String name, int page, int size) {
@@ -97,6 +106,7 @@ public class UserService implements UserDetailsService {
         List<User> allUsers = userRepository.findAll();
 
         List<User> filtered = allUsers.stream()
+                .filter(u -> u.getRole() != Role.ROLE_ADMIN)
                 .filter(u -> role == null || u.getRole() == role)
                 .filter(u -> status == null || (u.getActivityStatus() != null && u.getActivityStatus().name().equals(status)))
                 .filter(u -> gender == null || (u.getGender() != null && u.getGender().name().equals(gender)))

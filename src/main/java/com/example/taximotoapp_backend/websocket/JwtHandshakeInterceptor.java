@@ -37,11 +37,11 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
                 System.out.println("🔍 [JwtHandshakeInterceptor] isTokenValid: " + isValid);
                 if (isValid) {
                     String username = jwtService.extractUsername(token);
-                    
+
                     // Vérification supplémentaire : l'utilisateur existe-t-il encore en base ?
-                    boolean userExists = userRepository.findByEmail(username).isPresent() || 
-                                       adminRepository.findByUsername(username).isPresent();
-                    
+                    boolean userExists = userRepository.findByEmail(username).isPresent() ||
+                            adminRepository.findByEmail(username).isPresent();
+
                     if (!userExists) {
                         System.out.println("❌ [JwtHandshakeInterceptor] User not found in database: " + username);
                         response.setStatusCode(HttpStatus.UNAUTHORIZED);

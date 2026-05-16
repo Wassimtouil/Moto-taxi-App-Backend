@@ -18,17 +18,4 @@ public class TaxiMotoAppBackendApplication {
     public static void main(String[] args) {
         SpringApplication.run(TaxiMotoAppBackendApplication.class, args);
     }
-
-    @Bean
-    CommandLineRunner initAdmin(AdminRepository adminRepository, PasswordEncoder passwordEncoder) {
-        return args -> {
-            if (adminRepository.findByUsername("admin").isEmpty()) {
-                Admin admin = new Admin();
-                admin.setUsername("admin");
-                admin.setPassword(passwordEncoder.encode("admin123"));
-                adminRepository.save(admin);
-                System.out.println("✅ Compte Admin par défaut créé : admin / admin123");
-            }
-        };
-    }
 }

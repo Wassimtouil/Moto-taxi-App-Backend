@@ -40,7 +40,9 @@ public class ReclamationMapper {
         response.setMessage(reclamation.getMessage());
         response.setDateReclamation(reclamation.getDateReclamation());
         response.setAdminResponse(reclamation.getAdminResponse());
-        response.setReclamationStatus(reclamation.getReclamationStatus());
+        response.setReclamationStatus(
+                reclamation.getReclamationStatus() != null ? reclamation.getReclamationStatus().name() : null
+        );
 
         if (reclamation.getUser() != null) {
             response.setUserName(reclamation.getUser().getFullName());

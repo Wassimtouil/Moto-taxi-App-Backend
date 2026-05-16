@@ -13,6 +13,7 @@ import com.example.taximotoapp_backend.reclamation.repository.ReclamationReposit
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -75,12 +76,14 @@ public class ReclamationService {
     }
     // --- ADMIN METHODS ---
 
+    @Transactional(readOnly = true)
     public List<ReclamationResponseAdmin> getAllForAdmin() {
         return repository.findAll().stream()
                 .map(mapper::toAdminResponse)
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public ReclamationResponseAdmin reply(Long id, String adminResponse) {
         Reclamation reclamation = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reclamation not found"));
@@ -92,6 +95,7 @@ public class ReclamationService {
         return mapper.toAdminResponse(saved);
     }
 
+    @Transactional
     public void deleteByAdmin(Long id) {
         if (!repository.existsById(id)) {
             throw new RuntimeException("Reclamation not found");
@@ -100,5 +104,16 @@ public class ReclamationService {
     }
     public long countPendingReclamations() {
         return repository.countByReclamationStatus(ReclamationStatus.EN_ATTENTE);
+    }
+
+    public java.util.Map<String, Long> getStatsByType() {
+        List<Object[]> results = repository.countByObjet();
+        java.util.Map<String, Long> stats = new java.util.LinkedHashMap<>();
+        for (Object[] result : results) {
+            String type = result[0] != null ? result[0].toString() : "UNKNOWN";
+            Long count = (Long) result[1];
+            stats.put(type, count);
+        }
+        return stats;
     }
 }

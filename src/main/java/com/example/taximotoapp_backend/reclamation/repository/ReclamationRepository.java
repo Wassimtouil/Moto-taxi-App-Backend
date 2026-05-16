@@ -12,4 +12,6 @@ public interface ReclamationRepository extends JpaRepository<Reclamation,Long> {
 
     long countByReclamationStatus(ReclamationStatus status);
 
+    @org.springframework.data.jpa.repository.Query("SELECT r.objet, COUNT(r) FROM Reclamation r GROUP BY r.objet ORDER BY COUNT(r) DESC")
+    List<Object[]> countByObjet();
 }

@@ -64,35 +64,4 @@ public class ReclamationController {
     public void deleteReclamation(@PathVariable Long id){
         service.delete(id);
     }
-
-    // --- ADMIN ENDPOINTS ---
-
-    @GetMapping("/admin/all")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<ReclamationResponseAdmin>> getAllForAdmin() {
-        return ResponseEntity.ok(service.getAllForAdmin());
-    }
-
-    @PostMapping("/admin/{id}/reply")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ReclamationResponseAdmin> replyToReclamation(
-            @PathVariable Long id,
-            @RequestBody Map<String, String> body
-    ) {
-        String responseText = body.get("response");
-        return ResponseEntity.ok(service.reply(id, responseText));
-    }
-
-    @DeleteMapping("/admin/delete/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteByAdmin(@PathVariable Long id) {
-        service.deleteByAdmin(id);
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/admin/pending-count")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Long> getPendingCount() {
-        return ResponseEntity.ok(service.countPendingReclamations());
-    }
 }
