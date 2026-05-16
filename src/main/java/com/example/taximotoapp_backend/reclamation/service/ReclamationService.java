@@ -3,6 +3,7 @@ package com.example.taximotoapp_backend.reclamation.service;
 import com.example.taximotoapp_backend.User.model.User;
 import com.example.taximotoapp_backend.User.repository.UserRepository;
 import com.example.taximotoapp_backend.model.enumClass.ReclamationStatus;
+import com.example.taximotoapp_backend.model.enumClass.ReclamationsType;
 import com.example.taximotoapp_backend.reclamation.dto.request.ReclamationRequest;
 import com.example.taximotoapp_backend.reclamation.dto.response.ReclamationResponse;
 import com.example.taximotoapp_backend.reclamation.dto.response.ReclamationResponseAdmin;
@@ -28,7 +29,7 @@ public class ReclamationService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Reclamation r = new Reclamation();
-        r.setObjet(request.getObjet());
+        r.setObjet(ReclamationsType.valueOf(request.getObjet()));
         r.setMessage(request.getContenu());
         r.setUser(user);
         Reclamation Rsaved=repository.save(r);
@@ -55,7 +56,7 @@ public class ReclamationService {
         if (!ReclamationStatus.EN_ATTENTE.equals(reclamation.getReclamationStatus())){
             throw new RuntimeException("reclamation deja traitée ou résolue par l'admin");
         }
-        reclamation.setObjet(request.getObjet());
+        reclamation.setObjet(ReclamationsType.valueOf(request.getObjet()));
         reclamation.setMessage(request.getContenu());
         Reclamation updated = repository.save(reclamation);
         return mapper.toResponse(updated);
