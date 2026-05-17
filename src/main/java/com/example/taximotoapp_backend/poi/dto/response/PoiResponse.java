@@ -1,5 +1,8 @@
 package com.example.taximotoapp_backend.poi.dto.response;
 
+import lombok.Data;
+
+@Data
 public class PoiResponse {
     private Long id;
     private String name;
