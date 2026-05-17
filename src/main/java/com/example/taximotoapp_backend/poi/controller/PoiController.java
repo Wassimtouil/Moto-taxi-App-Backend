@@ -1,5 +1,7 @@
 package com.example.taximotoapp_backend.poi.controller;
 
+import com.example.taximotoapp_backend.poi.dto.request.PoiRequest;
+import com.example.taximotoapp_backend.poi.dto.response.PoiResponse;
 import com.example.taximotoapp_backend.poi.model.Poi;
 import com.example.taximotoapp_backend.poi.service.PoiService;
 import lombok.RequiredArgsConstructor;
@@ -10,23 +12,23 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/poi")
 @RequiredArgsConstructor
+@CrossOrigin("*")
 public class PoiController {
 
     private final PoiService poiService;
 
     @GetMapping("/search")
-    public Poi searchPoi(@RequestParam String text) {
-        return poiService.findPoi(text);
+    public PoiResponse search(@RequestParam String text) {
+        return poiService.searchPoi(text);
     }
 
     @PostMapping("/add")
-    public Poi addPoi(@RequestBody Poi poi) {
-        return poiService.savePoi(poi);
+    public PoiResponse add(@RequestBody PoiRequest request) {
+        return poiService.addPoi(request);
     }
 
     @GetMapping("/all")
-    public List<Poi> getAll() {
-        return poiService.getAllPois();
+    public List<PoiResponse> getAll() {
+        return poiService.getAll();
     }
-
 }
