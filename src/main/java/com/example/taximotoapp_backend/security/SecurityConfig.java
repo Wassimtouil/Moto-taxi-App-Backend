@@ -23,6 +23,7 @@ public class SecurityConfig {
                         // Public
                         .requestMatchers("/api/auth/**").permitAll()
 
+                        .requestMatchers("/api/poi/**").permitAll()
                         .requestMatchers("/api/location/**").hasAnyRole("CHAUFFEUR", "CLIENT")
 
                         .requestMatchers("/api/historique/**").hasAnyRole("CLIENT","CHAUFFEUR")
