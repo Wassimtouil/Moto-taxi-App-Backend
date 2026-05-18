@@ -609,11 +609,33 @@ public class TrajetService {
         List<Trajet> trajets = trajetRepository.findByChauffeurIdOrderByRequestedAtDesc(chauffeur.getId());
         return trajetMapper.toChauffeurStatResponse(chauffeur, trajets);
     }
-    public List<TrajetResponse> getAllTrajets() {
+    public List<com.example.taximotoapp_backend.Admin.dto.AdminTrajetDto> getAllTrajetsForAdmin() {
         return trajetRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "requestedAt"))
                 .stream()
-                .map(trajetMapper::toDTO)
+                .map(this::toAdminTrajetDto)
                 .collect(Collectors.toList());
+    }
+
+    private com.example.taximotoapp_backend.Admin.dto.AdminTrajetDto toAdminTrajetDto(Trajet trajet) {
+        return com.example.taximotoapp_backend.Admin.dto.AdminTrajetDto.builder()
+                .id(trajet.getId())
+                .status(trajet.getStatus() != null ? trajet.getStatus().name() : null)
+                .requestedAt(trajet.getRequestedAt())
+                .scheduledAt(trajet.getScheduledAt())
+                .startedAt(trajet.getStartedAt())
+                .completedAt(trajet.getCompletedAt())
+                .pickupAddress(trajet.getTrajetLocation() != null ? trajet.getTrajetLocation().getPickupAddress() : null)
+                .destinationAddress(trajet.getTrajetLocation() != null ? trajet.getTrajetLocation().getDestinationAddress() : null)
+                .distanceKm(trajet.getDistanceKm())
+                .durationMinutes(trajet.getDurationMinutes())
+                .price(trajet.getPrice())
+                .paymentMethod(trajet.getPaymentMethod() != null ? trajet.getPaymentMethod().name() : null)
+                .clientId(trajet.getClient() != null ? trajet.getClient().getId() : null)
+                .clientName(trajet.getClient() != null ? trajet.getClient().getFullName() : null)
+                .chauffeurId(trajet.getChauffeur() != null ? trajet.getChauffeur().getId() : null)
+                .chauffeurName(trajet.getChauffeur() != null ? trajet.getChauffeur().getFullName() : null)
+                .cancelledBy(trajet.getCancelledBy())
+                .build();
     }
 }
 
