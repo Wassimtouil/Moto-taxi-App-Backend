@@ -75,7 +75,7 @@ public class TrajetService {
         if (initialStatus != TripStatus.Scheduled) {
             System.out.println("⚡ Ride is starting SOON or NOW. Searching for drivers...");
             System.out.println("🎯 [DEBUG] preferredDriverId from request: " + trajetRequest.getPreferredDriverId());
-            
+
             if (trajetRequest.getPreferredDriverId() != null) {
                 System.out.println("🎯 Rider explicitly requested driver ID: " + trajetRequest.getPreferredDriverId());
                 Chauffeur preferredDriver = chauffeurRepository.findById(trajetRequest.getPreferredDriverId())
@@ -605,15 +605,49 @@ public class TrajetService {
                 .collect(Collectors.toList());
     }
 
-    private ChauffeurStatResponse calculateChauffeurStats(Chauffeur chauffeur) {
-        List<Trajet> trajets = trajetRepository.findByChauffeurIdOrderByRequestedAtDesc(chauffeur.getId());
-        return trajetMapper.toChauffeurStatResponse(chauffeur, trajets);
-    }
     public List<com.example.taximotoapp_backend.Admin.dto.AdminTrajetDto> getAllTrajetsForAdmin() {
         return trajetRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "requestedAt"))
                 .stream()
                 .map(this::toAdminTrajetDto)
                 .collect(Collectors.toList());
+    }
+
+    public com.example.taximotoapp_backend.Admin.dto.AdminTrajetStatsDto getTrajetStatsForAdmin() {
+        java.time.LocalDateTime startOfDay = java.time.LocalDateTime.of(java.time.LocalDate.now(), java.time.LocalTime.MIN);
+
+        long total = trajetRepository.count();
+        long todayTotal = trajetRepository.countByRequestedAtAfter(startOfDay);
+        long completed = trajetRepository.countByStatus(TripStatus.Completed);
+        long canceled = trajetRepository.countByStatus(TripStatus.Canceled);
+        long accepted = trajetRepository.countByStatus(TripStatus.Accepted);
+        long arrived = trajetRepository.countByStatus(TripStatus.Arrived);
+        long started = trajetRepository.countByStatus(TripStatus.Started);
+        long created = trajetRepository.countByStatus(TripStatus.Created);
+        long scheduled = trajetRepository.countByStatus(TripStatus.Scheduled);
+
+        long inProgress = accepted + arrived + started;
+        long pending = created + scheduled;
+
+        double cancelRate = total > 0 ? (canceled * 100.0 / total) : 0;
+
+        Double totalRevenue = trajetRepository.sumTotalRevenue();
+        Double revenueToday = trajetRepository.sumRevenueSince(startOfDay);
+        Double avgPrice = trajetRepository.avgCompletedPrice();
+        Double avgDistance = trajetRepository.avgCompletedDistance();
+
+        return com.example.taximotoapp_backend.Admin.dto.AdminTrajetStatsDto.builder()
+                .totalTrajets(total)
+                .trajetsToday(todayTotal)
+                .completed(completed)
+                .canceled(canceled)
+                .inProgress(inProgress)
+                .pending(pending)
+                .cancelRate(Math.round(cancelRate * 10.0) / 10.0)
+                .totalRevenue(totalRevenue != null ? totalRevenue : 0)
+                .revenueToday(revenueToday != null ? revenueToday : 0)
+                .avgPrice(avgPrice != null ? Math.round(avgPrice * 100.0) / 100.0 : 0)
+                .avgDistanceKm(avgDistance != null ? Math.round(avgDistance * 10.0) / 10.0 : 0)
+                .build();
     }
 
     private com.example.taximotoapp_backend.Admin.dto.AdminTrajetDto toAdminTrajetDto(Trajet trajet) {
@@ -636,6 +670,11 @@ public class TrajetService {
                 .chauffeurName(trajet.getChauffeur() != null ? trajet.getChauffeur().getFullName() : null)
                 .cancelledBy(trajet.getCancelledBy())
                 .build();
+    }
+
+    private ChauffeurStatResponse calculateChauffeurStats(Chauffeur chauffeur) {
+        List<Trajet> trajets = trajetRepository.findByChauffeurIdOrderByRequestedAtDesc(chauffeur.getId());
+        return trajetMapper.toChauffeurStatResponse(chauffeur, trajets);
     }
 }
 
