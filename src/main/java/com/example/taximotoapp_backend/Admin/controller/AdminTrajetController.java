@@ -1,6 +1,7 @@
 package com.example.taximotoapp_backend.Admin.controller;
 
 
+import com.example.taximotoapp_backend.Admin.dto.AdminTrajetDto;
 import com.example.taximotoapp_backend.trajet.dto.response.ChauffeurStatResponse;
 import com.example.taximotoapp_backend.trajet.dto.response.TrajetResponse;
 import com.example.taximotoapp_backend.trajet.service.TrajetService;
@@ -38,10 +39,11 @@ public class AdminTrajetController {
         return ResponseEntity.ok(trajetService.getTrajetsByChauffeurId(id));
     }
     /**
-     * Récupère tous les trajets
+     * Récupère tous les trajets (vue admin)
      */
     @GetMapping
-    public ResponseEntity<List<TrajetResponse>> getAllTrajets() {
-        return ResponseEntity.ok(trajetService.getAllTrajets());
+    public ResponseEntity<List<AdminTrajetDto>> getAllTrajets() {
+        return ResponseEntity.ok(trajetService.getAllTrajetsForAdmin());
     }
+
 }
