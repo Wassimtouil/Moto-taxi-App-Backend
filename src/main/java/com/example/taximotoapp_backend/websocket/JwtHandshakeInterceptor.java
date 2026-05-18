@@ -1,6 +1,5 @@
 package com.example.taximotoapp_backend.websocket;
 
-import com.example.taximotoapp_backend.Admin.repository.AdminRepository;
 import com.example.taximotoapp_backend.User.repository.UserRepository;
 import com.example.taximotoapp_backend.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,6 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
-    private final AdminRepository adminRepository;
 
     @Override
     public boolean beforeHandshake(
@@ -38,9 +36,7 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
                 if (isValid) {
                     String username = jwtService.extractUsername(token);
 
-                    // Vérification supplémentaire : l'utilisateur existe-t-il encore en base ?
-                    boolean userExists = userRepository.findByEmail(username).isPresent() ||
-                            adminRepository.findByEmail(username).isPresent();
+                    boolean userExists = userRepository.findByEmail(username).isPresent();
 
                     if (!userExists) {
                         System.out.println("❌ [JwtHandshakeInterceptor] User not found in database: " + username);
