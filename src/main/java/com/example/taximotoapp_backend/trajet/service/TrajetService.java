@@ -609,5 +609,11 @@ public class TrajetService {
         List<Trajet> trajets = trajetRepository.findByChauffeurIdOrderByRequestedAtDesc(chauffeur.getId());
         return trajetMapper.toChauffeurStatResponse(chauffeur, trajets);
     }
+    public List<TrajetResponse> getAllTrajets() {
+        return trajetRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "requestedAt"))
+                .stream()
+                .map(trajetMapper::toDTO)
+                .collect(Collectors.toList());
+    }
 }
 

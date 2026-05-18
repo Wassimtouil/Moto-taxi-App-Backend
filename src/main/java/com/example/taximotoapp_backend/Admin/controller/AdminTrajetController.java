@@ -37,4 +37,11 @@ public class AdminTrajetController {
     public ResponseEntity<List<TrajetResponse>> getChauffeurTrajets(@PathVariable Long id) {
         return ResponseEntity.ok(trajetService.getTrajetsByChauffeurId(id));
     }
+    /**
+     * Récupère tous les trajets
+     */
+    @GetMapping
+    public ResponseEntity<List<TrajetResponse>> getAllTrajets() {
+        return ResponseEntity.ok(trajetService.getAllTrajets());
+    }
 }
