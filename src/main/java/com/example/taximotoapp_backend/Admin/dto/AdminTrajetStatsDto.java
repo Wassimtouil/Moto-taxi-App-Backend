@@ -21,4 +21,5 @@ public class AdminTrajetStatsDto {
     private double revenueToday;
     private double avgPrice;
     private double avgDistanceKm;
+    private long suspectCount;
 }

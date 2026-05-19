@@ -101,7 +101,7 @@ public class TrajetService {
             }
         }
 
-        // --- Initialiser/Mettre Ã  jour la position du client dans la base ---
+        // --- Initialiser/Mettre Ã  jour la position du client dans la base ---
         com.example.taximotoapp_backend.location.model.Location clientLocation = client.getLocation();
         if (clientLocation == null) {
             clientLocation = new com.example.taximotoapp_backend.location.model.Location();
@@ -241,7 +241,7 @@ public class TrajetService {
         // Force-set scheduledAt in case MapStruct's generated code is stale
         if (trajet.getScheduledAt() != null && dto.getScheduledAt() == null) {
             dto.setScheduledAt(trajet.getScheduledAt());
-            System.out.println("âš ï¸ [BROADCAST] MapStruct missed scheduledAt â€” manually set it!");
+            System.out.println("âš ï¸ [BROADCAST] MapStruct missed scheduledAt â€” manually set it!");
         }
         System.out.println("ðŸ“¡ [BROADCAST] Preparing to send Trajet " + trajet.getId() + " to " + drivers.size() + " drivers.");
         System.out.println("   -> scheduledAt on Entity: " + trajet.getScheduledAt());
@@ -286,7 +286,7 @@ public class TrajetService {
                 .orElseThrow(() -> new RuntimeException("Trajet not found"));
 
         if (trajet.getStatus() != TripStatus.Created) {
-            throw new RuntimeException("Trajet dÃ©jÃ  pris");
+            throw new RuntimeException("Trajet dÃ©jÃ  pris");
         }
 
         if (action.equalsIgnoreCase("ACCEPT")) {
@@ -327,7 +327,7 @@ public class TrajetService {
                 .orElseThrow(() -> new RuntimeException("trajet not found"));
 
         if (trajet.getStatus() != TripStatus.Accepted && trajet.getStatus() != TripStatus.Arrived) {
-            throw new RuntimeException("Trajet dÃ©jÃ  pris ou non disponible (status=" + trajet.getStatus() + ")");
+            throw new RuntimeException("Trajet dÃ©jÃ  pris ou non disponible (status=" + trajet.getStatus() + ")");
         }
 
         // Process payment if it's ONLINE
@@ -572,7 +572,7 @@ public class TrajetService {
         // --- Phase 2: Expiring Missed Rides (time has passed) ---
         List<Trajet> expired = trajetRepository.findExpiredScheduledTrajets(now);
         for (Trajet e : expired) {
-            System.out.println("âš ï¸ [SCHEDULER] Expiring ride ID " + e.getId() + " (Time reached, no driver)");
+            System.out.println("âš ï¸ [SCHEDULER] Expiring ride ID " + e.getId() + " (Time reached, no driver)");
 
             e.setStatus(TripStatus.Canceled);
             trajetRepository.save(e);
@@ -612,6 +612,61 @@ public class TrajetService {
                 .collect(Collectors.toList());
     }
 
+    private boolean checkSuspicious(Trajet trajet) {
+        if (trajet.getStartedAt() == null || trajet.getCompletedAt() == null) {
+            return false;
+        }
+        long actualMinutes = java.time.Duration.between(trajet.getStartedAt(), trajet.getCompletedAt()).toMinutes();
+        int expectedMinutes = trajet.getDurationMinutes() != null ? trajet.getDurationMinutes() : 0;
+        double distance = trajet.getDistanceKm() != null ? trajet.getDistanceKm() : 0.0;
+
+        // 1. Durée excessive (au moins 3x le temps théorique et plus de 15 minutes)
+        if (expectedMinutes > 0 && actualMinutes > (expectedMinutes * 3.0) && actualMinutes > 15) {
+            return true;
+        }
+
+        // 2. Vitesse anormale par rapport à la distance (moins de 4 km/h pour un trajet significatif de plus de 15 minutes)
+        if (distance > 0.5 && actualMinutes > 15) {
+            double speed = distance / (actualMinutes / 60.0);
+            if (speed < 4.0) {
+                return true;
+            }
+        }
+
+        // 3. Trajet fictif (terminé en moins d'une minute pour plus de 0.5 km)
+        if (actualMinutes < 1 && distance > 0.5) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private String getSuspiciousReason(Trajet trajet) {
+        if (trajet.getStartedAt() == null || trajet.getCompletedAt() == null) {
+            return null;
+        }
+        long actualMinutes = java.time.Duration.between(trajet.getStartedAt(), trajet.getCompletedAt()).toMinutes();
+        int expectedMinutes = trajet.getDurationMinutes() != null ? trajet.getDurationMinutes() : 0;
+        double distance = trajet.getDistanceKm() != null ? trajet.getDistanceKm() : 0.0;
+
+        if (expectedMinutes > 0 && actualMinutes > (expectedMinutes * 3.0) && actualMinutes > 15) {
+            return "Durée excessive (" + actualMinutes + " min vs " + expectedMinutes + " min estimées)";
+        }
+
+        if (distance > 0.5 && actualMinutes > 15) {
+            double speed = distance / (actualMinutes / 60.0);
+            if (speed < 4.0) {
+                return "Vitesse trop faible (" + (Math.round(speed * 10.0) / 10.0) + " km/h)";
+            }
+        }
+
+        if (actualMinutes < 1 && distance > 0.5) {
+            return "Trajet instantané suspect (" + actualMinutes + " min pour " + (Math.round(distance * 10.0) / 10.0) + " km)";
+        }
+
+        return null;
+    }
+
     public com.example.taximotoapp_backend.Admin.dto.AdminTrajetStatsDto getTrajetStatsForAdmin() {
         java.time.LocalDateTime startOfDay = java.time.LocalDateTime.of(java.time.LocalDate.now(), java.time.LocalTime.MIN);
 
@@ -635,6 +690,10 @@ public class TrajetService {
         Double avgPrice = trajetRepository.avgCompletedPrice();
         Double avgDistance = trajetRepository.avgCompletedDistance();
 
+        long suspectCount = trajetRepository.findAll().stream()
+                .filter(this::checkSuspicious)
+                .count();
+
         return com.example.taximotoapp_backend.Admin.dto.AdminTrajetStatsDto.builder()
                 .totalTrajets(total)
                 .trajetsToday(todayTotal)
@@ -647,6 +706,7 @@ public class TrajetService {
                 .revenueToday(revenueToday != null ? revenueToday : 0)
                 .avgPrice(avgPrice != null ? Math.round(avgPrice * 100.0) / 100.0 : 0)
                 .avgDistanceKm(avgDistance != null ? Math.round(avgDistance * 10.0) / 10.0 : 0)
+                .suspectCount(suspectCount)
                 .build();
     }
 
@@ -669,6 +729,8 @@ public class TrajetService {
                 .chauffeurId(trajet.getChauffeur() != null ? trajet.getChauffeur().getId() : null)
                 .chauffeurName(trajet.getChauffeur() != null ? trajet.getChauffeur().getFullName() : null)
                 .cancelledBy(trajet.getCancelledBy())
+                .isSuspect(checkSuspicious(trajet))
+                .suspicionReason(getSuspiciousReason(trajet))
                 .build();
     }
 
@@ -677,4 +739,3 @@ public class TrajetService {
         return trajetMapper.toChauffeurStatResponse(chauffeur, trajets);
     }
 }
-

@@ -39,4 +39,8 @@ public class AdminTrajetDto {
 
     // Annulation
     private String cancelledBy;
+
+    // Détection de suspicion / fraude
+    private Boolean isSuspect;
+    private String suspicionReason;
 }
