@@ -53,14 +53,31 @@ public class AuthService {
             if (user instanceof Chauffeur) ((Chauffeur) user).setAvailability(Availability.TRUE);
             userRepository.save(user);
 
-            return new AuthResponse(token, refreshToken, user.getId(), user.getFullName(), user.getEmail(), user.getRole().name(),
-                    user.getGender() != null ? user.getGender().name() : null);
+            return new AuthResponse(
+                    token,
+                    refreshToken,
+                    user.getId(),
+                    user.getFullName(),
+                    user.getEmail(),
+                    user.getRole().name(),
+                    user.getGender() != null ? user.getGender().name() : null,
+                    user.getPhotoBase64()
+            );
         }
 
-        var adminOpt = adminRepository.findByUsername(identifier);
+        var adminOpt = adminRepository.findByEmail(identifier);
         if (adminOpt.isPresent()) {
             Admin admin = adminOpt.get();
-            return new AuthResponse(token, refreshToken, admin.getId(), admin.getUsername(), admin.getUsername(), "ROLE_ADMIN", null);
+            return new AuthResponse(
+                    token,
+                    refreshToken,
+                    admin.getId(),
+                    admin.getFullName() != null ? admin.getFullName() : "Admin",
+                    admin.getEmail(),
+                    "ROLE_ADMIN",
+                    admin.getGender() != null ? admin.getGender().name() : null,
+                    admin.getPhotoBase64()
+            );
         }
 
         throw new RuntimeException("Erreur post-authentification");
@@ -132,14 +149,31 @@ public class AuthService {
         var userOpt = userRepository.findByEmail(email);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            return new AuthResponse(newToken, newRefreshToken, user.getId(), user.getFullName(), user.getEmail(), user.getRole().name(),
-                    user.getGender() != null ? user.getGender().name() : null);
+            return new AuthResponse(
+                    newToken,
+                    newRefreshToken,
+                    user.getId(),
+                    user.getFullName(),
+                    user.getEmail(),
+                    user.getRole().name(),
+                    user.getGender() != null ? user.getGender().name() : null,
+                    user.getPhotoBase64()
+            );
         }
 
-        var adminOpt = adminRepository.findByUsername(email);
+        var adminOpt = adminRepository.findByEmail(email);
         if (adminOpt.isPresent()) {
             Admin admin = adminOpt.get();
-            return new AuthResponse(newToken, newRefreshToken, admin.getId(), admin.getUsername(), admin.getUsername(), "ROLE_ADMIN", null);
+            return new AuthResponse(
+                    newToken,
+                    newRefreshToken,
+                    admin.getId(),
+                    admin.getFullName() != null ? admin.getFullName() : "Admin",
+                    admin.getEmail(),
+                    "ROLE_ADMIN",
+                    admin.getGender() != null ? admin.getGender().name() : null,
+                    admin.getPhotoBase64()
+            );
         }
 
         throw new RuntimeException("User not found for refresh token");
