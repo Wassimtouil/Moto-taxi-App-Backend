@@ -97,4 +97,15 @@ public interface TrajetRepository extends JpaRepository<Trajet,Long> {
 
     @Query("SELECT SUM(t.price) FROM Trajet t WHERE t.status = 'Completed' AND t.completedAt >= :since")
     Double sumRevenueSince(@Param("since") java.time.LocalDateTime since);
+
+    // Admin Trajet Stats
+    long countByStatus(TripStatus status);
+
+    long countByStatusAndRequestedAtAfter(TripStatus status, java.time.LocalDateTime since);
+
+    @Query("SELECT AVG(t.price) FROM Trajet t WHERE t.status = 'Completed' AND t.price IS NOT NULL")
+    Double avgCompletedPrice();
+
+    @Query("SELECT AVG(t.distanceKm) FROM Trajet t WHERE t.status = 'Completed' AND t.distanceKm IS NOT NULL")
+    Double avgCompletedDistance();
 }

@@ -45,7 +45,7 @@ public class AuthService {
         String token = jwtService.generateToken(userDetails);
         String refreshToken = jwtService.generateRefreshToken(userDetails);
 
-        // 3. Réponse
+        // 3. Réponse (Unifiée car Admin est maintenant un User)
         var userOpt = userRepository.findByEmail(identifier);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
@@ -53,16 +53,14 @@ public class AuthService {
             if (user instanceof Chauffeur) ((Chauffeur) user).setAvailability(Availability.TRUE);
             userRepository.save(user);
 
-            String photoUrl = user.getPhotoBase64();
-
             return new AuthResponse(token, refreshToken, user.getId(), user.getFullName(), user.getEmail(), user.getRole().name(),
-                    user.getGender() != null ? user.getGender().name() : null, photoUrl);
+                    user.getGender() != null ? user.getGender().name() : null);
         }
 
         var adminOpt = adminRepository.findByUsername(identifier);
         if (adminOpt.isPresent()) {
             Admin admin = adminOpt.get();
-            return new AuthResponse(token, refreshToken, admin.getId(), admin.getUsername(), admin.getUsername(), "ROLE_ADMIN", null, null);
+            return new AuthResponse(token, refreshToken, admin.getId(), admin.getUsername(), admin.getUsername(), "ROLE_ADMIN", null);
         }
 
         throw new RuntimeException("Erreur post-authentification");
@@ -134,15 +132,14 @@ public class AuthService {
         var userOpt = userRepository.findByEmail(email);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            String photoUrl = user.getPhotoBase64();
             return new AuthResponse(newToken, newRefreshToken, user.getId(), user.getFullName(), user.getEmail(), user.getRole().name(),
-                    user.getGender() != null ? user.getGender().name() : null, photoUrl);
+                    user.getGender() != null ? user.getGender().name() : null);
         }
 
         var adminOpt = adminRepository.findByUsername(email);
         if (adminOpt.isPresent()) {
             Admin admin = adminOpt.get();
-            return new AuthResponse(newToken, newRefreshToken, admin.getId(), admin.getUsername(), admin.getUsername(), "ROLE_ADMIN", null, null);
+            return new AuthResponse(newToken, newRefreshToken, admin.getId(), admin.getUsername(), admin.getUsername(), "ROLE_ADMIN", null);
         }
 
         throw new RuntimeException("User not found for refresh token");

@@ -1,6 +1,8 @@
 package com.example.taximotoapp_backend.Admin.controller;
 
 
+import com.example.taximotoapp_backend.Admin.dto.AdminTrajetDto;
+import com.example.taximotoapp_backend.Admin.dto.AdminTrajetStatsDto;
 import com.example.taximotoapp_backend.trajet.dto.response.ChauffeurStatResponse;
 import com.example.taximotoapp_backend.trajet.dto.response.TrajetResponse;
 import com.example.taximotoapp_backend.trajet.service.TrajetService;
@@ -21,6 +23,22 @@ import java.util.List;
 public class AdminTrajetController {
 
     private final TrajetService trajetService;
+
+    /**
+     * Récupère tous les trajets (vue admin)
+     */
+    @GetMapping
+    public ResponseEntity<List<AdminTrajetDto>> getAllTrajets() {
+        return ResponseEntity.ok(trajetService.getAllTrajetsForAdmin());
+    }
+
+    /**
+     * Récupère les statistiques KPI des trajets
+     */
+    @GetMapping("/stats")
+    public ResponseEntity<AdminTrajetStatsDto> getTrajetStats() {
+        return ResponseEntity.ok(trajetService.getTrajetStatsForAdmin());
+    }
 
     /**
      * Récupère les statistiques de performance de tous les chauffeurs
