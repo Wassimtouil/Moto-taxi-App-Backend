@@ -31,4 +31,5 @@ public class TrajetResponse {
     private String clientName;
     private Double clientLatitude;
     private Double clientLongitude;
+    private String clientPhotoBase64;
 }

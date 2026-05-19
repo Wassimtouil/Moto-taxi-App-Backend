@@ -23,7 +23,7 @@ public interface TrajetMapper {
         response.setEmail(chauffeur.getEmail());
         response.setVehicleModel(chauffeur.getVehicleModel());
         response.setVehiclePlate(chauffeur.getVehiclePlate());
-        response.setPhotoUrl(chauffeur.getPhotoUrl());
+        response.setPhotoUrl(chauffeur.getPhotoBase64());
         response.setRating(chauffeur.getNoteMoyenne());
         response.setAvailability(chauffeur.getAvailability());
         response.setVerified(chauffeur.getIsVerified());
@@ -56,6 +56,7 @@ public interface TrajetMapper {
     @Mapping(source = "trajetLocation.destinationAddress", target = "destinationAddress")
     @Mapping(source = "trajetLocation.encodedPolyline", target = "encodedPolyline")
     @Mapping(source = "client.fullName", target = "clientName")
+    @Mapping(source = "client.photoBase64", target = "clientPhotoBase64")
     @Mapping(source = "client.location.latitude", target = "clientLatitude")
     @Mapping(source = "client.location.longitude", target = "clientLongitude")
     @Mapping(source = "paiement.type", target = "paymentMethod")

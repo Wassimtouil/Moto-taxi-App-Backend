@@ -311,7 +311,7 @@ public class TrajetService {
         driverDetails.put("status", "ACCEPTED");
         driverDetails.put("driverId", chauffeur.getId());
         driverDetails.put("driverName", chauffeur.getFullName());
-        driverDetails.put("driverPhoto", chauffeur.getPhotoUrl() != null ? chauffeur.getPhotoUrl() : "");
+        driverDetails.put("driverPhoto", chauffeur.getPhotoBase64() != null ? chauffeur.getPhotoBase64() : "");
         driverDetails.put("driverRating", chauffeur.getNoteMoyenne() != null ? chauffeur.getNoteMoyenne() : 0.0);
         driverDetails.put("vehicleModel", chauffeur.getVehicleModel() != null ? chauffeur.getVehicleModel() : "Moto-Taxi");
         driverDetails.put("vehiclePlate", chauffeur.getVehiclePlate() != null ? chauffeur.getVehiclePlate() : "");

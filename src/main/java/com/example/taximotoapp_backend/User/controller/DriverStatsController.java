@@ -37,11 +37,19 @@ public class DriverStatsController {
     @GetMapping("/stats")
     public ResponseEntity<?> getStats() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User driver = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Chauffeur not found"));
+        Chauffeur driver = chauffeurRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Chauffeur not found"));
 
-        List<Trajet> completed = trajetRepository.findByChauffeurIdAndStatus(driver.getId(), TripStatus.Completed);
+        List<Trajet> allTrajets = trajetRepository.findByChauffeurIdOrderByRequestedAtDesc(driver.getId());
+        List<Trajet> completed = allTrajets.stream()
+                .filter(t -> t.getStatus() == TripStatus.Completed)
+                .toList();
+        List<Trajet> canceled = allTrajets.stream()
+                .filter(t -> t.getStatus() == TripStatus.Canceled)
+                .toList();
 
         double totalEarnings = completed.stream()
+                .filter(t -> t.getPrice() != null)
                 .mapToDouble(Trajet::getPrice)
                 .sum();
 
@@ -49,9 +57,20 @@ public class DriverStatsController {
                 .filter(t -> t.getCompletedAt() != null && t.getCompletedAt().toLocalDate().equals(LocalDate.now()))
                 .count();
 
+        long totalWorkMinutes = completed.stream()
+                .filter(t -> t.getDurationMinutes() != null)
+                .mapToLong(Trajet::getDurationMinutes)
+                .sum();
+
         return ResponseEntity.ok(Map.of(
                 "overallEarning", totalEarnings,
-                "todayBookings", (int) todayBookings
+                "todayBookings", (int) todayBookings,
+                "completedTrips", completed.size(),
+                "totalTrips", allTrajets.size(),
+                "canceledTrips", canceled.size(),
+                "rating", driver.getNoteMoyenne() != null ? driver.getNoteMoyenne() : 0.0,
+                "photoUrl", driver.getPhotoBase64() != null ? driver.getPhotoBase64() : "",
+                "totalWorkTimeMinutes", totalWorkMinutes
         ));
     }
 

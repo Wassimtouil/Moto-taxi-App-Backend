@@ -15,7 +15,6 @@ public class Chauffeur extends User {
     private Availability availability;
     private String vehicleModel;
     private String vehiclePlate;
-    private String photoUrl;
 
     @Lob
     @Column(columnDefinition = "LONGTEXT")
@@ -62,14 +61,6 @@ public class Chauffeur extends User {
 
     public void setVehiclePlate(String vehiclePlate) {
         this.vehiclePlate = vehiclePlate;
-    }
-
-    public String getPhotoUrl() {
-        return photoUrl;
-    }
-
-    public void setPhotoUrl(String photoUrl) {
-        this.photoUrl = photoUrl;
     }
 
 
