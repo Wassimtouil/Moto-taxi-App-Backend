@@ -16,4 +16,9 @@ public class AdminEvaluationStatsDto {
     private long totalEvaluations;
     private Map<Integer, Long> ratingDistribution; // key: 1 to 5, value: count
     private Map<String, Double> criteriaAverages; // key: "Conduite", etc., value: average
+
+
+    private double satisfactionRate;
+    private long reviewsWithComments;
+    private double commentsRate;
 }

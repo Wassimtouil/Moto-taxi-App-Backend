@@ -89,7 +89,7 @@ public class EvaluationService {
             chauffeurRepository.save(chauffeur);
         }
     }
-
+/*
     public AdminEvaluationStatsDto getGlobalEvaluationStats() {
         List<Evaluation> evaluations = evaluationRepository.findAll();
 
@@ -127,6 +127,156 @@ public class EvaluationService {
         return AdminEvaluationStatsDto.builder()
                 .globalAverage(globalAverage)
                 .totalEvaluations(totalEvaluations)
+                .ratingDistribution(distribution)
+                .criteriaAverages(criteriaAverages)
+                .build();
+    }
+*/
+    public AdminEvaluationStatsDto getGlobalEvaluationStats() {
+
+        List<Evaluation> evaluations = evaluationRepository.findAll();
+
+        long totalEvaluations = evaluations.size();
+
+        // =========================
+        // Moyenne globale
+        // =========================
+        double globalAverage = evaluations.stream()
+                .mapToDouble(Evaluation::getNote)
+                .average()
+                .orElse(0.0);
+
+        globalAverage = roundToTwo(globalAverage);
+
+        // =========================
+        // Distribution des notes
+        // =========================
+        Map<Integer, Long> distribution = new HashMap<>();
+
+        for (int i = 1; i <= 5; i++) {
+            distribution.put(i, 0L);
+        }
+
+        for (Evaluation e : evaluations) {
+
+            int roundedNote = (int) Math.round(e.getNote());
+
+            if (roundedNote >= 1 && roundedNote <= 5) {
+                distribution.put(
+                        roundedNote,
+                        distribution.get(roundedNote) + 1
+                );
+            }
+        }
+
+        // =========================
+        // Taux de satisfaction
+        // 4★ et 5★
+        // =========================
+        long satisfiedReviews =
+                distribution.get(4) + distribution.get(5);
+
+        double satisfactionRate = totalEvaluations > 0
+                ? ((double) satisfiedReviews / totalEvaluations) * 100
+                : 0.0;
+
+        satisfactionRate = roundToTwo(satisfactionRate);
+
+        // =========================
+        // Commentaires écrits
+        // =========================
+        long reviewsWithComments = evaluations.stream()
+                .filter(e ->
+                        e.getCommentaire() != null &&
+                                !e.getCommentaire().trim().isEmpty()
+                )
+                .count();
+
+        double commentsRate = totalEvaluations > 0
+                ? ((double) reviewsWithComments / totalEvaluations) * 100
+                : 0.0;
+
+        commentsRate = roundToTwo(commentsRate);
+
+        // =========================
+        // Moyennes des critères
+        // =========================
+        Map<String, Double> criteriaAverages = new HashMap<>();
+
+        criteriaAverages.put(
+                "Conduite",
+                roundToTwo(
+                        evaluations.stream()
+                                .filter(e -> e.getNoteConduite() != null)
+                                .mapToInt(Evaluation::getNoteConduite)
+                                .average()
+                                .orElse(0.0)
+                )
+        );
+
+        criteriaAverages.put(
+                "Véhicule",
+                roundToTwo(
+                        evaluations.stream()
+                                .filter(e -> e.getNoteVehicule() != null)
+                                .mapToInt(Evaluation::getNoteVehicule)
+                                .average()
+                                .orElse(0.0)
+                )
+        );
+
+        criteriaAverages.put(
+                "Ponctualité",
+                roundToTwo(
+                        evaluations.stream()
+                                .filter(e -> e.getNotePonctualite() != null)
+                                .mapToInt(Evaluation::getNotePonctualite)
+                                .average()
+                                .orElse(0.0)
+                )
+        );
+
+        criteriaAverages.put(
+                "Service",
+                roundToTwo(
+                        evaluations.stream()
+                                .filter(e -> e.getNoteService() != null)
+                                .mapToInt(Evaluation::getNoteService)
+                                .average()
+                                .orElse(0.0)
+                )
+        );
+
+        criteriaAverages.put(
+                "Expérience",
+                roundToTwo(
+                        evaluations.stream()
+                                .filter(e -> e.getNoteExperience() != null)
+                                .mapToInt(Evaluation::getNoteExperience)
+                                .average()
+                                .orElse(0.0)
+                )
+        );
+
+        criteriaAverages.put(
+                "Comportement",
+                roundToTwo(
+                        evaluations.stream()
+                                .filter(e -> e.getNoteComportement() != null)
+                                .mapToInt(Evaluation::getNoteComportement)
+                                .average()
+                                .orElse(0.0)
+                )
+        );
+
+        return AdminEvaluationStatsDto.builder()
+                .globalAverage(globalAverage)
+                .totalEvaluations(totalEvaluations)
+
+                .satisfactionRate(satisfactionRate)
+                .reviewsWithComments(reviewsWithComments)
+                .commentsRate(commentsRate)
+
                 .ratingDistribution(distribution)
                 .criteriaAverages(criteriaAverages)
                 .build();
