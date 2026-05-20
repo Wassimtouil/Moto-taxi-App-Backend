@@ -40,6 +40,9 @@ public abstract class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private ActivityStatus activityStatus;
 
+    @Column(name = "last_seen_at")
+    private LocalDateTime lastSeenAt;
+
     @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
     private List<Reclamation> reclamations;
 
@@ -55,7 +58,17 @@ public abstract class User implements UserDetails {
 
     @PrePersist
     protected void onCreate (){
-        createdAt=LocalDateTime.now();
+        createdAt = LocalDateTime.now();
+        if (this.activityStatus == ActivityStatus.ONLINE) {
+            this.lastSeenAt = LocalDateTime.now();
+        }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        if (this.activityStatus == ActivityStatus.ONLINE) {
+            this.lastSeenAt = LocalDateTime.now();
+        }
     }
     public Long getId() {
         return id;
@@ -101,6 +114,17 @@ public abstract class User implements UserDetails {
 
     public void setActivityStatus(ActivityStatus activityStatus) {
         this.activityStatus = activityStatus;
+        if (activityStatus == ActivityStatus.ONLINE) {
+            this.lastSeenAt = LocalDateTime.now();
+        }
+    }
+
+    public LocalDateTime getLastSeenAt() {
+        return lastSeenAt;
+    }
+
+    public void setLastSeenAt(LocalDateTime lastSeenAt) {
+        this.lastSeenAt = lastSeenAt;
     }
 
     public Boolean getIsVerified() {
@@ -158,7 +182,7 @@ public abstract class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     @Override

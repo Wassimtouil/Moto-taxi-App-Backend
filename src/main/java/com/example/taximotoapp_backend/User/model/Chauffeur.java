@@ -15,6 +15,7 @@ public class Chauffeur extends User {
     private Availability availability;
     private String vehicleModel;
     private String vehiclePlate;
+    private String photoUrl;
 
     @Lob
     @Column(columnDefinition = "LONGTEXT")
@@ -23,7 +24,7 @@ public class Chauffeur extends User {
     @Lob
     @Column(columnDefinition = "LONGTEXT")
     private String carteGriseBase64;
-    
+
 
     private Double noteMoyenne;
 
@@ -63,6 +64,14 @@ public class Chauffeur extends User {
         this.vehiclePlate = vehiclePlate;
     }
 
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
+    }
+
 
 
 
@@ -87,4 +96,13 @@ public class Chauffeur extends User {
         this.carteGriseBase64 = carteGriseBase64;
     }
 
+    @PrePersist
+    @PreUpdate
+    protected void syncAvailabilityWithActivityStatus() {
+        if (this.getActivityStatus() == com.example.taximotoapp_backend.model.enumClass.ActivityStatus.ONLINE) {
+            this.availability = Availability.TRUE;
+        } else if (this.getActivityStatus() == com.example.taximotoapp_backend.model.enumClass.ActivityStatus.OFFLINE) {
+            this.availability = Availability.FALSE;
+        }
+    }
 }
