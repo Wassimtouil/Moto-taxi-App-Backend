@@ -53,4 +53,20 @@ public class AuthController {
                     .body(Map.of("message", e.getMessage()));
         }
     }
+
+    @org.springframework.web.bind.annotation.GetMapping("/profile")
+    public ResponseEntity<?> getProfile(java.security.Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Non authentifié"));
+        }
+        try {
+            AuthResponse response = authService.getProfile(principal.getName());
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
 }
+

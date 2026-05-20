@@ -20,6 +20,7 @@ public interface ChauffeurRepository extends JpaRepository<Chauffeur,Long> {
     JOIN location l ON l.user_id = u.id
     WHERE c.availability = true
       AND u.activity_status = 'ONLINE'
+      AND u.is_verified = true
       AND l.latitude BETWEEN :lat - (:radius / 111) AND :lat + (:radius / 111)
       AND l.longitude BETWEEN :lon - (:radius / (111 * cos(radians(:lat))))
                            AND :lon + (:radius / (111 * cos(radians(:lat))))
@@ -49,6 +50,7 @@ public interface ChauffeurRepository extends JpaRepository<Chauffeur,Long> {
     JOIN location l ON l.user_id = u.id
     WHERE c.availability = true
       AND u.activity_status = 'ONLINE'
+      AND u.is_verified = true
       AND u.gender = :gender
       AND l.latitude BETWEEN :lat - (:radius / 111) AND :lat + (:radius / 111)
       AND l.longitude BETWEEN :lon - (:radius / (111 * cos(radians(:lat))))
@@ -79,6 +81,7 @@ public interface ChauffeurRepository extends JpaRepository<Chauffeur,Long> {
     JOIN user u ON c.user_id = u.id
     JOIN location l ON l.user_id = u.id
     WHERE u.activity_status = 'ONLINE'
+      AND u.is_verified = true
       AND l.latitude BETWEEN :lat - (:radius / 111) AND :lat + (:radius / 111)
       AND l.longitude BETWEEN :lon - (:radius / (111 * cos(radians(:lat))))
                            AND :lon + (:radius / (111 * cos(radians(:lat))))

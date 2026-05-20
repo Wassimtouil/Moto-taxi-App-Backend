@@ -1,5 +1,6 @@
 package com.example.taximotoapp_backend.Authentification.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -14,4 +15,8 @@ public class AuthResponse {
     private String role;
     private String gender;
     private String photoUrl;
+
+    @JsonProperty("isVerified")
+    private Boolean isVerified;
 }
+

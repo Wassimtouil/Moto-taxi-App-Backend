@@ -34,6 +34,10 @@ public class UserService implements UserDetailsService {
             return new org.springframework.security.core.userdetails.User(
                     user.getEmail(),
                     user.getPassword(),
+                    true, // enabled (allow login for unverified accounts so they land on pending screen)
+                    true,
+                    true,
+                    true,
                     List.of(new SimpleGrantedAuthority(user.getRole().name()))
             );
         }

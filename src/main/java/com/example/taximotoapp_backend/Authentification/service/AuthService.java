@@ -36,9 +36,15 @@ public class AuthService {
         String identifier = request.getEmail() != null ? request.getEmail() : request.getFirebaseUid();
 
         // 1. Authentifier
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(identifier, request.getPassword())
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(identifier, request.getPassword())
+            );
+        } catch (org.springframework.security.authentication.DisabledException e) {
+            throw new RuntimeException("Votre compte est en attente d'approbation par l'administrateur.");
+        } catch (org.springframework.security.core.AuthenticationException e) {
+            throw new RuntimeException("Email ou mot de passe incorrect.");
+        }
 
         // 2. Charger les détails
         org.springframework.security.core.userdetails.UserDetails userDetails = userService.loadUserByUsername(identifier);
@@ -61,7 +67,8 @@ public class AuthService {
                     user.getEmail(),
                     user.getRole().name(),
                     user.getGender() != null ? user.getGender().name() : null,
-                    user.getPhotoBase64()
+                    user.getPhotoBase64(),
+                    user.getIsVerified() != null ? user.getIsVerified() : false
             );
         }
 
@@ -76,7 +83,8 @@ public class AuthService {
                     admin.getEmail(),
                     "ROLE_ADMIN",
                     admin.getGender() != null ? admin.getGender().name() : null,
-                    admin.getPhotoBase64()
+                    admin.getPhotoBase64(),
+                    true
             );
         }
 
@@ -115,7 +123,11 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(role);
         user.setGender(gender);
-        user.setIsVerified(true);
+        if (role == Role.ROLE_CLIENT) {
+            user.setIsVerified(true);
+        } else {
+            user.setIsVerified(false);
+        }
         user.setFirebaseUid(request.getFirebaseUid());
         user.setAge(request.getAge());
         user.setPhotoBase64(request.getPhotoBase64());
@@ -132,7 +144,8 @@ public class AuthService {
                 user.getEmail(),
                 user.getRole().name(),
                 user.getGender() != null ? user.getGender().name() : null,
-                photoUrl
+                photoUrl,
+                user.getIsVerified() != null ? user.getIsVerified() : false
         );
     }
 
@@ -157,7 +170,8 @@ public class AuthService {
                     user.getEmail(),
                     user.getRole().name(),
                     user.getGender() != null ? user.getGender().name() : null,
-                    user.getPhotoBase64()
+                    user.getPhotoBase64(),
+                    user.getIsVerified() != null ? user.getIsVerified() : false
             );
         }
 
@@ -172,10 +186,47 @@ public class AuthService {
                     admin.getEmail(),
                     "ROLE_ADMIN",
                     admin.getGender() != null ? admin.getGender().name() : null,
-                    admin.getPhotoBase64()
+                    admin.getPhotoBase64(),
+                    true
             );
         }
 
         throw new RuntimeException("User not found for refresh token");
+    }
+
+    public AuthResponse getProfile(String email) {
+        var userOpt = userRepository.findByEmail(email);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            return new AuthResponse(
+                    null,
+                    null,
+                    user.getId(),
+                    user.getFullName(),
+                    user.getEmail(),
+                    user.getRole().name(),
+                    user.getGender() != null ? user.getGender().name() : null,
+                    user.getPhotoBase64(),
+                    user.getIsVerified() != null ? user.getIsVerified() : false
+            );
+        }
+
+        var adminOpt = adminRepository.findByEmail(email);
+        if (adminOpt.isPresent()) {
+            Admin admin = adminOpt.get();
+            return new AuthResponse(
+                    null,
+                    null,
+                    admin.getId(),
+                    admin.getFullName() != null ? admin.getFullName() : "Admin",
+                    admin.getEmail(),
+                    "ROLE_ADMIN",
+                    admin.getGender() != null ? admin.getGender().name() : null,
+                    admin.getPhotoBase64(),
+                    true
+            );
+        }
+
+        throw new RuntimeException("Utilisateur non trouvé");
     }
 }
