@@ -1,6 +1,6 @@
-package com.example.taximotoapp_backend.notification.dto;
+package com.example.taximotoapp_backend.Notification.dto;
 
-import com.example.taximotoapp_backend.notification.model.Notification;
+import com.example.taximotoapp_backend.Notification.model.Notification;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

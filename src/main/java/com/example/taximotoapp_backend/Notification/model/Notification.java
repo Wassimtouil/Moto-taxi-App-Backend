@@ -1,4 +1,4 @@
-package com.example.taximotoapp_backend.notification.model;
+package com.example.taximotoapp_backend.Notification.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
