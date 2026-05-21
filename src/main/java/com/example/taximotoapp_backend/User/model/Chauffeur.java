@@ -9,7 +9,7 @@ import java.util.List;
 @Entity
 @PrimaryKeyJoinColumn(name = "user_id")
 public class Chauffeur extends User {
-    @OneToMany(mappedBy = "chauffeur", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "chauffeur",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Trajet> trajets;
     @Enumerated(EnumType.STRING)
     private Availability availability;

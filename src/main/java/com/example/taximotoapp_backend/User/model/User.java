@@ -227,4 +227,3 @@ public abstract class User implements UserDetails {
     }
 
 }
-

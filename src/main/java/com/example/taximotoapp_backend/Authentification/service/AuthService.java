@@ -4,6 +4,7 @@ import com.example.taximotoapp_backend.Admin.model.Admin;
 import com.example.taximotoapp_backend.Authentification.dto.LoginRequest;
 import com.example.taximotoapp_backend.Authentification.dto.RegisterRequest;
 import com.example.taximotoapp_backend.Authentification.response.AuthResponse;
+import com.example.taximotoapp_backend.Notification.service.NotificationService;
 import com.example.taximotoapp_backend.User.model.Chauffeur;
 import com.example.taximotoapp_backend.User.model.Client;
 import com.example.taximotoapp_backend.User.model.User;
@@ -30,6 +31,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final NotificationService notificationService;
 
     //login service
     public AuthResponse login(LoginRequest request) {
@@ -132,6 +134,18 @@ public class AuthService {
         user.setAge(request.getAge());
         user.setPhotoBase64(request.getPhotoBase64());
         userRepository.save(user);
+
+        // Envoyer la notification en temps réel à l'admin si c'est un chauffeur
+        if (role == Role.ROLE_CHAUFFEUR) {
+            try {
+                String title = "Nouvelle inscription Chauffeur";
+                String message = String.format("Le chauffeur %s s'est inscrit et attend votre validation.", user.getFullName());
+                notificationService.createNotification(title, message, "NEW_DRIVER", user.getId());
+            } catch (Exception e) {
+                System.err.println("❌ Failed to trigger driver registration notification: " + e.getMessage());
+            }
+        }
+
         String token = jwtService.generateToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
         String photoUrl = user.getPhotoBase64();
