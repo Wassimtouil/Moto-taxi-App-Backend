@@ -58,7 +58,7 @@ public class Trajet {
     @Column(name = "preferred_driver_id")
     private Long preferredDriverId;
 
-    @OneToOne(mappedBy = "trajet")
+    @OneToOne(mappedBy = "trajet",cascade = CascadeType.ALL)
     private Evaluation evaluation;
 
     @OneToOne(mappedBy = "trajet", cascade = CascadeType.ALL, orphanRemoval = true)

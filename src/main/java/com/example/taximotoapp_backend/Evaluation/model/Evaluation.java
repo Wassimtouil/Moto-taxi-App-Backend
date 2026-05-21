@@ -18,8 +18,6 @@ public class Evaluation {
     private double note;
     private String commentaire;
 
-
-
     private Integer noteConduite;
     private Integer noteVehicule;
     private Integer notePonctualite;

@@ -2,6 +2,7 @@ package com.example.taximotoapp_backend.Admin.controller;
 
 import com.example.taximotoapp_backend.User.dto.RegistrationStatDTO;
 import com.example.taximotoapp_backend.User.dto.UserDTO;
+import com.example.taximotoapp_backend.User.dto.UserDTOAdmin;
 import com.example.taximotoapp_backend.User.model.User;
 import com.example.taximotoapp_backend.User.service.UserService;
 import com.example.taximotoapp_backend.model.enumClass.Role;
@@ -15,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/admin/users")
 @RequiredArgsConstructor
-public class  AdminUserController {
+public class AdminUserController {
 
     private final UserService userService;
 
@@ -73,9 +74,9 @@ public class  AdminUserController {
 
     // 5. Détails utilisateur
     @GetMapping("/{id}")
-    public UserDTO getUserById(@PathVariable Long id) {
+    public UserDTOAdmin getUserById(@PathVariable Long id) {
         User user = userService.getUserById(id);
-        return user != null ? new UserDTO(user) : null;
+        return user != null ? new UserDTOAdmin(user) : null;
     }
 
     // 6. Basculer la vérification
