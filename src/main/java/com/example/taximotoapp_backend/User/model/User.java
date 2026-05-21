@@ -40,13 +40,13 @@ public abstract class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private ActivityStatus activityStatus;
 
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
     private List<Reclamation> reclamations;
 
     @Column(name = "created_at", nullable = false,updatable = false)
     private LocalDateTime createdAt ;
 
-    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Location location;
 
     @Lob

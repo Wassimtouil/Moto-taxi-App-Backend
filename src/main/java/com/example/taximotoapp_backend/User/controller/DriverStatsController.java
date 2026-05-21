@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.taximotoapp_backend.User.model.Chauffeur;
 import com.example.taximotoapp_backend.User.repository.ChauffeurRepository;
 import com.example.taximotoapp_backend.model.enumClass.Availability;
+import com.example.taximotoapp_backend.model.enumClass.ActivityStatus;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -37,19 +38,11 @@ public class DriverStatsController {
     @GetMapping("/stats")
     public ResponseEntity<?> getStats() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        Chauffeur driver = chauffeurRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Chauffeur not found"));
+        User driver = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Chauffeur not found"));
 
-        List<Trajet> allTrajets = trajetRepository.findByChauffeurIdOrderByRequestedAtDesc(driver.getId());
-        List<Trajet> completed = allTrajets.stream()
-                .filter(t -> t.getStatus() == TripStatus.Completed)
-                .toList();
-        List<Trajet> canceled = allTrajets.stream()
-                .filter(t -> t.getStatus() == TripStatus.Canceled)
-                .toList();
+        List<Trajet> completed = trajetRepository.findByChauffeurIdAndStatus(driver.getId(), TripStatus.Completed);
 
         double totalEarnings = completed.stream()
-                .filter(t -> t.getPrice() != null)
                 .mapToDouble(Trajet::getPrice)
                 .sum();
 
@@ -57,20 +50,9 @@ public class DriverStatsController {
                 .filter(t -> t.getCompletedAt() != null && t.getCompletedAt().toLocalDate().equals(LocalDate.now()))
                 .count();
 
-        long totalWorkMinutes = completed.stream()
-                .filter(t -> t.getDurationMinutes() != null)
-                .mapToLong(Trajet::getDurationMinutes)
-                .sum();
-
         return ResponseEntity.ok(Map.of(
                 "overallEarning", totalEarnings,
-                "todayBookings", (int) todayBookings,
-                "completedTrips", completed.size(),
-                "totalTrips", allTrajets.size(),
-                "canceledTrips", canceled.size(),
-                "rating", driver.getNoteMoyenne() != null ? driver.getNoteMoyenne() : 0.0,
-                "photoUrl", driver.getPhotoBase64() != null ? driver.getPhotoBase64() : "",
-                "totalWorkTimeMinutes", totalWorkMinutes
+                "todayBookings", (int) todayBookings
         ));
     }
 
@@ -92,6 +74,7 @@ public class DriverStatsController {
         Boolean isAvailable = payload.get("available");
         if (isAvailable != null) {
             driver.setAvailability(isAvailable ? Availability.TRUE : Availability.FALSE);
+            driver.setActivityStatus(isAvailable ? ActivityStatus.ONLINE : ActivityStatus.OFFLINE);
             chauffeurRepository.save(driver);
         }
 
