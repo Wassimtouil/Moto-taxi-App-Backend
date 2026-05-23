@@ -1,5 +1,6 @@
 package com.example.taximotoapp_backend.automation_reporting.Scheduler;
 
+import com.example.taximotoapp_backend.automation_reporting.service.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

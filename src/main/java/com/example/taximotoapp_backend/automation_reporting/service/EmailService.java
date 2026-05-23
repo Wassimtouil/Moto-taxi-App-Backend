@@ -14,7 +14,7 @@ public class EmailService {
     private final JavaMailSender mailSender;
 
     // Tu peux externaliser ça dans application.properties
-    private static final String ADMIN_EMAIL = "admin@mototaxi.com";
+    private static final String ADMIN_EMAIL = "wassimtouil23@gmail.com";
 
     public void sendReport(byte[] pdfBytes) {
 
