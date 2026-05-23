@@ -11,8 +11,12 @@ public class SQLValidatorService {
         String q = sql.toLowerCase();
 
         // Only SELECT allowed
-        if (!q.startsWith("select")) {
+        if (!q.trim().toLowerCase().startsWith("select")) {
             throw new RuntimeException("Only SELECT allowed");
+        }
+
+        if (q.matches(".*(delete|update|insert|drop|alter|truncate).*")) {
+            throw new RuntimeException("Forbidden SQL detected");
         }
         // Block dangerous keywords
         List<String> forbidden = List.of(

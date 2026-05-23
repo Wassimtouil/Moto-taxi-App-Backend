@@ -22,7 +22,7 @@ public class Wallet {
     private Double cashBalance = 0.0;
     private String currency = "TND";
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", unique = true)
     private User user;
 
