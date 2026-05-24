@@ -33,7 +33,7 @@ public class AdminTrajetController {
     }
 
     /**
-     * Récupère les statistiques KPI des trajets
+     * Récupère les statistiques des trajets
      */
     @GetMapping("/stats")
     public ResponseEntity<AdminTrajetStatsDto> getTrajetStats() {

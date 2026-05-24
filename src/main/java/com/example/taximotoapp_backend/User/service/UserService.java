@@ -179,4 +179,17 @@ public class UserService implements UserDetailsService {
                 .map(result -> new RegistrationStatDTO(result[0] != null ? result[0].toString() : "NON_SPECIFIE", (Long) result[1]))
                 .toList();
     }
+    public User updateUserAdmin(Long id, String fullName, String email, String encodedPassword) {
+        User user = getUserById(id);
+        if (fullName != null && !fullName.trim().isEmpty()) {
+            user.setFullName(fullName);
+        }
+        if (email != null && !email.trim().isEmpty()) {
+            user.setEmail(email);
+        }
+        if (encodedPassword != null && !encodedPassword.isEmpty()) {
+            user.setPassword(encodedPassword);
+        }
+        return userRepository.save(user);
+    }
 }

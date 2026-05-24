@@ -19,4 +19,6 @@ public class AdminPaiementDto {
     private String clientName;
     private Long chauffeurId;
     private String chauffeurName;
+    private String clientPhotoBase64;
+    private String chauffeurPhotoBase64;
 }

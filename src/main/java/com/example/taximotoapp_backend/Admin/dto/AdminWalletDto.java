@@ -17,6 +17,8 @@ public class AdminWalletDto {
     private String userName;
     private String userEmail;
     private String userRole;
+    private String userPhotoBase64;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
+
