@@ -119,11 +119,27 @@ public class TrajetService {
         trajetLocation.setDestinationLatitude(trajetRequest.getDestinationLatitude());
         trajetLocation.setDestinationLongitude(trajetRequest.getDestinationLongitude());
 
-        // --- Road Data from Mapbox ---
-        MapboxService.RouteDetails roadmap = mapboxService.getRouteDetails(
-                trajetRequest.getPickupLatitude(), trajetRequest.getPickupLongitude(),
-                trajetRequest.getDestinationLatitude(), trajetRequest.getDestinationLongitude()
-        );
+        // --- Road Data — use preview-computed values if provided, else call Mapbox ---
+        Double distanceKm;
+        Integer durationMinutes;
+        String encodedPolyline;
+        Double price;
+
+        if (trajetRequest.getDistanceKm() != null) {
+            distanceKm = trajetRequest.getDistanceKm();
+            durationMinutes = trajetRequest.getDurationMinutes();
+            encodedPolyline = trajetRequest.getEncodedPolyline();
+            price = trajetRequest.getPrice() != null ? trajetRequest.getPrice() : calculatePrice(distanceKm);
+        } else {
+            MapboxService.RouteDetails roadmap = mapboxService.getRouteDetails(
+                    trajetRequest.getPickupLatitude(), trajetRequest.getPickupLongitude(),
+                    trajetRequest.getDestinationLatitude(), trajetRequest.getDestinationLongitude()
+            );
+            distanceKm = roadmap.getDistanceKm();
+            durationMinutes = roadmap.getDurationMinutes();
+            encodedPolyline = roadmap.getEncodedPolyline();
+            price = calculatePrice(distanceKm);
+        }
 
         // --- Address Resolution ---
         String pAddress = trajetRequest.getPickupAddress();
@@ -139,16 +155,16 @@ public class TrajetService {
                     trajetRequest.getDestinationLatitude(), trajetRequest.getDestinationLongitude());
         }
         trajetLocation.setDestinationAddress(dAddress);
-        trajetLocation.setEncodedPolyline(roadmap.getEncodedPolyline());
+        trajetLocation.setEncodedPolyline(encodedPolyline);
 
         trajetLocation.setTrajet(trajet);
         trajet.setTrajetLocation(trajetLocation);
 
         trajet.setClient((Client) client);
         trajet.setChauffeur(null);
-        trajet.setDistanceKm(roadmap.getDistanceKm());
-        trajet.setDurationMinutes(roadmap.getDurationMinutes());
-        trajet.setPrice(calculatePrice(roadmap.getDistanceKm()));
+        trajet.setDistanceKm(distanceKm);
+        trajet.setDurationMinutes(durationMinutes);
+        trajet.setPrice(price);
         trajet.setScheduledAt(trajetRequest.getScheduledAt());
         trajet.setStatus(initialStatus);
         trajet.setRequestedAt(LocalDateTime.now());

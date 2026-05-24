@@ -20,4 +20,10 @@ public class TrajetRequest {
     private String preferredDriverGender;
     private Long preferredDriverId;
     private com.example.taximotoapp_backend.model.enumClass.PaiementType paymentMethod;
+
+    // Preview-computed values — if provided, skip the Mapbox route details call
+    private Double distanceKm;
+    private Integer durationMinutes;
+    private String encodedPolyline;
+    private Double price;
 }

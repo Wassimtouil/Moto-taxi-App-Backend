@@ -38,9 +38,11 @@ public class DriverStatsController {
     @GetMapping("/stats")
     public ResponseEntity<?> getStats() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User driver = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Chauffeur not found"));
+        Chauffeur driver = chauffeurRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Chauffeur not found"));
 
-        List<Trajet> completed = trajetRepository.findByChauffeurIdAndStatus(driver.getId(), TripStatus.Completed);
+        List<Trajet> allTrajets = trajetRepository.findByChauffeurIdOrderByRequestedAtDesc(driver.getId());
+        List<Trajet> completed = allTrajets.stream().filter(t -> t.getStatus() == TripStatus.Completed).toList();
+        List<Trajet> canceled = allTrajets.stream().filter(t -> t.getStatus() == TripStatus.Canceled).toList();
 
         double totalEarnings = completed.stream()
                 .mapToDouble(Trajet::getPrice)
@@ -50,10 +52,22 @@ public class DriverStatsController {
                 .filter(t -> t.getCompletedAt() != null && t.getCompletedAt().toLocalDate().equals(LocalDate.now()))
                 .count();
 
-        return ResponseEntity.ok(Map.of(
-                "overallEarning", totalEarnings,
-                "todayBookings", (int) todayBookings
-        ));
+        long totalWorkTimeMinutes = completed.stream()
+                .filter(t -> t.getRequestedAt() != null && t.getCompletedAt() != null)
+                .mapToLong(t -> java.time.Duration.between(t.getRequestedAt(), t.getCompletedAt()).toMinutes())
+                .sum();
+
+        Map<String, Object> resp = new java.util.HashMap<>();
+        resp.put("overallEarning", totalEarnings);
+        resp.put("todayBookings", (int) todayBookings);
+        resp.put("completedTrips", completed.size());
+        resp.put("totalTrips", allTrajets.size());
+        resp.put("canceledTrips", canceled.size());
+        resp.put("rating", driver.getNoteMoyenne() != null ? driver.getNoteMoyenne() : 5.0);
+        resp.put("photoUrl", driver.getPhotoUrl() != null ? driver.getPhotoUrl() : (driver.getPhotoBase64() != null ? driver.getPhotoBase64() : ""));
+        resp.put("totalWorkTimeMinutes", (int) totalWorkTimeMinutes);
+
+        return ResponseEntity.ok(resp);
     }
 
     @GetMapping("/availability")
