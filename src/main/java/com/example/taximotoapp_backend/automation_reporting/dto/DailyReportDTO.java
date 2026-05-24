@@ -21,5 +21,4 @@ public class DailyReportDTO {
     private List<TopDriverDTO> topDrivers;
     private PaymentStatsDTO paymentStats;
     private List<Map<String, Object>> reclamations;
-    private String aiAnalysis;
 }

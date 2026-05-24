@@ -1,154 +1,149 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Report</title>
+    <meta charset="UTF-8" />
+    <title>Daily Operations Dashboard</title>
 
     <style>
         body {
             font-family: Arial, Helvetica, sans-serif;
-            background: #f5f7fa;
+            background: #f4f6f9;
             margin: 0;
-            padding: 30px;
-            color: #2c3e50;
+            padding: 25px;
+            color: #1f2d3d;
         }
 
         .container {
-            max-width: 1000px;
+            width: 100%;
+            max-width: 1100px;
             margin: auto;
         }
 
         /* HEADER */
         .header {
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            padding: 25px 30px;
-            border-radius: 18px;
+            background: #111827;
             color: white;
-            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
         }
 
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 20px;
+        .header table {
+            width: 100%;
         }
 
         .logo {
-            width: 70px;
-            height: 70px;
-            object-fit: contain;
-            background: white;
-            padding: 8px;
-            border-radius: 12px;
+            width: 55px;
+            height: 55px;
         }
 
-        h1 {
-            margin: 0;
-            font-size: 30px;
-        }
-
-        .date {
-            margin-top: 6px;
-            opacity: 0.9;
-            font-size: 14px;
-        }
-
-        /* STATS */
-        .stats-grid {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .card {
-            flex: 1;
-            background: white;
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            text-align: center;
-        }
-
-        .card h2 {
-            margin: 0;
-            font-size: 18px;
-            color: #7f8c8d;
-        }
-
-        .value {
-            margin-top: 15px;
-            font-size: 32px;
+        .title {
+            font-size: 22px;
             font-weight: bold;
         }
 
-        .revenue-card { border-top: 6px solid #27ae60; }
-        .trips-card { border-top: 6px solid #2980b9; }
-        .drivers-card { border-top: 6px solid #f39c12; }
+        .subtitle {
+            font-size: 13px;
+            color: #cbd5e1;
+        }
 
-        /* SECTIONS */
+        /* KPI CARDS (TABLE BASED FOR PDF SAFETY) */
+        .kpi-table {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .kpi {
+            width: 33%;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .kpi-title {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .kpi-value {
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .green { color: #16a34a; }
+        .blue { color: #2563eb; }
+        .orange { color: #f59e0b; }
+
+        /* SECTION */
         .section {
             background: white;
-            padding: 25px;
-            border-radius: 18px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            margin-bottom: 25px;
+            padding: 15px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 15px;
         }
 
         .section-title {
-            margin: 0 0 20px 0;
-            font-size: 22px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
         }
 
-        /* TABLE */
+        /* TABLES */
         table {
             width: 100%;
             border-collapse: collapse;
-            table-layout: fixed;
         }
 
         th {
-            background: #2c3e50;
+            background: #111827;
             color: white;
-            padding: 12px;
-            text-align: center;
+            padding: 10px;
+            font-size: 12px;
         }
 
         td {
-            padding: 12px;
-            border-bottom: 1px solid #ecf0f1;
-            text-align: center;
-            word-wrap: break-word;
-        }
-
-        tbody tr:nth-child(even) {
-            background: #f8f9fb;
-        }
-
-        /* RISKS */
-        .risk-low,
-        .risk-medium,
-        .risk-high {
-            padding: 5px 10px;
-            border-radius: 20px;
-            color: white;
+            padding: 10px;
+            border-bottom: 1px solid #e5e7eb;
             font-size: 12px;
-            font-weight: bold;
-            display: inline-block;
+            text-align: center;
         }
 
-        .risk-low { background: #27ae60; }
-        .risk-medium { background: #f39c12; }
-        .risk-high { background: #e74c3c; }
+        /* BADGES */
+        .badge-high {
+            background: #ef4444;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 11px;
+        }
 
-        /* RECOMMENDATIONS */
-        .recommendation-box {
-            background: #f8f9fc;
-            border-left: 6px solid #2980b9;
-            padding: 20px;
-            border-radius: 12px;
-            line-height: 1.8;
-            font-size: 15px;
+        .badge-medium {
+            background: #f59e0b;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 11px;
+        }
+
+        .badge-low {
+            background: #16a34a;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 11px;
+        }
+
+        /* AI BOX */
+        .ai-box {
+            background: #f9fafb;
+            border-left: 5px solid #2563eb;
+            padding: 12px;
+            font-size: 12px;
             white-space: pre-line;
         }
 
@@ -161,7 +156,7 @@
             max-width: 100%;
         }
 
-        .card, .section, .header {
+        .section, .header {
             page-break-inside: avoid;
         }
     </style>
@@ -173,83 +168,59 @@
 
     <!-- HEADER -->
     <div class="header">
-        <div class="header-left">
-
-            <!-- RECOMMANDÉ: base64 ou cid -->
-            <img src="cid:logo" class="logo"/>
-
-            <div>
-                <h1>Daily Report</h1>
-                <p class="date">Generated on {{date}}</p>
-            </div>
-
-        </div>
+        <table>
+            <tr>
+                <td style="width:70px;">
+                    <img src="file:src/main/resources/static/logo.png" class="logo" />
+                </td>
+                <td>
+                    <div class="title">Operations Dashboard</div>
+                    <div class="subtitle" th:text="'Generated: ' + ${date}"></div>
+                </td>
+            </tr>
+        </table>
     </div>
 
-    <!-- STATS -->
-    <div class="stats-grid">
+    <!-- KPI -->
+    <table class="kpi-table">
+        <tr>
+            <td class="kpi">
+                <div class="kpi-title">Revenue Today</div>
+                <div class="kpi-value green" th:text="${revenue} + ' DT'"></div>
+            </td>
 
-        <div class="card revenue-card">
-            <h2>Revenue</h2>
-            <p class="value">{{revenue}} DT</p>
-        </div>
+            <td class="kpi">
+                <div class="kpi-title">Total Trips</div>
+                <div class="kpi-value blue" th:text="${trips}"></div>
+            </td>
 
-        <div class="card trips-card">
-            <h2>Total Trips</h2>
-            <p class="value">{{trips}}</p>
-        </div>
-
-        <div class="card drivers-card">
-            <h2>Active Drivers</h2>
-            <p class="value">{{drivers}}</p>
-        </div>
-
-    </div>
+            <td class="kpi">
+                <div class="kpi-title">Inactive Drivers</div>
+                <div class="kpi-value orange" th:text="${drivers}"></div>
+            </td>
+        </tr>
+    </table>
 
     <!-- TOP DRIVERS -->
     <div class="section">
-        <h2 class="section-title">Top Drivers</h2>
+        <div class="section-title">Top Drivers</div>
 
         <table>
-            <thead>
             <tr>
                 <th>Name</th>
                 <th>Revenue</th>
-                <th>Total Trips</th>
+                <th>Trips</th>
             </tr>
-            </thead>
-            <tbody>
-            {{drivers_rows}}
-            </tbody>
+
+            <tr th:each="d : ${topDrivers}">
+                <td th:text="${d.driverName}"></td>
+                <td th:text="${d.revenue}"></td>
+                <td th:text="${d.trips}"></td>
+            </tr>
         </table>
     </div>
 
-    <!-- RISK -->
-    <div class="section">
-        <h2 class="section-title">Risk Analysis</h2>
 
-        <table>
-            <thead>
-            <tr>
-                <th>Risk</th>
-                <th>Level</th>
-                <th>Description</th>
-            </tr>
-            </thead>
-            <tbody>
-            {{risk_rows}}
-            </tbody>
-        </table>
-    </div>
-
-    <!-- RECOMMENDATIONS -->
-    <div class="section">
-        <h2 class="section-title">Recommendations</h2>
-
-        <div class="recommendation-box">
-            {{recommendations}}
-        </div>
-    </div>
 
 </div>
 
