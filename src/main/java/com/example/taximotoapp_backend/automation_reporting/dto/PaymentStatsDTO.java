@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PaymentStatsDTO {
 
-    private Long cashPayments;
-
-    private Long onlinePayments;
+    private Long cash;
+    private Long online;
 }

@@ -28,7 +28,6 @@ public class DashboardStatisticsService {
     }
 
     public Long getTodayTrips() {
-
         String sql = """
                 SELECT COUNT(*)
                 FROM trajet
@@ -39,7 +38,6 @@ public class DashboardStatisticsService {
     }
 
     public Long getInactiveDrivers() {
-
         String sql = """
                 SELECT COUNT(*)
                 FROM chauffeur c
@@ -138,5 +136,168 @@ public class DashboardStatisticsService {
                 LIMIT 20
                 """;
         return jdbcTemplate.queryForList(sql);
+    }
+
+    // Méthodes présentes dans le HTML mais absentes du service
+
+    public Long getCompletedTrips() {
+        String sql = """
+            SELECT COUNT(*) FROM trajet
+            WHERE status='Completed'
+            AND DATE(completed_at)=CURDATE()
+            """;
+        return jdbcTemplate.queryForObject(sql, Long.class);
+    }
+
+    public Long getCanceledTrips() {
+        String sql = """
+            SELECT COUNT(*) FROM trajet
+            WHERE status='Canceled'
+            AND DATE(requested_at)=CURDATE()
+            """;
+        return jdbcTemplate.queryForObject(sql, Long.class);
+    }
+
+    public Long getActiveDrivers() {
+        String sql = """
+            SELECT COUNT(DISTINCT chauffeur_id) FROM trajet
+            WHERE DATE(requested_at)=CURDATE()
+            AND chauffeur_id IS NOT NULL
+            """;
+        return jdbcTemplate.queryForObject(sql, Long.class);
+    }
+
+    public Long getActiveClients() {
+        String sql = """
+            SELECT COUNT(DISTINCT client_id) FROM trajet
+            WHERE DATE(requested_at)=CURDATE()
+            """;
+        return jdbcTemplate.queryForObject(sql, Long.class);
+    }
+
+    public Double getAvgTripPrice() {
+        String sql = """
+            SELECT COALESCE(AVG(price), 0) FROM trajet
+            WHERE status='Completed'
+            AND DATE(completed_at)=CURDATE()
+            """;
+        return jdbcTemplate.queryForObject(sql, Double.class);
+    }
+
+    public Double getAvgDistance() {
+        String sql = """
+            SELECT COALESCE(AVG(distance_km), 0) FROM trajet
+            WHERE status='Completed'
+            AND DATE(completed_at)=CURDATE()
+            """;
+        return jdbcTemplate.queryForObject(sql, Double.class);
+    }
+
+    public Double getTotalDistance() {
+        String sql = """
+            SELECT COALESCE(SUM(distance_km), 0) FROM trajet
+            WHERE status='Completed'
+            AND DATE(completed_at)=CURDATE()
+            """;
+        return jdbcTemplate.queryForObject(sql, Double.class);
+    }
+
+    public Double getAvgDuration() {
+        String sql = """
+            SELECT COALESCE(AVG(duration_minutes), 0) FROM trajet
+            WHERE status='Completed'
+            AND DATE(completed_at)=CURDATE()
+            """;
+        return jdbcTemplate.queryForObject(sql, Double.class);
+    }
+
+    public Double getCashRevenue() {
+        String sql = """
+            SELECT COALESCE(SUM(price), 0) FROM trajet
+            WHERE status='Completed'
+            AND payment_method='CASH'
+            AND DATE(completed_at)=CURDATE()
+            """;
+        return jdbcTemplate.queryForObject(sql, Double.class);
+    }
+
+    public Double getOnlineRevenue() {
+        String sql = """
+            SELECT COALESCE(SUM(price), 0) FROM trajet
+            WHERE status='Completed'
+            AND payment_method='ONLINE'
+            AND DATE(completed_at)=CURDATE()
+            """;
+        return jdbcTemplate.queryForObject(sql, Double.class);
+    }
+
+    public List<Map<String, Object>> getPeakHours() {
+        String sql = """
+            SELECT HOUR(requested_at) as hour, COUNT(*) as trips
+            FROM trajet
+            WHERE DATE(requested_at)=CURDATE()
+            GROUP BY HOUR(requested_at)
+            ORDER BY trips DESC
+            LIMIT 5
+            """;
+        return jdbcTemplate.queryForList(sql);
+    }
+
+    public List<Map<String, Object>> getTopZones() {
+        String sql = """
+            SELECT tl.pickup_address, COUNT(*) as total
+            FROM trajet t
+            JOIN trajet_location tl ON t.id=tl.trajet_id
+            WHERE DATE(t.requested_at)=CURDATE()
+            AND tl.pickup_address IS NOT NULL
+            GROUP BY tl.pickup_address
+            ORDER BY total DESC
+            LIMIT 5
+            """;
+        return jdbcTemplate.queryForList(sql);
+    }
+
+    public Long getBlockedUsers() {
+        // Basé sur is_verified=false ou une logique métier spécifique
+        String sql = """
+            SELECT COUNT(*) FROM user
+            WHERE is_verified=0
+            AND role != 'ROLE_ADMIN'
+            """;
+        return jdbcTemplate.queryForObject(sql, Long.class);
+    }
+
+    public Long getPendingDrivers() {
+        String sql = """
+            SELECT COUNT(*) FROM chauffeur c
+            JOIN user u ON c.user_id=u.id
+            WHERE u.is_verified=0
+            """;
+        return jdbcTemplate.queryForObject(sql, Long.class);
+    }
+
+    public Long getReclamationCount() {
+        String sql = """
+            SELECT COUNT(*) FROM reclamation
+            WHERE date_reclamation=CURDATE()
+            """;
+        return jdbcTemplate.queryForObject(sql, Long.class);
+    }
+
+    public Double getYesterdayRevenue() {
+        String sql = """
+            SELECT COALESCE(SUM(price), 0) FROM trajet
+            WHERE status='Completed'
+            AND DATE(completed_at)=DATE_SUB(CURDATE(),INTERVAL 1 DAY)
+            """;
+        return jdbcTemplate.queryForObject(sql, Double.class);
+    }
+
+    public Long getYesterdayTrips() {
+        String sql = """
+            SELECT COUNT(*) FROM trajet
+            WHERE DATE(requested_at)=DATE_SUB(CURDATE(),INTERVAL 1 DAY)
+            """;
+        return jdbcTemplate.queryForObject(sql, Long.class);
     }
 }
