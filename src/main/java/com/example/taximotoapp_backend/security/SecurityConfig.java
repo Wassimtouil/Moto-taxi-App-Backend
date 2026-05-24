@@ -51,6 +51,8 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/ia/**").permitAll()
 
+                        .requestMatchers("/api/report/**").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exc -> exc

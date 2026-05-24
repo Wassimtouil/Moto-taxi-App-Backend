@@ -9,6 +9,7 @@ import com.example.taximotoapp_backend.model.enumClass.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
 @RequestMapping("/api/admin/users")
 @RequiredArgsConstructor
 public class AdminUserController {
+    private final PasswordEncoder passwordEncoder;
 
     private final UserService userService;
 
@@ -27,6 +29,19 @@ public class AdminUserController {
             @RequestParam(defaultValue = "10") int size
     ) {
         return userService.getAllUsers(page, size).map(UserDTO::new);
+    }
+
+    @PutMapping("/{id}")
+    public UserDTO updateUser(
+            @PathVariable Long id,
+            @RequestBody com.example.taximotoapp_backend.Admin.dto.UpdateDtoUserAdmin dto
+    ) {
+        String encodedPassword = null;
+        if (dto.getPassword() != null && !dto.getPassword().trim().isEmpty()) {
+            encodedPassword = passwordEncoder.encode(dto.getPassword());
+        }
+        User updatedUser = userService.updateUserAdmin(id, dto.getFullName(), dto.getEmail(), encodedPassword);
+        return new UserDTO(updatedUser);
     }
 
     // 2. Recherche par nom

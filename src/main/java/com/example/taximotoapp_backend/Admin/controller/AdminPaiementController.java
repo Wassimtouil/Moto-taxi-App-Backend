@@ -64,7 +64,9 @@ public class AdminPaiementController {
                 p.getTrajet() != null && p.getTrajet().getClient() != null ? p.getTrajet().getClient().getId() : null,
                 p.getTrajet() != null && p.getTrajet().getClient() != null ? p.getTrajet().getClient().getFullName() : null,
                 p.getTrajet() != null && p.getTrajet().getChauffeur() != null ? p.getTrajet().getChauffeur().getId() : null,
-                p.getTrajet() != null && p.getTrajet().getChauffeur() != null ? p.getTrajet().getChauffeur().getFullName() : null
+                p.getTrajet() != null && p.getTrajet().getChauffeur() != null ? p.getTrajet().getChauffeur().getFullName() : null,
+                p.getTrajet() != null && p.getTrajet().getClient() != null ? p.getTrajet().getClient().getPhotoBase64() : null,
+                p.getTrajet() != null && p.getTrajet().getChauffeur() != null ? p.getTrajet().getChauffeur().getPhotoBase64() : null
         )).collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
     }
@@ -74,11 +76,13 @@ public class AdminPaiementController {
         List<AdminTransactionDto> dtos = transactionRepository.findAll().stream().map(t -> {
             String userName = "Unknown";
             String userRole = "Unknown";
+            String userPhotoBase64 = null;
             Long userId = null;
             if (t.getWallet() != null && t.getWallet().getUser() != null) {
                 userName = t.getWallet().getUser().getFullName();
                 userRole = t.getWallet().getUser().getRole() != null ? t.getWallet().getUser().getRole().name() : "Unknown";
                 userId = t.getWallet().getUser().getId();
+                userPhotoBase64 = t.getWallet().getUser().getPhotoBase64();
             }
 
             return new AdminTransactionDto(
@@ -91,7 +95,8 @@ public class AdminPaiementController {
                     t.getWallet() != null ? t.getWallet().getId() : null,
                     userId,
                     userName,
-                    userRole
+                    userRole,
+                    userPhotoBase64
             );}).collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
     }
@@ -102,12 +107,14 @@ public class AdminPaiementController {
             String userName = "Unknown";
             String userEmail = "Unknown";
             String userRole = "Unknown";
+            String userPhotoBase64 = null;
             Long userId = null;
             if (w.getUser() != null) {
                 userName = w.getUser().getFullName();
                 userEmail = w.getUser().getEmail();
                 userRole = w.getUser().getRole() != null ? w.getUser().getRole().name() : "Unknown";
                 userId = w.getUser().getId();
+                userPhotoBase64 = w.getUser().getPhotoBase64();
             }
 
             return new AdminWalletDto(
@@ -119,6 +126,7 @@ public class AdminPaiementController {
                     userName,
                     userEmail,
                     userRole,
+                    userPhotoBase64,
                     w.getCreatedAt(),
                     w.getUpdatedAt()
             );}).collect(Collectors.toList());
