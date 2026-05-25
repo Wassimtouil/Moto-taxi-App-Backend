@@ -53,6 +53,7 @@ public class AdminReclamationController {
     public ResponseEntity<Long> getPendingCount() {
         return ResponseEntity.ok(service.countPendingReclamations());
     }
+
     @GetMapping("/stats-by-type")
     public ResponseEntity<Map<String, Long>> getStatsByType() {
         return ResponseEntity.ok(service.getStatsByType());
