@@ -5,23 +5,29 @@ import com.example.taximotoapp_backend.Admin.model.Admin;
 import com.example.taximotoapp_backend.User.model.User;
 import com.example.taximotoapp_backend.Admin.repository.AdminRepository;
 import com.example.taximotoapp_backend.User.repository.UserRepository;
+import com.example.taximotoapp_backend.model.enumClass.ActivityStatus;
 import com.example.taximotoapp_backend.model.enumClass.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final AdminRepository adminRepository;
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     @Override
     public UserDetails loadUserByUsername(String identifier)
@@ -191,5 +197,79 @@ public class UserService implements UserDetailsService {
             user.setPassword(encodedPassword);
         }
         return userRepository.save(user);
+    }
+
+    public Map<String, String> updateActivityStatus(Map<String, String> payload){
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        String statusStr = payload.get("status");
+        if (statusStr != null) {
+            try {
+                ActivityStatus status = ActivityStatus.valueOf(statusStr.toUpperCase());
+                user.setActivityStatus(status);
+                userRepository.save(user);
+            } catch (IllegalArgumentException e) {
+                return Map.of("error", "Invalid status. Must be ONLINE or OFFLINE");
+            }
+        }
+        return Map.of("status", user.getActivityStatus().name());
+    }
+    public Map<String, Object> getProfile(){
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Map<String, Object> resp = new java.util.HashMap<>();
+        resp.put("id", user.getId());
+        resp.put("fullName", user.getFullName());
+        resp.put("email", user.getEmail());
+        resp.put("role", user.getRole() != null ? user.getRole().name() : null);
+        resp.put("gender", user.getGender() != null ? user.getGender().name() : null);
+        resp.put("isVerified", user.getIsVerified());
+        resp.put("photoUrl", (user instanceof com.example.taximotoapp_backend.User.model.Chauffeur)
+                ? ((com.example.taximotoapp_backend.User.model.Chauffeur) user).getPhotoUrl()
+                : user.getPhotoBase64());
+        return resp;
+    }
+    public Map<String, Object> updateProfile(Map<String, String> payload){
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        String photoBase64 = payload.get("photoBase64");
+        if (photoBase64 != null) {
+            user.setPhotoBase64(photoBase64);
+            if (user instanceof com.example.taximotoapp_backend.User.model.Chauffeur) {
+                ((com.example.taximotoapp_backend.User.model.Chauffeur) user).setPhotoUrl(null);
+            }
+        }
+        userRepository.save(user);
+        Map<String, Object> resp = new java.util.HashMap<>();
+        resp.put("id", user.getId());
+        resp.put("fullName", user.getFullName());
+        resp.put("email", user.getEmail());
+        resp.put("role", user.getRole() != null ? user.getRole().name() : null);
+        resp.put("gender", user.getGender() != null ? user.getGender().name() : null);
+        resp.put("isVerified", user.getIsVerified());
+        resp.put("photoUrl", (user instanceof com.example.taximotoapp_backend.User.model.Chauffeur)
+                ? ((com.example.taximotoapp_backend.User.model.Chauffeur) user).getPhotoUrl()
+                : user.getPhotoBase64());
+        return resp;
+    }
+    public Map<String,String> changePassword(Map<String, String> payload){
+        String oldPassword = payload.get("oldPassword");
+        String newPassword = payload.get("newPassword");
+        if (oldPassword == null || newPassword == null) {
+            return Map.of("error", "oldPassword and newPassword are required");
+        }
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            return Map.of("error", "Current password is incorrect");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        return Map.of("status", "ok");
     }
 }
