@@ -79,7 +79,6 @@ public class TrajetController {
     @PostMapping("/{id}/arrived")
     @PreAuthorize("hasRole('CHAUFFEUR')")
     public ResponseEntity<?> driverArrived(@PathVariable Long id) {
-        System.out.println("📍 Driver Arrival REST call for trajet: " + id);
         try {
             return ResponseEntity.ok(trajetService.driverArrivedAtPickup(id));
         } catch (RuntimeException e) {
@@ -119,7 +118,6 @@ public class TrajetController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error",e.getMessage()));
         }
     }
-
 
 
     @PreAuthorize("hasRole('CHAUFFEUR')")
@@ -202,7 +200,6 @@ public class TrajetController {
                 trajetService.terminerTrajet(trajetId);
             } catch (RuntimeException e) {
                 if ("User not found".equals(e.getMessage())) throw e;
-                // Ignore other errors (already completed)
             } finally {
                 SecurityContextHolder.clearContext();
             }

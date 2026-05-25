@@ -27,7 +27,6 @@ import java.util.Map;
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final AdminRepository adminRepository;
-    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     @Override
     public UserDetails loadUserByUsername(String identifier)
@@ -255,21 +254,5 @@ public class UserService implements UserDetailsService {
                 ? ((com.example.taximotoapp_backend.User.model.Chauffeur) user).getPhotoUrl()
                 : user.getPhotoBase64());
         return resp;
-    }
-    public Map<String,String> changePassword(Map<String, String> payload){
-        String oldPassword = payload.get("oldPassword");
-        String newPassword = payload.get("newPassword");
-        if (oldPassword == null || newPassword == null) {
-            return Map.of("error", "oldPassword and newPassword are required");
-        }
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            return Map.of("error", "Current password is incorrect");
-        }
-        user.setPassword(passwordEncoder.encode(newPassword));
-        userRepository.save(user);
-        return Map.of("status", "ok");
     }
 }

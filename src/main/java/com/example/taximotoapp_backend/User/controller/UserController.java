@@ -19,7 +19,8 @@ import java.util.Map;
 @SecurityRequirement(name = "bearerAuth")
 public class UserController {
     private final UserService userService;
-
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
     @PatchMapping("/status")
     @PreAuthorize("hasRole('CLIENT') or hasRole('CHAUFFEUR')")
     public ResponseEntity<?> updateActivityStatus(@RequestBody Map<String, String> payload) {
@@ -41,6 +42,23 @@ public class UserController {
     @PatchMapping("/profile/password")
     @PreAuthorize("hasRole('CLIENT') or hasRole('CHAUFFEUR')")
     public ResponseEntity<?> changePassword(@RequestBody Map<String, String> payload) {
-        return ResponseEntity.ok(userService.changePassword(payload));
+        String oldPassword = payload.get("oldPassword");
+        String newPassword = payload.get("newPassword");
+        if (oldPassword == null || newPassword == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "oldPassword and newPassword are required"));
+        }
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            return ResponseEntity.status(401).body(Map.of("error", "Current password is incorrect"));
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        return ResponseEntity.ok(Map.of("status", "ok"));
     }
 }
