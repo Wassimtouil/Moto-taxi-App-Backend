@@ -35,4 +35,11 @@ public class NlpController {
 
         return nlpService.processAndCreateTrajet(request);
     }
+
+    @PostMapping(value = "/transcribe", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public NlpResponseDTO transcribeVoice(
+            @RequestParam("file") MultipartFile file
+    ) {
+        return nlpService.transcribe(file);
+    }
 }

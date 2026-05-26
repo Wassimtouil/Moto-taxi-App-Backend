@@ -33,4 +33,8 @@ public class NlpService {
         // 3. Business logic
         return trajetService.createTrajet(trajetRequest);
     }
+
+    public NlpResponseDTO transcribe(MultipartFile file) {
+        return pythonNlpClient.callPython(file);
+    }
 }
