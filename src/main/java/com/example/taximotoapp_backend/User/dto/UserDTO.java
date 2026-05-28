@@ -5,6 +5,8 @@ import com.example.taximotoapp_backend.User.model.User;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 public class UserDTO {
@@ -16,6 +18,8 @@ public class UserDTO {
     private Boolean isVerified;
     private String activityStatus;
     private String photoBase64;
+    private LocalDateTime createdAt;
+
 
     // Champs spécifiques Chauffeur (optionnels)
     private String vehicleModel;
@@ -31,6 +35,7 @@ public class UserDTO {
         this.isVerified = user.getIsVerified();
         this.activityStatus = user.getActivityStatus() != null ? user.getActivityStatus().name() : null;
         this.photoBase64 = user.getPhotoBase64();
+        this.createdAt = user.getCreatedAt();
 
         if (user instanceof Chauffeur) {
             Chauffeur c = (Chauffeur) user;

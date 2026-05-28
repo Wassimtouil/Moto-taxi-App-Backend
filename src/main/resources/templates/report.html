@@ -4,405 +4,405 @@
     <meta charset="UTF-8"/>
     <title>Smart Mobility Daily Report</title>
     <style>
-    * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    }
-
-    body {
-    font-family: Arial, sans-serif;
-    background: #F2F4F8;
-    color: #4A556A;
-    padding: 36px 28px;
-    font-size: 14px;
-    line-height: 1.6;
-    }
-
-    .container {
-    width: 100%;
-    max-width: 1080px;
-    margin: auto;
-    }
-
-    /* ───────────────── HEADER ───────────────── */
-
-    .header {
-    background: #FFFFFF;
-    border-radius: 18px;
-    border: 1px solid #E8EBF0;
-    margin-bottom: 28px;
-    overflow: hidden;
-    }
-
-    .header-top {
-    background: #1E2535;
-    padding: 30px 36px;
-    }
-
-    .logo-box,
-    .header-titles,
-    .header-badge {
-    display: inline-block;
-    vertical-align: middle;
-    }
-
-    .logo-box {
-    width: 62px;
-    height: 62px;
-    background: #D4A017;
-    border-radius: 14px;
-    text-align: center;
-    line-height: 62px;
-    margin-right: 18px;
-    }
-
-    .logo-box img {
-    width: 46px;
-    height: 46px;
-    }
-
-    .header-title {
-    font-size: 26px;
-    color: #FFFFFF;
-    font-weight: bold;
-    }
-
-    .header-title em {
-    color: #F0C040;
-    font-style: normal;
-    }
-
-    .header-sub {
-    margin-top: 5px;
-    color: #94A3B8;
-    font-size: 12px;
-    }
-
-    .header-badge {
-    float: right;
-    background: #3A3120;
-    border: 1px solid #D4A017;
-    color: #F0C040;
-    padding: 6px 14px;
-    border-radius: 30px;
-    font-size: 10px;
-    font-weight: bold;
-    }
-
-    .header-meta {
-    padding: 14px 36px;
-    background: #F7F8FA;
-    border-top: 1px solid #E8EBF0;
-    }
-
-    .meta-item {
-    display: inline-block;
-    margin-right: 28px;
-    font-size: 11px;
-    color: #8A96A8;
-    }
-
-    /* ───────────────── KPI GRID ───────────────── */
-
-    .kpi-grid {
-    width: 100%;
-    margin-bottom: 26px;
-    font-size: 0;
-    }
-
-    .kpi-card {
-    display: inline-block;
-    width: 31%;
-    margin: 1%;
-    vertical-align: top;
-
-    background: #FFFFFF;
-    border-radius: 14px;
-    border: 1px solid #E8EBF0;
-
-    padding: 20px;
-    font-size: 14px;
-    }
-
-    .kpi-card.amber {
-    border-top: 4px solid #D4A017;
-    }
-
-    .kpi-card.teal {
-    border-top: 4px solid #2A7D6F;
-    }
-
-    .kpi-card.rose {
-    border-top: 4px solid #C0444A;
-    }
-
-    .kpi-card.slate {
-    border-top: 4px solid #3B4A63;
-    }
-
-    .kpi-top {
-    margin-bottom: 14px;
-    }
-
-    .kpi-label {
-    font-size: 10px;
-    font-weight: bold;
-    text-transform: uppercase;
-    color: #8A96A8;
-    margin-bottom: 6px;
-    }
-
-    .kpi-chip {
-    display: inline-block;
-    font-size: 10px;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-weight: bold;
-    }
-
-    .kpi-card.amber .kpi-chip {
-    background: #FDF3D7;
-    color: #D4A017;
-    }
-
-    .kpi-card.teal .kpi-chip {
-    background: #E6F4F1;
-    color: #2A7D6F;
-    }
-
-    .kpi-card.rose .kpi-chip {
-    background: #FCEAEA;
-    color: #C0444A;
-    }
-
-    .kpi-card.slate .kpi-chip {
-    background: #EEF1F6;
-    color: #3B4A63;
-    }
-
-    .kpi-value {
-    font-size: 34px;
-    font-weight: bold;
-    color: #1E2535;
-    margin-bottom: 8px;
-    }
-
-    .kpi-desc {
-    font-size: 11px;
-    color: #8A96A8;
-    }
-
-    /* ───────────────── SECTION ───────────────── */
-
-    .section {
-    background: #FFFFFF;
-    border-radius: 14px;
-    border: 1px solid #E8EBF0;
-    padding: 26px 28px;
-    margin-bottom: 18px;
-    }
-
-    .section-head {
-    margin-bottom: 12px;
-    }
-
-    .section-title {
-    font-size: 20px;
-    font-weight: bold;
-    color: #1E2535;
-    }
-
-    .section-title em {
-    color: #D4A017;
-    font-style: normal;
-    }
-
-    .section-sub {
-    font-size: 11px;
-    color: #8A96A8;
-    margin-top: 3px;
-    }
-
-    .section-tag {
-    display: inline-block;
-    margin-top: 8px;
-    font-size: 10px;
-    background: #FDF3D7;
-    color: #D4A017;
-    border: 1px solid #EDD98A;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-weight: bold;
-    }
-
-    .rule {
-    border: none;
-    border-top: 1px solid #E8EBF0;
-    margin: 16px 0;
-    }
-
-    /* ───────────────── TWO COL ───────────────── */
-
-    .two-col {
-    width: 100%;
-    font-size: 0;
-    margin-bottom: 18px;
-    }
-
-    .two-col .section {
-    display: inline-block;
-    width: 48%;
-    margin-right: 2%;
-    vertical-align: top;
-    font-size: 14px;
-    }
-
-    .two-col .section:last-child {
-    margin-right: 0;
-    }
-
-    /* ───────────────── TABLE ───────────────── */
-
-    .modern-table {
-    width: 100%;
-    border-collapse: collapse;
-    }
-
-    .modern-table thead {
-    background: #F7F8FA;
-    }
-
-    .modern-table th {
-    padding: 10px 14px;
-    font-size: 10px;
-    text-transform: uppercase;
-    color: #8A96A8;
-    text-align: left;
-    border-bottom: 1px solid #E8EBF0;
-    }
-
-    .modern-table td {
-    padding: 13px 14px;
-    border-bottom: 1px solid #E8EBF0;
-    font-size: 13px;
-    color: #4A556A;
-    }
-
-    .modern-table td:last-child,
-    .modern-table th:last-child {
-    text-align: right;
-    }
-
-    /* ───────────────── PILLS ───────────────── */
-
-    .pill {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: bold;
-    }
-
-    .pill-amber {
-    background: #FDF3D7;
-    color: #D4A017;
-    }
-
-    .pill-teal {
-    background: #E6F4F1;
-    color: #2A7D6F;
-    }
-
-    .pill-rose {
-    background: #FCEAEA;
-    color: #C0444A;
-    }
-
-    .pill-slate {
-    background: #EEF1F6;
-    color: #3B4A63;
-    }
-
-    /* ───────────────── RANK ───────────────── */
-
-    .rank-badge {
-    display: inline-block;
-    width: 26px;
-    height: 26px;
-    line-height: 26px;
-    text-align: center;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: bold;
-    }
-
-    .rank-1 {
-    background: #FDF3D7;
-    color: #D4A017;
-    }
-
-    .rank-2 {
-    background: #EEF1F6;
-    color: #3B4A63;
-    }
-
-    .rank-3 {
-    background: #FCEAEA;
-    color: #C0444A;
-    }
-
-    .rank-n {
-    background: #F7F8FA;
-    color: #8A96A8;
-    }
-
-    /* ───────────────── AI BOX ───────────────── */
-
-    .ai-box {
-    background: #FDF9EC;
-    border: 1px solid #EDD98A;
-    border-radius: 14px;
-    padding: 22px;
-    }
-
-    .ai-label {
-    font-size: 10px;
-    font-weight: bold;
-    color: #D4A017;
-    margin-bottom: 12px;
-    text-transform: uppercase;
-    }
-
-    .ai-text {
-    font-size: 13px;
-    line-height: 1.8;
-    color: #4A556A;
-    }
-
-    /* ───────────────── FOOTER ───────────────── */
-
-    .footer {
-    margin-top: 32px;
-    padding-top: 18px;
-    border-top: 1px solid #E8EBF0;
-    text-align: center;
-    font-size: 11px;
-    color: #8A96A8;
-    }
-
-    .footer strong {
-    color: #D4A017;
-    }
-
-    /* ───────────────── PDF ───────────────── */
-
-    .section,
-    .header,
-    .kpi-grid,
-    .kpi-card {
-    page-break-inside: avoid;
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #F2F4F8;
+            color: #4A556A;
+            padding: 36px 28px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1080px;
+            margin: auto;
+        }
+
+        /* ───────────────── HEADER ───────────────── */
+
+        .header {
+            background: #FFFFFF;
+            border-radius: 18px;
+            border: 1px solid #E8EBF0;
+            margin-bottom: 28px;
+            overflow: hidden;
+        }
+
+        .header-top {
+            background: #1E2535;
+            padding: 30px 36px;
+        }
+
+        .logo-box,
+        .header-titles,
+        .header-badge {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .logo-box {
+            width: 62px;
+            height: 62px;
+            background: #D4A017;
+            border-radius: 14px;
+            text-align: center;
+            line-height: 62px;
+            margin-right: 18px;
+        }
+
+        .logo-box img {
+            width: 46px;
+            height: 46px;
+        }
+
+        .header-title {
+            font-size: 26px;
+            color: #FFFFFF;
+            font-weight: bold;
+        }
+
+        .header-title em {
+            color: #F0C040;
+            font-style: normal;
+        }
+
+        .header-sub {
+            margin-top: 5px;
+            color: #94A3B8;
+            font-size: 12px;
+        }
+
+        .header-badge {
+            float: right;
+            background: #3A3120;
+            border: 1px solid #D4A017;
+            color: #F0C040;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .header-meta {
+            padding: 14px 36px;
+            background: #F7F8FA;
+            border-top: 1px solid #E8EBF0;
+        }
+
+        .meta-item {
+            display: inline-block;
+            margin-right: 28px;
+            font-size: 11px;
+            color: #8A96A8;
+        }
+
+        /* ───────────────── KPI GRID ───────────────── */
+
+        .kpi-grid {
+            width: 100%;
+            margin-bottom: 26px;
+            font-size: 0;
+        }
+
+        .kpi-card {
+            display: inline-block;
+            width: 31%;
+            margin: 1%;
+            vertical-align: top;
+
+            background: #FFFFFF;
+            border-radius: 14px;
+            border: 1px solid #E8EBF0;
+
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        .kpi-card.amber {
+            border-top: 4px solid #D4A017;
+        }
+
+        .kpi-card.teal {
+            border-top: 4px solid #2A7D6F;
+        }
+
+        .kpi-card.rose {
+            border-top: 4px solid #C0444A;
+        }
+
+        .kpi-card.slate {
+            border-top: 4px solid #3B4A63;
+        }
+
+        .kpi-top {
+            margin-bottom: 14px;
+        }
+
+        .kpi-label {
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #8A96A8;
+            margin-bottom: 6px;
+        }
+
+        .kpi-chip {
+            display: inline-block;
+            font-size: 10px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .kpi-card.amber .kpi-chip {
+            background: #FDF3D7;
+            color: #D4A017;
+        }
+
+        .kpi-card.teal .kpi-chip {
+            background: #E6F4F1;
+            color: #2A7D6F;
+        }
+
+        .kpi-card.rose .kpi-chip {
+            background: #FCEAEA;
+            color: #C0444A;
+        }
+
+        .kpi-card.slate .kpi-chip {
+            background: #EEF1F6;
+            color: #3B4A63;
+        }
+
+        .kpi-value {
+            font-size: 34px;
+            font-weight: bold;
+            color: #1E2535;
+            margin-bottom: 8px;
+        }
+
+        .kpi-desc {
+            font-size: 11px;
+            color: #8A96A8;
+        }
+
+        /* ───────────────── SECTION ───────────────── */
+
+        .section {
+            background: #FFFFFF;
+            border-radius: 14px;
+            border: 1px solid #E8EBF0;
+            padding: 26px 28px;
+            margin-bottom: 18px;
+        }
+
+        .section-head {
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1E2535;
+        }
+
+        .section-title em {
+            color: #D4A017;
+            font-style: normal;
+        }
+
+        .section-sub {
+            font-size: 11px;
+            color: #8A96A8;
+            margin-top: 3px;
+        }
+
+        .section-tag {
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 10px;
+            background: #FDF3D7;
+            color: #D4A017;
+            border: 1px solid #EDD98A;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .rule {
+            border: none;
+            border-top: 1px solid #E8EBF0;
+            margin: 16px 0;
+        }
+
+        /* ───────────────── TWO COL ───────────────── */
+
+        .two-col {
+            width: 100%;
+            font-size: 0;
+            margin-bottom: 18px;
+        }
+
+        .two-col .section {
+            display: inline-block;
+            width: 48%;
+            margin-right: 2%;
+            vertical-align: top;
+            font-size: 14px;
+        }
+
+        .two-col .section:last-child {
+            margin-right: 0;
+        }
+
+        /* ───────────────── TABLE ───────────────── */
+
+        .modern-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .modern-table thead {
+            background: #F7F8FA;
+        }
+
+        .modern-table th {
+            padding: 10px 14px;
+            font-size: 10px;
+            text-transform: uppercase;
+            color: #8A96A8;
+            text-align: left;
+            border-bottom: 1px solid #E8EBF0;
+        }
+
+        .modern-table td {
+            padding: 13px 14px;
+            border-bottom: 1px solid #E8EBF0;
+            font-size: 13px;
+            color: #4A556A;
+        }
+
+        .modern-table td:last-child,
+        .modern-table th:last-child {
+            text-align: right;
+        }
+
+        /* ───────────────── PILLS ───────────────── */
+
+        .pill {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .pill-amber {
+            background: #FDF3D7;
+            color: #D4A017;
+        }
+
+        .pill-teal {
+            background: #E6F4F1;
+            color: #2A7D6F;
+        }
+
+        .pill-rose {
+            background: #FCEAEA;
+            color: #C0444A;
+        }
+
+        .pill-slate {
+            background: #EEF1F6;
+            color: #3B4A63;
+        }
+
+        /* ───────────────── RANK ───────────────── */
+
+        .rank-badge {
+            display: inline-block;
+            width: 26px;
+            height: 26px;
+            line-height: 26px;
+            text-align: center;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .rank-1 {
+            background: #FDF3D7;
+            color: #D4A017;
+        }
+
+        .rank-2 {
+            background: #EEF1F6;
+            color: #3B4A63;
+        }
+
+        .rank-3 {
+            background: #FCEAEA;
+            color: #C0444A;
+        }
+
+        .rank-n {
+            background: #F7F8FA;
+            color: #8A96A8;
+        }
+
+        /* ───────────────── AI BOX ───────────────── */
+
+        .ai-box {
+            background: #FDF9EC;
+            border: 1px solid #EDD98A;
+            border-radius: 14px;
+            padding: 22px;
+        }
+
+        .ai-label {
+            font-size: 10px;
+            font-weight: bold;
+            color: #D4A017;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .ai-text {
+            font-size: 13px;
+            line-height: 1.8;
+            color: #4A556A;
+        }
+
+        /* ───────────────── FOOTER ───────────────── */
+
+        .footer {
+            margin-top: 32px;
+            padding-top: 18px;
+            border-top: 1px solid #E8EBF0;
+            text-align: center;
+            font-size: 11px;
+            color: #8A96A8;
+        }
+
+        .footer strong {
+            color: #D4A017;
+        }
+
+        /* ───────────────── PDF ───────────────── */
+
+        .section,
+        .header,
+        .kpi-grid,
+        .kpi-card {
+            page-break-inside: avoid;
+        }
     </style>
 </head>
 <body>
@@ -438,24 +438,7 @@
             </tr>
         </table>
 
-        <table class="header-meta-table">
-            <tr>
-                <td class="meta-item">
-                    <span class="meta-dot meta-teal"></span>
-                    Statut Plateforme : Opérationnelle
-                </td>
 
-                <td class="meta-item">
-                    <span class="meta-dot meta-amber"></span>
-                    Confidentiel &#160;·&#160; Usage Interne Uniquement
-                </td>
-
-                <td class="meta-item">
-                    <span class="meta-dot meta-slate"></span>
-                    Smart Mobility Plateforme v2.0
-                </td>
-            </tr>
-        </table>
     </div>
 
     <!-- ═══════════ KPI GRID ═══════════ -->
@@ -611,84 +594,6 @@
     <table class="two-col-table">
         <tr>
 
-            <td class="two-col-cell">
-                <div class="section">
-
-                    <div class="section-head">
-                        <table class="section-head-table">
-                            <tr>
-                                <td>
-                                    <div class="section-title">
-                                        Analyse des <em>Courses</em>
-                                    </div>
-
-                                    <div class="section-sub">
-                                        Statistiques opérationnelles journalières
-                                    </div>
-                                </td>
-
-                                <td class="section-tag-cell">
-                                    <div class="section-tag">Opérations</div>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-
-                    <hr class="rule"/>
-
-                    <table class="modern-table">
-                        <thead>
-                        <tr>
-                            <th>Indicateur</th>
-                            <th>Valeur</th>
-                        </tr>
-                        </thead>
-
-                        <tbody>
-                        <tr>
-                            <td>Prix Moyen par Course</td>
-                            <td>
-                                <span class="pill pill-amber"
-                                      th:text="${avgTripPrice} + ' DT'">
-                                    16.2 DT
-                                </span>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>Distance Moyenne</td>
-                            <td>
-                                <span class="pill pill-slate"
-                                      th:text="${avgDistance} + ' KM'">
-                                    8.4 KM
-                                </span>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>Distance Totale</td>
-                            <td>
-                                <span class="pill pill-slate"
-                                      th:text="${totalDistance} + ' KM'">
-                                    2,502 KM
-                                </span>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>Durée Moyenne</td>
-                            <td>
-                                <span class="pill pill-teal"
-                                      th:text="${avgDuration} + ' min'">
-                                    22 min
-                                </span>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-
-                </div>
-            </td>
 
             <td class="two-col-cell">
                 <div class="section">
@@ -723,7 +628,6 @@
                             <th>Revenu</th>
                         </tr>
                         </thead>
-
                         <tbody>
                         <tr>
                             <td>Paiement Espèces</td>
@@ -739,14 +643,12 @@
                                 </span>
                             </td>
                         </tr>
-
                         <tr>
                             <td>Paiement En Ligne</td>
 
                             <td th:text="${paymentStats.online}">
                                 118
                             </td>
-
                             <td>
                                 <span class="pill pill-teal"
                                       th:text="${onlineRevenue} + ' DT'">
@@ -756,7 +658,6 @@
                         </tr>
                         </tbody>
                     </table>
-
                 </div>
             </td>
 
