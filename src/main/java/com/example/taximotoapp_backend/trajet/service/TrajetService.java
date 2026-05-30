@@ -5,8 +5,9 @@ import com.example.taximotoapp_backend.User.model.Client;
 import com.example.taximotoapp_backend.User.model.User;
 import com.example.taximotoapp_backend.User.repository.ChauffeurRepository;
 import com.example.taximotoapp_backend.User.repository.UserRepository;
-import com.example.taximotoapp_backend.model.enumClass.Availability;
-import com.example.taximotoapp_backend.model.enumClass.TripStatus;
+import com.example.taximotoapp_backend.model.enumClass.*;
+import com.example.taximotoapp_backend.paiement.Tarif.model.TarifConfig;
+import com.example.taximotoapp_backend.paiement.Tarif.repository.TarifConfigRepository;
 import com.example.taximotoapp_backend.trajet.dto.request.TrajetRequest;
 import com.example.taximotoapp_backend.trajet.dto.response.ChauffeurStatResponse;
 import com.example.taximotoapp_backend.trajet.mapper.TrajetMapper;
@@ -21,8 +22,6 @@ import com.example.taximotoapp_backend.paiement.service.WalletService;
 import com.example.taximotoapp_backend.paiement.model.Wallet;
 import com.example.taximotoapp_backend.paiement.model.Paiement;
 import com.example.taximotoapp_backend.paiement.repository.PaiementRepository;
-import com.example.taximotoapp_backend.model.enumClass.PaiementStatus;
-import com.example.taximotoapp_backend.model.enumClass.PaiementType;
 import com.example.taximotoapp_backend.websocket.service.TimeoutService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +31,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,6 +49,7 @@ public class TrajetService {
     private final WalletService walletService;
     private final PaiementService paiementService;
     private final PaiementRepository paiementRepository;
+    private final TarifConfigRepository tarifConfigRepository;
 
     public TrajetResponse createTrajet(TrajetRequest trajetRequest){
         // recuperer user a travers le jwt
@@ -248,8 +249,18 @@ public class TrajetService {
 
     private Double calculatePrice(Double distanceKm) {
         final double BASE_FARE = 0.7;
-        final double PER_KM_RATE = 0.8;
-        return BASE_FARE + (distanceKm * PER_KM_RATE);
+        TarifPeriode periode = getCurrentPeriode();
+        double prixParKm = tarifConfigRepository.findByPeriode(periode)
+                .orElseThrow(() -> new RuntimeException("Tarif non configuré"))
+                .getPrixParKm();
+
+        return BASE_FARE + (distanceKm * prixParKm);
+    }
+    private TarifPeriode getCurrentPeriode() {
+        int hour = LocalTime.now().getHour();
+        return (hour >= 6 && hour < 21)
+                ? TarifPeriode.JOUR
+                : TarifPeriode.NUIT;
     }
 
     public void sendTrajetToDrivers(Trajet trajet, List<Chauffeur> drivers) {

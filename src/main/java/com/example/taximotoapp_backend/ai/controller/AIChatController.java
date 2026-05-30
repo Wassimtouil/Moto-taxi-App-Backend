@@ -28,7 +28,6 @@ public class AIChatController {
 
     @PostMapping("/chat")
     public ChatResponse chat(@RequestBody ChatRequest request) {
-        System.out.println("aaaaa");
         return service.handle(request.getMessage());
     }
 
