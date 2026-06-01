@@ -15,6 +15,7 @@ public class AuthResponse {
     private String role;
     private String gender;
     private String photoUrl;
+    private String phoneNumber;
 
     @JsonProperty("isVerified")
     private Boolean isVerified;

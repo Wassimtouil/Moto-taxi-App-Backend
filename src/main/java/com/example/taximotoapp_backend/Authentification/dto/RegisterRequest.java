@@ -15,5 +15,6 @@ public class RegisterRequest {
     private String photoBase64;          // facultatif - photo de profil
     private String vehicleModel;         // facultatif - pour chauffeurs
     private String vehiclePlate;         // facultatif - pour chauffeurs
+    private String phoneNumber;          // facultatif
     private int age;
 }

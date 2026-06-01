@@ -27,6 +27,9 @@ public abstract class User implements UserDetails {
     private String firebaseUid; // UID Firebase
     @Column(name = "full_name")
     private String fullName;
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
     @Enumerated(EnumType.STRING)
     private Role role; // CLIENT, CHAUFFEUR
 
@@ -101,6 +104,15 @@ public abstract class User implements UserDetails {
     public String getFullName() {
         return fullName;
     }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
     public Role getRole() {
         return role;
     }

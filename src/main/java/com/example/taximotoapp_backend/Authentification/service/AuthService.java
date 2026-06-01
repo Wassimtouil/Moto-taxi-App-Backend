@@ -35,7 +35,35 @@ public class AuthService {
 
     //login service
     public AuthResponse login(LoginRequest request) {
-        String identifier = request.getEmail() != null ? request.getEmail() : request.getFirebaseUid();
+        // Firebase UID login (no password check needed)
+        if (request.getFirebaseUid() != null && request.getEmail() == null) {
+            var userOpt = userRepository.findByFirebaseUid(request.getFirebaseUid());
+            if (userOpt.isEmpty()) {
+                throw new RuntimeException("Aucun compte associé à cet identifiant Firebase. Veuillez d'abord vous inscrire.");
+            }
+            User user = userOpt.get();
+            user.setActivityStatus(ActivityStatus.ONLINE);
+            if (user instanceof Chauffeur) ((Chauffeur) user).setAvailability(Availability.TRUE);
+            userRepository.save(user);
+
+            String token = jwtService.generateToken(user);
+            String refreshToken = jwtService.generateRefreshToken(user);
+
+            return new AuthResponse(
+                    token,
+                    refreshToken,
+                    user.getId(),
+                    user.getFullName(),
+                    user.getEmail(),
+                    user.getRole().name(),
+                    user.getGender() != null ? user.getGender().name() : null,
+                    user.getPhotoBase64(),
+                    user.getPhoneNumber(),
+                    user.getIsVerified() != null ? user.getIsVerified() : false
+            );
+        }
+
+        String identifier = request.getEmail();
 
         // 1. Authentifier
         try {
@@ -61,17 +89,7 @@ public class AuthService {
             if (user instanceof Chauffeur) ((Chauffeur) user).setAvailability(Availability.TRUE);
             userRepository.save(user);
 
-            return new AuthResponse(
-                    token,
-                    refreshToken,
-                    user.getId(),
-                    user.getFullName(),
-                    user.getEmail(),
-                    user.getRole().name(),
-                    user.getGender() != null ? user.getGender().name() : null,
-                    user.getPhotoBase64(),
-                    user.getIsVerified() != null ? user.getIsVerified() : false
-            );
+            return buildAuthResponse(user, token, refreshToken);
         }
 
         var adminOpt = adminRepository.findByEmail(identifier);
@@ -86,11 +104,27 @@ public class AuthService {
                     "ROLE_ADMIN",
                     admin.getGender() != null ? admin.getGender().name() : null,
                     admin.getPhotoBase64(),
+                    null,
                     true
             );
         }
 
         throw new RuntimeException("Erreur post-authentification");
+    }
+
+    private AuthResponse buildAuthResponse(User user, String token, String refreshToken) {
+        return new AuthResponse(
+                token,
+                refreshToken,
+                user.getId(),
+                user.getFullName(),
+                user.getEmail(),
+                user.getRole().name(),
+                user.getGender() != null ? user.getGender().name() : null,
+                user.getPhotoBase64(),
+                user.getPhoneNumber(),
+                user.getIsVerified() != null ? user.getIsVerified() : false
+        );
     }
 
     public AuthResponse register(RegisterRequest request){
@@ -132,6 +166,7 @@ public class AuthService {
         }
         user.setFirebaseUid(request.getFirebaseUid());
         user.setAge(request.getAge());
+        user.setPhoneNumber(request.getPhoneNumber());
         user.setPhotoBase64(request.getPhotoBase64());
         userRepository.save(user);
 
@@ -159,6 +194,7 @@ public class AuthService {
                 user.getRole().name(),
                 user.getGender() != null ? user.getGender().name() : null,
                 photoUrl,
+                user.getPhoneNumber(),
                 user.getIsVerified() != null ? user.getIsVerified() : false
         );
     }
@@ -185,6 +221,7 @@ public class AuthService {
                     user.getRole().name(),
                     user.getGender() != null ? user.getGender().name() : null,
                     user.getPhotoBase64(),
+                    user.getPhoneNumber(),
                     user.getIsVerified() != null ? user.getIsVerified() : false
             );
         }
@@ -201,6 +238,7 @@ public class AuthService {
                     "ROLE_ADMIN",
                     admin.getGender() != null ? admin.getGender().name() : null,
                     admin.getPhotoBase64(),
+                    null,
                     true
             );
         }
@@ -221,6 +259,7 @@ public class AuthService {
                     user.getRole().name(),
                     user.getGender() != null ? user.getGender().name() : null,
                     user.getPhotoBase64(),
+                    user.getPhoneNumber(),
                     user.getIsVerified() != null ? user.getIsVerified() : false
             );
         }
@@ -237,6 +276,7 @@ public class AuthService {
                     "ROLE_ADMIN",
                     admin.getGender() != null ? admin.getGender().name() : null,
                     admin.getPhotoBase64(),
+                    null,
                     true
             );
         }
