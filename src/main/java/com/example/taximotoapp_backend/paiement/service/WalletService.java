@@ -7,13 +7,13 @@ import com.example.taximotoapp_backend.paiement.dto.request.WithdrawRequest;
 import com.example.taximotoapp_backend.paiement.dto.response.ApiResponse;
 import com.example.taximotoapp_backend.Historique.dto.response.TransactionResponse;
 import com.example.taximotoapp_backend.paiement.dto.response.WalletResponse;
-import com.example.taximotoapp_backend.paiement.model.PaymentCard;
+import com.example.taximotoapp_backend.paiement.model.Card;
 import com.example.taximotoapp_backend.paiement.model.TransactionCard;
 import com.example.taximotoapp_backend.paiement.model.TransactionPaiement;
 import com.example.taximotoapp_backend.paiement.model.Wallet;
 import com.example.taximotoapp_backend.model.enumClass.TransactionStatus;
 import com.example.taximotoapp_backend.model.enumClass.TransactionType;
-import com.example.taximotoapp_backend.paiement.repository.PaymentCardRepository;
+import com.example.taximotoapp_backend.paiement.repository.CardRepository;
 import com.example.taximotoapp_backend.paiement.repository.TransactionCardRepository;
 import com.example.taximotoapp_backend.paiement.repository.TransactionPaiementRepository;
 import com.example.taximotoapp_backend.paiement.repository.WalletRepository;
@@ -32,7 +32,7 @@ public class WalletService {
     private final TransactionCardRepository transactionCardRepository;
     private final TransactionPaiementRepository transactionPaiementRepository;
     private final UserRepository userRepository;
-    private final PaymentCardRepository cardRepository;
+    private final CardRepository cardRepository;
 
     public WalletResponse getWalletByUserId(Long userId) {
         Wallet wallet = getOrCreateWallet(userId);
@@ -50,7 +50,7 @@ public class WalletService {
             throw new IllegalArgumentException("Amount must be greater than 0");
         }
 
-        PaymentCard card = cardRepository.findById(request.getCardId())
+        Card card = cardRepository.findById(request.getCardId())
                 .orElseThrow(() -> new RuntimeException("Card not found"));
 
         if (!card.getUser().getId().equals(userId)) {
@@ -77,7 +77,7 @@ public class WalletService {
             throw new RuntimeException("Insufficient balance");
         }
 
-        PaymentCard card = cardRepository.findById(request.getCardId())
+        Card card = cardRepository.findById(request.getCardId())
                 .orElseThrow(() -> new RuntimeException("Card not found"));
 
         if (!card.getUser().getId().equals(userId)) {

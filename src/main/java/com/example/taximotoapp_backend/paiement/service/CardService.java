@@ -5,8 +5,8 @@ import com.example.taximotoapp_backend.User.repository.UserRepository;
 import com.example.taximotoapp_backend.paiement.dto.request.AddCardRequest;
 import com.example.taximotoapp_backend.paiement.dto.response.ApiResponse;
 import com.example.taximotoapp_backend.paiement.dto.response.CardResponse;
-import com.example.taximotoapp_backend.paiement.model.PaymentCard;
-import com.example.taximotoapp_backend.paiement.repository.PaymentCardRepository;
+import com.example.taximotoapp_backend.paiement.model.Card;
+import com.example.taximotoapp_backend.paiement.repository.CardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CardService {
-    private final PaymentCardRepository cardRepository;
+    private final CardRepository cardRepository;
     private final UserRepository userRepository;
 
     public List<CardResponse> getUserCards(Long userId) {
@@ -46,7 +46,7 @@ public class CardService {
             brand = determineBrand(cleanNumber);
         }
 
-        PaymentCard card = new PaymentCard();
+        Card card = new Card();
         card.setCardHolderName(request.getCardHolderName());
         card.setLast4Digits(last4);
         card.setBrand(brand);
@@ -54,7 +54,7 @@ public class CardService {
         card.setExpiryYear(request.getExpiryYear());
         card.setUser(user);
 
-        List<PaymentCard> existingCards = cardRepository.findByUser(user);
+        List<Card> existingCards = cardRepository.findByUser(user);
         if (existingCards.isEmpty() || (request.getIsDefault() != null && request.getIsDefault())) {
             if (request.getIsDefault() != null && request.getIsDefault()) {
                 existingCards.forEach(c -> {
@@ -73,7 +73,7 @@ public class CardService {
 
     @Transactional
     public ApiResponse deleteCard(Long userId, Long cardId) {
-        PaymentCard card = cardRepository.findById(cardId)
+        Card card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new RuntimeException("Card not found"));
         if (!card.getUser().getId().equals(userId)) {
             throw new RuntimeException("Unauthorized to delete this card");
@@ -86,9 +86,9 @@ public class CardService {
     public ApiResponse setDefaultCard(Long userId, Long cardId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        List<PaymentCard> cards = cardRepository.findByUser(user);
+        List<Card> cards = cardRepository.findByUser(user);
         boolean found = false;
-        for (PaymentCard c : cards) {
+        for (Card c : cards) {
             if (c.getId().equals(cardId)) {
                 c.setIsDefault(true);
                 found = true;
@@ -136,7 +136,7 @@ public class CardService {
         return "Unknown";
     }
 
-    private CardResponse mapToResponse(PaymentCard card) {
+    private CardResponse mapToResponse(Card card) {
         return new CardResponse(
                 card.getId(),
                 card.getCardHolderName(),
