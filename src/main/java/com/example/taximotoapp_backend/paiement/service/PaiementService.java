@@ -10,9 +10,11 @@ import com.example.taximotoapp_backend.paiement.dto.request.PaiementRequest;
 import com.example.taximotoapp_backend.paiement.dto.response.PaiementResponse;
 import com.example.taximotoapp_backend.paiement.mapper.PaiementMapper;
 import com.example.taximotoapp_backend.paiement.model.Paiement;
-import com.example.taximotoapp_backend.paiement.model.Transaction;
+import com.example.taximotoapp_backend.paiement.model.TransactionCard;
+import com.example.taximotoapp_backend.paiement.model.TransactionPaiement;
 import com.example.taximotoapp_backend.paiement.repository.PaiementRepository;
-import com.example.taximotoapp_backend.paiement.repository.TransactionRepository;
+import com.example.taximotoapp_backend.paiement.repository.TransactionCardRepository;
+import com.example.taximotoapp_backend.paiement.repository.TransactionPaiementRepository;
 import com.example.taximotoapp_backend.trajet.model.Trajet;
 import com.example.taximotoapp_backend.trajet.repository.TrajetRepository;
 import jakarta.transaction.Transactional;
@@ -23,8 +25,6 @@ import com.example.taximotoapp_backend.User.model.Chauffeur;
 import com.example.taximotoapp_backend.User.model.Client;
 import com.example.taximotoapp_backend.paiement.dto.response.ApiResponse;
 import com.example.taximotoapp_backend.paiement.model.Wallet;
-import com.example.taximotoapp_backend.model.enumClass.TransactionStatus;
-import com.example.taximotoapp_backend.model.enumClass.TransactionType;
 import com.example.taximotoapp_backend.paiement.repository.WalletRepository;
 
 import java.util.List;
@@ -35,7 +35,8 @@ import java.util.stream.Collectors;
 public class PaiementService {
     private final PaiementRepository paiementRepository;
     private final TrajetRepository trajetRepository;
-    private final TransactionRepository transactionRepository;
+    private final TransactionCardRepository transactionCardRepository;
+    private final TransactionPaiementRepository transactionPaiementRepository;
     private final PaiementMapper mapper;
     private final WalletService walletService;
     private final WalletRepository walletRepository;
@@ -64,7 +65,7 @@ public class PaiementService {
                 walletRepository.save(clientWallet);
                 String destination = trajet.getTrajetLocation() != null ? trajet.getTrajetLocation().getDestinationAddress() : "";
                 String payDesc = "Paiement course → " + (destination != null && !destination.isEmpty() ? destination : "Trajet #" + tripId);
-                walletService.createTransaction(clientWallet, price, TransactionType.PAYMENT, TransactionStatus.COMPLETED, payDesc);
+                walletService.createPaiementTransaction(clientWallet, price, "PAYMENT", "COMPLETED", payDesc, paiement);
 
                 // Add to driver
                 if (driver != null) {
@@ -73,16 +74,18 @@ public class PaiementService {
                     walletRepository.save(driverWallet);
                     String dest = trajet.getTrajetLocation() != null ? trajet.getTrajetLocation().getDestinationAddress() : "";
                     String earnDesc = "Gain course → " + (dest != null && !dest.isEmpty() ? dest : "Trajet #" + tripId);
-                    walletService.createTransaction(driverWallet, price, TransactionType.DEPOSIT, TransactionStatus.COMPLETED, earnDesc);
+                    walletService.createPaiementTransaction(driverWallet, price, "EARNING", "COMPLETED", earnDesc, paiement);
                 }
             } else if (paiement.getType() == PaiementType.CASH) {
-                // For cash payments, just update the driver's cash tracking balance
+                // For cash payments, update the driver's cash tracking balance and record a TransactionPaiement
                 if (driver != null) {
                     Wallet driverWallet = walletService.getOrCreateWallet(driver.getId());
                     Double currentCash = driverWallet.getCashBalance() != null ? driverWallet.getCashBalance() : 0.0;
                     driverWallet.setCashBalance(currentCash + price);
                     walletRepository.save(driverWallet);
-                    // We DO NOT record a Transaction here for CASH. It is dynamically synthesized in HistoriqueService.
+                    String dest = trajet.getTrajetLocation() != null ? trajet.getTrajetLocation().getDestinationAddress() : "";
+                    String earnDesc = "Gain espèces → " + (dest != null && !dest.isEmpty() ? dest : "Trajet #" + tripId);
+                    walletService.createPaiementTransaction(driverWallet, price, "EARNING", "COMPLETED", earnDesc, paiement);
                 }
             }
 
@@ -111,10 +114,11 @@ public class PaiementService {
 
     public AdminPaiementStatsDto getPaiementStats(){
         List<Paiement> paiements = paiementRepository.findAll();
-        List<Transaction> transactions = transactionRepository.findAll();
+        List<TransactionCard> cardTxs = transactionCardRepository.findAll();
+        List<TransactionPaiement> paiementTxs = transactionPaiementRepository.findAll();
 
         long totalPaiements = paiements.size();
-        long totalTransactions = transactions.size();
+        long totalTransactions = cardTxs.size() + paiementTxs.size();
 
         // Exact driver revenue based on completed payments (PAYE)
         Double totalDriverRevenue = paiements.stream()
@@ -147,7 +151,7 @@ public class PaiementService {
         return dtos;
     }
     public List<AdminTransactionDto> getAllTransactions(){
-        List<AdminTransactionDto> dtos = transactionRepository.findAll().stream().map(t -> {
+        List<AdminTransactionDto> cardDtos = transactionCardRepository.findAll().stream().map(t -> {
             String userName = "Unknown";
             String userRole = "Unknown";
             String userPhotoBase64 = null;
@@ -171,7 +175,36 @@ public class PaiementService {
                     userRole,
                     userPhotoBase64
             );}).collect(Collectors.toList());
-        return dtos;
+
+        List<AdminTransactionDto> paiementDtos = transactionPaiementRepository.findAll().stream().map(t -> {
+            String userName = "Unknown";
+            String userRole = "Unknown";
+            String userPhotoBase64 = null;
+            Long userId = null;
+            if (t.getWallet() != null && t.getWallet().getUser() != null) {
+                userName = t.getWallet().getUser().getFullName();
+                userRole = t.getWallet().getUser().getRole() != null ? t.getWallet().getUser().getRole().name() : "Unknown";
+                userId = t.getWallet().getUser().getId();
+                userPhotoBase64 = t.getWallet().getUser().getPhotoBase64();
+            }
+            return new AdminTransactionDto(
+                    t.getId(),
+                    t.getAmount(),
+                    t.getType(),
+                    t.getStatus(),
+                    t.getDescription(),
+                    t.getTimestamp(),
+                    t.getWallet() != null ? t.getWallet().getId() : null,
+                    userId,
+                    userName,
+                    userRole,
+                    userPhotoBase64
+            );}).collect(Collectors.toList());
+
+        List<AdminTransactionDto> allDtos = new java.util.ArrayList<>();
+        allDtos.addAll(cardDtos);
+        allDtos.addAll(paiementDtos);
+        return allDtos;
     }
     public List<AdminWalletDto> getAllWallets() {
         List<AdminWalletDto> dtos = walletRepository.findAll().stream().map(w -> {

@@ -27,7 +27,7 @@ public class Wallet {
     private User user;
 
     @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Transaction> transactions;
+    private List<TransactionCard> transactionCards;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

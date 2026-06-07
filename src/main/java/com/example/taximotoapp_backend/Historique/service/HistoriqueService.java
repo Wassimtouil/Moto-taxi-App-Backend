@@ -18,8 +18,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import com.example.taximotoapp_backend.Historique.dto.response.TransactionResponse;
+import com.example.taximotoapp_backend.paiement.model.TransactionCard;
+import com.example.taximotoapp_backend.paiement.model.TransactionPaiement;
 import com.example.taximotoapp_backend.paiement.model.Wallet;
-import com.example.taximotoapp_backend.paiement.repository.TransactionRepository;
+import com.example.taximotoapp_backend.paiement.repository.TransactionCardRepository;
+import com.example.taximotoapp_backend.paiement.repository.TransactionPaiementRepository;
 import com.example.taximotoapp_backend.paiement.repository.WalletRepository;
 
 import com.example.taximotoapp_backend.trajet.dto.response.TrajetResponse;
@@ -32,7 +35,8 @@ public class HistoriqueService {
     private final ClientRepository clientRepository;
     private final ChauffeurRepository chauffeurRepository;
     private final UserRepository userRepository;
-    private final TransactionRepository transactionRepository;
+    private final TransactionCardRepository transactionCardRepository;
+    private final TransactionPaiementRepository transactionPaiementRepository;
     private final WalletRepository walletRepository;
     private final HistoriqueMapper mapper;
     private final TrajetMapper trajetMapper;
@@ -85,8 +89,11 @@ public class HistoriqueService {
         java.util.Optional<Wallet> walletOpt = walletRepository.findByUser(user);
 
         List<TransactionResponse> walletTx;
+        List<TransactionResponse> paiementTx;
         if (walletOpt.isPresent()) {
-            walletTx = transactionRepository.findByWalletIdOrderByTimestampDesc(walletOpt.get().getId())
+            Wallet wallet = walletOpt.get();
+            // Card transactions (deposit/withdraw)
+            walletTx = transactionCardRepository.findByWalletIdOrderByTimestampDesc(wallet.getId())
                     .stream()
                     .map(tx -> new TransactionResponse(
                             tx.getId(),
@@ -97,8 +104,21 @@ public class HistoriqueService {
                             tx.getTimestamp()
                     ))
                     .toList();
+            // Online payment transactions
+            paiementTx = transactionPaiementRepository.findByWalletIdOrderByTimestampDesc(wallet.getId())
+                    .stream()
+                    .map(tx -> new TransactionResponse(
+                            tx.getId(),
+                            tx.getAmount(),
+                            tx.getType(),
+                            tx.getStatus(),
+                            tx.getDescription(),
+                            tx.getTimestamp()
+                    ))
+                    .toList();
         } else {
             walletTx = java.util.Collections.emptyList();
+            paiementTx = java.util.Collections.emptyList();
         }
 
 
@@ -114,20 +134,24 @@ public class HistoriqueService {
         }
 
         final boolean finalIsClient = isClient;
-        List<TransactionResponse> cashTx = userTrajets.stream()
+        // Cash synthesis only for CLIENT (driver cash earnings are recorded as TransactionPaiement)
+        List<TransactionResponse> cashTx = finalIsClient
+                ? userTrajets.stream()
                 .filter(t -> t.getPaiement() != null && t.getPaiement().getType() == com.example.taximotoapp_backend.model.enumClass.PaiementType.CASH)
                 .map(t -> new TransactionResponse(
                         t.getPaiement().getId(),
                         t.getPaiement().getMontant(),
                         finalIsClient ? "PAYMENT" : "EARNING",
                         t.getPaiement().getStatus().name(),
-                        (finalIsClient ? "Paiement" : "Gain") + " en espÃ¨ces (Trajet #" + t.getId() + ")",
+                        (finalIsClient ? "Paiement" : "Gain") + " en espèces (Trajet #" + t.getId() + ")",
                         t.getPaiement().getDatePaiement() != null ? t.getPaiement().getDatePaiement() : t.getRequestedAt()
                 ))
-                .toList();
+                .toList()
+                : java.util.Collections.emptyList();
 
         List<TransactionResponse> allTx = new java.util.ArrayList<>();
         allTx.addAll(walletTx);
+        allTx.addAll(paiementTx);
         allTx.addAll(cashTx);
         allTx.sort((t1, t2) -> t2.getTimestamp().compareTo(t1.getTimestamp()));
         return allTx;
