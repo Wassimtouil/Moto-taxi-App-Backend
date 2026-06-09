@@ -29,7 +29,6 @@ import com.example.taximotoapp_backend.paiement.repository.WalletRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class PaiementService {
@@ -173,7 +172,8 @@ public class PaiementService {
                     userId,
                     userName,
                     userRole,
-                    userPhotoBase64
+                    userPhotoBase64,
+                    "CARD"
             );}).collect(Collectors.toList());
 
         List<AdminTransactionDto> paiementDtos = transactionPaiementRepository.findAll().stream().map(t -> {
@@ -198,7 +198,8 @@ public class PaiementService {
                     userId,
                     userName,
                     userRole,
-                    userPhotoBase64
+                    userPhotoBase64,
+                    "PAIEMENT"
             );}).collect(Collectors.toList());
 
         List<AdminTransactionDto> allDtos = new java.util.ArrayList<>();

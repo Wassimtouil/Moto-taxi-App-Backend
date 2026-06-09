@@ -61,37 +61,18 @@ public class TarifConfigService {
         if (prixParKm == null || prixParKm <= 0) {
             throw new RuntimeException("Le prix par km doit être un nombre positif");
         }
-
         String adminEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-
         TarifConfig config = tarifConfigRepository.findByPeriode(periode)
                 .orElseThrow(() -> new RuntimeException("Tarif " + periode + " introuvable"));
-
         config.setPrixParKm(prixParKm);
         config.setUpdatedBy(adminEmail);
         tarifConfigRepository.save(config);
-
         return new TarifConfigResponse(
                 config.getPeriode(),
                 config.getPrixParKm(),
                 config.getUpdatedAt(),
                 config.getUpdatedBy()
         );
-    }
-
-    // --- Calculer le prix d'un trajet selon la période courante ---
-    public Double calculatePrice(Double distanceKm) {
-        TarifPeriode periode = getPeriodeCourante();
-        TarifConfig config = tarifConfigRepository.findByPeriode(periode)
-                .orElseThrow(() -> new RuntimeException("Tarif " + periode + " non configuré"));
-        return config.getPrixParKm() * distanceKm;
-    }
-
-    // --- Déterminer la période (JOUR ou NUIT) selon l'heure actuelle ---
-    public TarifPeriode getPeriodeCourante() {
-        int heure = LocalTime.now().getHour();
-        // JOUR : 06h00 → 20h59 | NUIT : 21h00 → 05h59
-        return (heure >= 6 && heure < 21) ? TarifPeriode.JOUR : TarifPeriode.NUIT;
     }
 }
 
