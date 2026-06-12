@@ -28,7 +28,6 @@ import java.util.Map;
 @RequestMapping("/api/trajets")
 public class TrajetController {
     private final TrajetService trajetService;
-
     @PostMapping("/createTrajet")
     @PreAuthorize("hasRole('CLIENT')")
     public ResponseEntity<?> createTrajet(@RequestBody TrajetRequest trajetRequest) {

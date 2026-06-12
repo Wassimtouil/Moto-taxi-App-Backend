@@ -32,8 +32,6 @@ import com.example.taximotoapp_backend.trajet.mapper.TrajetMapper;
 @RequiredArgsConstructor
 public class HistoriqueService {
     private final TrajetRepository trajetRepository;
-    private final ClientRepository clientRepository;
-    private final ChauffeurRepository chauffeurRepository;
     private final UserRepository userRepository;
     private final TransactionCardRepository transactionCardRepository;
     private final TransactionPaiementRepository transactionPaiementRepository;

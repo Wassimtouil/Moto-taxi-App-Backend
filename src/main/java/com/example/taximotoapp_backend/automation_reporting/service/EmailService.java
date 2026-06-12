@@ -59,7 +59,6 @@ public class EmailService {
                 - Driver performance
                 - Payments breakdown
                 - Client activity
-                - Reclamation AI analysis
 
                 Regards,
                 MotoTaxi Automation System

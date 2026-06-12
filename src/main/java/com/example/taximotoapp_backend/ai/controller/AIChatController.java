@@ -21,9 +21,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/ia")
 @RequiredArgsConstructor
 public class AIChatController {
-
     private final AIOrchestratorService service;
-    private final AICachedQueryRepository cachedQueryRepository;
     private final CachedQueryService cachedQueryService;
 
     @PostMapping("/chat")

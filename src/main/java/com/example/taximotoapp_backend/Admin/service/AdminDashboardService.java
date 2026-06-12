@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 public class AdminDashboardService {
     private final UserRepository userRepository;
     private final TrajetRepository trajetRepository;
-    private final PaiementRepository paiementRepository;
     private final TrajetMapper trajetMapper;
 
     public AdminDashboardSummaryDto getDashboardSummary() {

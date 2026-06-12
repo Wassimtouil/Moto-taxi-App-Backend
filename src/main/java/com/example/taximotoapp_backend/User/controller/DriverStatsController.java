@@ -32,7 +32,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class DriverStatsController {
     private final TrajetRepository trajetRepository;
-    private final UserRepository userRepository;
     private final ChauffeurRepository chauffeurRepository;
 
     @GetMapping("/stats")

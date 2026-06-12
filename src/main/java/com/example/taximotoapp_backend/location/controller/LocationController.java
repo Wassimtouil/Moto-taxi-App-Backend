@@ -7,8 +7,10 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -68,8 +70,8 @@ public class LocationController {
         }
     }
 
-    @org.springframework.messaging.handler.annotation.MessageExceptionHandler
-    @org.springframework.messaging.simp.annotation.SendToUser("/queue/errors")
+    @MessageExceptionHandler
+    @SendToUser("/queue/errors")
     public Map<String, String> handleException(RuntimeException e) {
         if ("User not found".equals(e.getMessage())) {
             return Map.of("error", "User not found", "action", "logout");

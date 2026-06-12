@@ -39,11 +39,6 @@ public class WalletService {
         return mapToResponse(wallet);
     }
 
-    public Double getBalance(Long userId) {
-        Wallet wallet = getOrCreateWallet(userId);
-        return wallet.getBalance();
-    }
-
     @Transactional
     public ApiResponse deposit(Long userId, DepositRequest request) {
         if (request.getAmount() <= 0) {

@@ -1,5 +1,6 @@
 package com.example.taximotoapp_backend.Admin.controller;
 
+import com.example.taximotoapp_backend.Admin.dto.UpdateDtoUserAdmin;
 import com.example.taximotoapp_backend.User.dto.RegistrationStatDTO;
 import com.example.taximotoapp_backend.User.dto.UserDTO;
 import com.example.taximotoapp_backend.User.dto.UserDTOAdmin;
@@ -19,7 +20,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminUserController {
     private final PasswordEncoder passwordEncoder;
-
     private final UserService userService;
 
     // 1. Liste des utilisateurs avec pagination
@@ -34,7 +34,7 @@ public class AdminUserController {
     @PutMapping("/{id}")
     public UserDTO updateUser(
             @PathVariable Long id,
-            @RequestBody com.example.taximotoapp_backend.Admin.dto.UpdateDtoUserAdmin dto
+            @RequestBody UpdateDtoUserAdmin dto
     ) {
         String encodedPassword = null;
         if (dto.getPassword() != null && !dto.getPassword().trim().isEmpty()) {

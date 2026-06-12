@@ -34,8 +34,6 @@ public class AIOrchestratorService {
             String response = formatter.format(normalized, data);
             return new ChatResponse(response, cachedSql, data, true);
         }
-
-        System.out.println("avec ia iciiiiiiiiiiiiiiii");
         // 3. Generate SQL via AI (no cache hit)
         String rawSQL = grokSQLService.generateSQL(normalized);
 
