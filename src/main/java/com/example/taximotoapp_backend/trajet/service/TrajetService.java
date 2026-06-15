@@ -199,7 +199,8 @@ public class TrajetService {
 
         return trajetMapper.toDTO(saved);
     }
-
+    // Calcule les informations prévisionnelles d'un trajet (distance, durée, prix et itinéraire)
+    //pour afficher dans la carte
     public TrajetPreviewResponse previewTrajet(TrajetPreviewRequest request) {
         // --- Road Data from Mapbox ---
         MapboxService.RouteDetails roadmap = mapboxService.getRouteDetails(
@@ -476,7 +477,6 @@ public class TrajetService {
         Trajet saved = trajetRepository.save(trajet);
 
         String destination = "/topic/client/" + trajet.getClient().getId();
-        System.out.println("ðŸ“¡ Sending ARRIVED notification to: " + destination);
         messagingTemplate.convertAndSend(
                 destination,
                 Map.of("status", "ARRIVED", "trajetId", trajetId, "message", "Your driver is here")
@@ -485,24 +485,6 @@ public class TrajetService {
                 Map.of("status", "ARRIVED", "trajetId", trajetId));
 
         return trajetMapper.toDTO(saved);
-    }
-
-    public List<TrajetResponse> getClientHistory() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User client = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Client not found"));
-        return trajetRepository.findByClientIdOrderByRequestedAtDesc(client.getId())
-                .stream()
-                .map(trajetMapper::toDTO)
-                .toList();
-    }
-
-    public List<TrajetResponse> getDriverHistory() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User driver = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Driver not found"));
-        return trajetRepository.findByChauffeurIdOrderByRequestedAtDesc(driver.getId())
-                .stream()
-                .map(trajetMapper::toDTO)
-                .toList();
     }
 
     @Transactional

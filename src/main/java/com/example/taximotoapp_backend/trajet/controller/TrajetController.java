@@ -153,14 +153,12 @@ public class TrajetController {
         Long trajetId = Long.valueOf(payload.get("trajetId").toString());
         String email = (String) headerAccessor.getSessionAttributes().get("username");
         if (email != null) {
-            System.out.println("📍 Driver Arrival FAST PING for trajet: " + trajetId + " by " + email);
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(email, null, Collections.emptyList());
             SecurityContextHolder.getContext().setAuthentication(auth);
             try {
                 trajetService.driverArrivedAtPickup(trajetId);
             } catch (RuntimeException e) {
                 if ("User not found".equals(e.getMessage())) throw e;
-                System.err.println("❌ Error processing fast ping arrived: " + e.getMessage());
             } finally {
                 SecurityContextHolder.clearContext();
             }
