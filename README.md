@@ -227,11 +227,11 @@ Ajoutez ici quelques captures d'écran :
 
 ---
 
-# 👨‍💻 Auteur
+# 👨‍💻 Auteurs
 
-**Wassim Ben Abdallah**
-
-Étudiant en Licence Informatique – Développement des Systèmes d'Information.
+**Wassim Touil**
+**Salman Otay**
+Étudiants en Licence Informatique – Développement des Systèmes d'Information.
 
 ---
 
