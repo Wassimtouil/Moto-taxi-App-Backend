@@ -227,14 +227,6 @@ Ajoutez ici quelques captures d'écran :
 
 ---
 
-# 👨‍💻 Auteurs
-
-**Wassim Touil**
-**Salman Otay**
-Étudiants en Licence Informatique – Développement des Systèmes d'Information.
-
----
-
 # 📄 Licence
 
 Projet académique réalisé dans le cadre d'un Projet de Fin d'Études.
