@@ -41,17 +41,35 @@ Moto-Taxi Backend is a **Spring Boot REST API** that powers a smart motorcycle t
 ## 🏗️ Project Structure
 
 ```
+```
 src
-├── config
-├── controller
-├── dto
-├── exception
-├── model
-├── repository
-├── security
-├── service
-├── util
-└── websocket
+└── main
+    └── java
+        └── com.example.taximotoapp_backend
+            ├── authentication/
+            │   ├── controller/
+            │   ├── service/
+            │   ├── repository/
+            │   ├── model/
+            │   └── dto/
+            │
+            ├── trajet/
+            │   ├── controller/
+            │   ├── service/
+            │   ├── repository/
+            │   ├── model/
+            │   └── dto/
+                └── mapper/
+            ├── nlpVocale/
+            ├── paiement/
+            ├── Admin/
+            ├── ai/
+            ├── websocket/
+            ├── config/
+            ├── security/
+            └── util/
+```
+
 ```
 
 ---
