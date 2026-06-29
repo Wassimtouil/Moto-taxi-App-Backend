@@ -48,7 +48,6 @@ public interface TrajetRepository extends JpaRepository<Trajet,Long> {
             @Param("chauffeurId") Long chauffeurId
     );
 
-    List<Trajet> findByChauffeurIdAndStatus(Long chauffeurId, TripStatus status);
 
     List<Trajet> findByClientIdOrderByRequestedAtDesc(Long clientId);
     List<Trajet> findByChauffeurIdOrderByRequestedAtDesc(Long chauffeurId);

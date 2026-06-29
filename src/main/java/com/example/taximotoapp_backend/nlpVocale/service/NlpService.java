@@ -15,25 +15,19 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 public class NlpService {
-
     private final PythonNlpClient pythonNlpClient;
     private final TrajetService trajetService;
     private final NlpToTrajetMapper mapper;
-
     public TrajetResponse processAndCreateTrajet(NlpRequestDTO request) {
-
         // 1. Python NLP
         NlpResponseDTO nlp =
                 pythonNlpClient.callPython(request.getFile());
-
         // 2. Mapping
         TrajetRequest trajetRequest =
                 mapper.map(request, nlp);
-
         // 3. Business logic
         return trajetService.createTrajet(trajetRequest);
     }
-
     public NlpResponseDTO transcribe(MultipartFile file) {
         return pythonNlpClient.callPython(file);
     }
